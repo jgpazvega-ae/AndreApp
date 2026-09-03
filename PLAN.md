@@ -1,194 +1,276 @@
-# Plan de construcción — AndreApp
+# Plan Maestro — AndreApp
 
-> App educativa de juegos para niños de **2 a 5 años**, inspirada en *Juegos para niños & niñas 2-5* de Bimi Boo.
-> Este documento es el plan de producto y técnico. **Todavía no incluye código de la app** — es la base para decidir y arrancar.
+> **App web (PWA) educativa e interactiva para niños de 0 a 5 años**, instalable en celulares y tabletas (iOS-first, no exclusiva). Inspirada en *Bimi Boo — Juegos para niños & niñas 2-5*, con la meta explícita de **superarla**: más currículo, mejor pedagogía, y diversión real.
+>
+> Este documento es el plan de producto + técnico + de negocio. La base pedagógica vive en [`docs/CURRICULUM.md`](docs/CURRICULUM.md) y es la fuente de verdad de qué se enseña y en qué orden.
 
----
-
-## 1. Visión del producto
-
-Una app **offline, sin anuncios y sin texto que el niño tenga que leer**, con mini-juegos cortos que enseñan conceptos básicos (números, colores, formas, animales, letras) mediante toque, arrastre y trazado, con **instrucciones y refuerzo por voz en español**.
-
-El objetivo no es solo copiar la app de referencia, sino tomar lo que hace bien y corregir su punto débil (paywall muy temprano):
-
-**Qué imitamos de la referencia**
-- Trazado guiado de números con el dedo + retroalimentación por voz.
-- Un personaje/animalito que acompaña y refuerza cada concepto.
-- Progresión simple y cero fricción (nada de menús ni texto).
-- Sin anuncios intrusivos.
-
-**Qué mejoramos**
-- Nada de paywall temprano: MVP 100% jugable (es una app personal para Andre; monetización queda como opción futura).
-- Más variedad desde el inicio (no solo números): colores, animales, formas.
-- Refuerzo positivo total: **nunca se penaliza el error**, solo se celebra el acierto.
+**Decisiones ya confirmadas por el propietario:**
+- Plataforma: **PWA** instalable (iOS-first, también Android/tablet).
+- Monetización: **Mercado Pago** (MercadoLibre), **por nivel** o **licencia anual**; la licencia se libera tras **validación automática del pago o aprobación manual**.
+- Audio: **ElevenLabs** (voces/sonidos).
+- Idiomas: **Español (MX)** — etiqueta única "Español" + 🇲🇽 —, **Inglés**, **Português (Brasil)** 🇧🇷.
+- Infraestructura: **Neubox** + **Render**.
+- El agente asume **autonomía total** en decisiones técnicas; un **agente pedagógico** da feedback continuo.
 
 ---
 
-## 2. Público objetivo y principios de diseño
+## 1. Visión
 
-**Usuario:** niño/a de 2-5 años, que aún no lee, con motricidad fina en desarrollo. **Usuario secundario:** el papá/mamá que configura y supervisa.
+Una PWA **offline-first, sin publicidad**, donde un niño de 0-5 aprende jugando a través de un currículo por niveles (ver `docs/CURRICULUM.md`), con **voz e íconos** (nada de texto para el niño), refuerzo positivo y cero castigo. Los padres compran acceso con **Mercado Pago** y gestionan todo desde una **zona de padres** protegida.
 
-Principios de UX para esta edad (reglas duras del diseño):
+**Qué la hace mejor que la referencia** (resumen; detalle pedagógico en el currículo):
+1. Currículo completo 0-5 (no solo números) y **adaptativo** (Zona de Desarrollo Próximo).
+2. **Narrativa con personaje guía** → aprendizaje con sentido, no ejercicios sueltos.
+3. **Nivel gratuito generoso** (sin muro de pago temprano) + compra por nivel o licencia anual.
+4. **Localización real** (fonética es-MX / en / pt-BR), no traducción genérica.
+5. **Panel de padres** con progreso pedagógico real.
 
-| Principio | Implicación concreta |
+---
+
+## 2. Principios de diseño (producto)
+
+Reglas duras para 0-5 (ver detalle en el currículo, §2-3):
+
+| Principio | Implicación técnica |
 |---|---|
-| Sin lectura | Toda instrucción es por **voz + íconos**. Nada de texto para el niño. |
-| Botones grandes | Áreas táctiles mínimas de ~60-72 px; mucho espacio entre elementos. |
-| Gestos simples | Solo **tocar** y **arrastrar lento**. Nada de doble-tap, swipe preciso o pellizco. |
-| Sin castigo | El error no da sonido negativo ni bloquea; se repite la pista con suavidad. |
-| Refuerzo constante | Acierto = sonido alegre + animación + estrella/aplauso. |
-| Sesiones cortas | Rondas de 30-90 s; sin cronómetros ni presión de tiempo. |
-| Zona de padres protegida | Ajustes y cualquier enlace externo detrás de un **candado** (p. ej. "mantén pulsado 3 s" o resolver una suma) — estándar para apps infantiles. |
-| Privacidad primero | Sin cuentas, sin recolección de datos, sin enlaces salientes accesibles al niño, **todo local**. |
+| Sin lectura | Instrucciones por **voz + íconos**; el texto solo en la zona de padres. |
+| Botones grandes | Objetivos táctiles ≥ ~64 px, muy separados. |
+| Gestos simples | Solo *tocar* y *arrastrar lento*. |
+| Sin castigo | El error nunca da sonido negativo ni bloquea. |
+| Refuerzo constante | Acierto = animación + sonido + voz que felicita por su nombre. |
+| Zona de padres protegida | Candado (mantener pulsado / operación simple) para ajustes, compra y enlaces externos. |
+| Privacidad primero | Sin datos del niño; sin analítica invasiva; todo lo sensible del lado de Mercado Pago. |
+
+### Restricciones específicas de PWA en iOS (críticas)
+Confirmadas en investigación; condicionan la arquitectura:
+- **Audio solo tras gesto del usuario** → implementar "desbloqueo de audio" en el primer toque de cada sesión (Howler/WebAudio). Clips **cortos** (evitar el bloqueo de autoplay > ~1 min).
+- **Instalación manual** ("Añadir a pantalla de inicio") → onboarding con instrucciones ilustradas para iOS.
+- **Cuota de almacenamiento ajustada** → precargar solo el paquete de idioma/nivel activo; el resto bajo demanda con Service Worker.
+- **Service Worker con límites** en iOS → offline confiable para *assets* cacheados; no depender de push para lógica de licencia.
 
 ---
 
-## 3. Alcance — catálogo de mini-juegos
+## 3. Alcance del producto
 
-Cada juego es un módulo independiente que comparte el mismo motor de audio, refuerzo y navegación.
+El **catálogo de juegos = los 14 niveles** del currículo (`docs/CURRICULUM.md`, §3). Agrupación para roadmap:
 
-### MVP (Fase 1) — 3 juegos
+- **Etapa A — Descubrimiento** (N1-N2): causa-efecto, tocar objetivo. *(gratis)*
+- **Etapa B — Exploración** (N3-N5): clasificar, vocabulario, rompecabezas. *(gratis parcial)*
+- **Etapa C — Fundamentos** (N6-N9): contar 1-5, formas/patrones, memoria, trazado. *(de pago)*
+- **Etapa D — Preescolar** (N10-N14): números 1-20 y sumar, letras/fonética, trazar, lógica, lectura. *(de pago)*
 
-1. **Números (1-10)**
-   - Modo *contar*: aparecen N objetos, el niño toca el número correcto (o al revés).
-   - Modo *trazar*: sigue con el dedo el trazo del número; la app lee el número en voz alta.
-2. **Colores**
-   - Aparece un color y varios objetos; toca el que corresponde. La app nombra el color.
-3. **Animales y sonidos**
-   - Toca el animal → escucha su nombre y su sonido. Variante: "¿dónde está el perro?".
-
-### Backlog (Fase 2+)
-
-4. **Formas** — círculo, cuadrado, triángulo, estrella (emparejar / meter la pieza en el hueco).
-5. **Memorama** — emparejar cartas iguales (2-6 pares según edad).
-6. **Letras / abecedario** — reconocer la letra y su sonido.
-7. **Rompecabezas simple** — arrastrar 2-6 piezas a su lugar.
-8. **Números 11-20** — extensión del módulo de números.
+**Empaquetado comercial:**
+- **Gratis:** Etapa A completa + una muestra de la B (para que el niño se enganche y el padre valore).
+- **Compra por nivel/etapa:** desbloqueo granular (por etapa C o D, o por mundos).
+- **Licencia anual:** acceso total durante 12 meses, todos los idiomas, futuras actualizaciones incluidas.
 
 ---
 
-## 4. Stack tecnológico (propuesta)
+## 4. Arquitectura técnica
 
-**Recomendación: Expo (React Native) + TypeScript.**
+Monorepo con frontend PWA, backend de licencias/pagos y paquetes compartidos.
 
-Razones:
-- **Multiplataforma** (iOS y Android) con un solo código — la referencia es iOS, pero así Andre puede usarla en cualquier tablet.
-- **Preview inmediato** en un dispositivo real con Expo Go durante el desarrollo (sin necesidad de Mac/Xcode para probar).
-- Ecosistema maduro para justo lo que necesita esta app: audio, gestos, animaciones y dibujo.
-- Camino claro a publicar en App Store / Google Play más adelante (EAS Build) si se quiere.
+```mermaid
+flowchart TB
+    subgraph Cliente["📱 PWA (React + Vite, offline-first)"]
+        UI["Juegos + UI kid-friendly"]
+        Audio["Motor de audio (Howler) + voces ElevenLabs pregeneradas"]
+        SW["Service Worker (Workbox) + IndexedDB (progreso)"]
+        Lic["Licencia cacheada (token firmado + validación)"]
+    end
+    subgraph Render["☁️ Render — Backend (Node + Fastify + TS)"]
+        API["API REST"]
+        Auth["Auth de padres (JWT / magic link)"]
+        Pay["Servicio Mercado Pago (preferencias + webhook)"]
+        Admin["Panel admin (aprobación manual)"]
+        DB[("Postgres — usuarios, licencias, pagos")]
+    end
+    subgraph MP["💳 Mercado Pago"]
+        Checkout["Checkout Pro"]
+        WH["Webhook (x-signature)"]
+    end
+    subgraph Neubox["🌐 Neubox"]
+        Dominio["Dominio + DNS + Correo"]
+    end
 
-Librerías clave:
+    UI --> Audio --> SW
+    Lic <-->|valida / renueva| API
+    Auth --> DB
+    Pay <-->|crea preferencia| Checkout
+    Checkout -->|paga el padre| WH
+    WH -->|notifica| Pay
+    Pay -->|libera licencia| DB
+    Admin --> DB
+    Dominio -.app / api.-> Cliente
+    Dominio -.-> Render
+```
 
-| Necesidad | Librería |
-|---|---|
-| Navegación | Expo Router |
-| Audio (voz + efectos + música) | `expo-audio` |
-| Gestos y arrastre | `react-native-gesture-handler` |
-| Trazado de números (dibujo fluido) | `@shopify/react-native-skia` |
-| Animaciones | `react-native-reanimated` + **Lottie** (`lottie-react-native`) para personajes |
-| Estado y progreso | `zustand` + `@react-native-async-storage/async-storage` |
-| Multi-idioma (a futuro) | `i18n-js` o `expo-localization` |
+### 4.1 Frontend (PWA)
+- **React + Vite + TypeScript**, PWA con **Workbox** (manifest, offline, precache selectivo).
+- **Escenas de juego:** DOM/SVG + **framer-motion** para la mayoría; **canvas (Konva/PixiJS)** para trazado y juegos con dibujo. *(Phaser opcional si algún mundo pide arcade.)*
+- **Audio:** **Howler.js** (compatibilidad + desbloqueo iOS). Voces **ElevenLabs pregeneradas** por idioma como *assets* estáticos (no TTS en runtime → barato, offline y consistente).
+- **Estado/persistencia:** **Zustand** + **IndexedDB** (localForage) para progreso offline.
+- **i18n:** **react-i18next**, locales `es-MX`, `en`, `pt-BR`.
+- **Licencia en cliente:** token de entitlements **firmado** (JWT) cacheado, con caducidad + **revalidación** online periódica y **periodo de gracia** offline.
 
-**Sin backend** en el MVP: todo funciona offline y el progreso se guarda local. Esto es lo mejor para privacidad infantil y para que funcione sin internet.
+### 4.2 Backend (Render)
+- **Node + Fastify + TypeScript**, **Prisma + Postgres** (Render Managed Postgres).
+- **Auth de padres:** cuenta por correo (magic link o correo+contraseña) → JWT de sesión. El niño no tiene cuenta ni PII.
+- **Pagos:** **Mercado Pago Checkout Pro** — crea preferencia, redirige, recibe **webhook** con validación **`x-signature`**; sandbox para pruebas.
+- **Licencias:** tabla de *entitlements* (por nivel/etapa o anual all-access) ligada a la cuenta; emisión del token firmado que consume la PWA.
+- **Panel admin:** ver ventas, **aprobar/liberar licencias manualmente**, reembolsos, estados de pago.
+- **Cron (Render):** caducidad de licencias anuales, correos de recibo/renovación.
 
-**Alternativas consideradas** (por si prefieres otra ruta — es una decisión abierta, ver §11):
-- *Flutter* — excelente para animaciones/juegos, un solo código; buena opción si ya conoces Dart.
-- *Web / PWA (React + Vite)* — el preview más rápido y sin tiendas; se puede envolver luego con Capacitor. Ideal si quieres probar la idea en el navegador de una tablet hoy mismo.
-- *Nativo iOS (SwiftUI)* — máxima fluidez y "sensación iOS" como la referencia, pero un solo sistema y requiere Mac + Xcode + cuenta de desarrollador.
+### 4.3 Infraestructura (Neubox + Render)
+- **Neubox:** **dominio + DNS + correo** profesional (`hola@dominio`). *(Su hosting es cPanel/PHP y su VPS soporta Docker; no es ideal para un Node persistente, por eso el backend va en Render. Opcional a futuro: servir el frontend estático desde cPanel o consolidar en su VPS con Docker.)*
+- **Render:** **backend web service** + **Postgres** + **cron**. El **frontend estático** puede ir en Render Static Site/CDN.
+- **DNS:** `app.<dominio>` → PWA (CDN/Render Static), `api.<dominio>` → backend Render. TLS automático.
+- **Secretos** (Mercado Pago, JWT, ElevenLabs) **solo en variables de entorno de Render**, nunca en el repo.
 
 ---
 
-## 5. Arquitectura y estructura del repo
+## 5. Flujo de pago y liberación de licencia
 
-Motor compartido + juegos como módulos enchufables:
+Soporta **liberación automática** (webhook) **y aprobación manual** (requisito del propietario).
+
+```mermaid
+sequenceDiagram
+    participant P as Padre (PWA)
+    participant API as Backend (Render)
+    participant MP as Mercado Pago
+    participant Admin as Propietario (Panel)
+
+    P->>API: Elegir nivel / licencia anual
+    API->>MP: Crear preferencia de pago
+    MP-->>P: Checkout Pro (redirección)
+    P->>MP: Paga
+    MP-->>API: Webhook (payment.updated) + x-signature
+    API->>MP: Consultar pago (verificar estado real)
+    alt Modo automático y pago aprobado
+        API->>API: Emitir/extender licencia + token firmado
+        API-->>P: Licencia activa (revalida al abrir)
+    else Modo revisión manual
+        API->>Admin: Pago "pendiente de aprobación"
+        Admin->>API: Aprobar y liberar
+        API-->>P: Licencia activa
+    end
+```
+
+Detalles clave:
+- **Verificación doble:** nunca confiar solo en la redirección; validar `x-signature` **y** reconsultar el pago en la API de Mercado Pago antes de liberar.
+- **Idempotencia:** un `payment.id` procesado dos veces no duplica licencias.
+- **Interruptor por producto:** cada SKU puede configurarse como *auto* o *manual*.
+- **PCI:** no tocamos datos de tarjeta; los maneja Mercado Pago.
+
+---
+
+## 6. Contenido y assets (ElevenLabs)
+
+- **Voces por idioma** (es-MX cálida, en, pt-BR): instrucciones, números, nombres, frases de ánimo (con el nombre del niño si se configura). Se **pregeneran** con ElevenLabs mediante un **script versionado** (`scripts/gen-voices`), se revisan y se guardan como *assets* estáticos cacheados por el SW.
+- **Efectos** (acierto, estrella, aplausos) y **música** suave con opción de silenciar.
+- **Ilustraciones y animaciones** (personaje guía + celebraciones Lottie).
+- ⚠️ **Licencias de assets:** todo con licencia clara para uso comercial. Voces ElevenLabs bajo su licencia comercial. Definir antes de la Fase 1.
+
+---
+
+## 7. Internacionalización
+
+- Selector con **tres opciones**: **Español 🇲🇽** (etiqueta única "Español"), **English 🇺🇸**, **Português 🇧🇷**. *(La bandera de inglés es ajustable.)*
+- Cada idioma tiene su **paquete de voces** y sus textos de la zona de padres.
+- **Fonética/lectura (niveles 11 y 14) rediseñados por idioma**, no traducidos (ver currículo §10).
+- Idioma persistente por dispositivo; cambiable desde la zona de padres.
+
+---
+
+## 8. Seguridad y privacidad (app infantil)
+
+- **Sin PII del niño** (a lo más, un nombre/apodo local para personalizar la voz, guardado en el dispositivo).
+- **Zona de padres** con candado ante compras/ajustes/enlaces externos.
+- Cumplimiento con la ley mexicana de datos (**LFPDPPP**) y buenas prácticas tipo **COPPA/GDPR-K** si se expande; **pagos y datos financieros** los procesa Mercado Pago.
+- Analítica **mínima y respetuosa** (o nula en el MVP).
+- Política de privacidad y términos publicados antes de cobrar.
+
+---
+
+## 9. Estructura del repositorio (propuesta)
 
 ```
 AndreApp/
-├─ app/                      # rutas (Expo Router): inicio, /game/[id], zona-padres
-├─ src/
-│  ├─ core/
-│  │  ├─ audio/              # reproducción de voz, efectos y música
-│  │  ├─ reward/             # sistema de refuerzo (estrellas, aplausos, animaciones)
-│  │  ├─ progress/           # store zustand + persistencia
-│  │  └─ ui/                 # botones grandes, contenedores, tipografía kid-friendly
-│  ├─ games/
-│  │  ├─ numbers/
-│  │  ├─ colors/
-│  │  └─ animals/
-│  └─ content/               # catálogo de items (número→voz/imagen, color→..., animal→...)
-├─ assets/
-│  ├─ audio/                 # voces (es), efectos, música
-│  ├─ images/                # ilustraciones, íconos
-│  └─ lottie/                # animaciones de personajes
-└─ PLAN.md
+├─ apps/
+│  ├─ web/                 # PWA (React + Vite): app/, juegos, motor de audio, i18n, SW
+│  └─ api/                 # Backend (Fastify + Prisma): auth, pagos MP, licencias, admin
+├─ packages/
+│  ├─ curriculum/          # Datos de los 14 niveles (config declarativa de cada juego)
+│  ├─ shared/              # Tipos compartidos (licencias, entitlements, DTOs)
+│  └─ i18n/                # Cadenas + índice de paquetes de voz por idioma
+├─ scripts/
+│  └─ gen-voices/          # Generación de voces ElevenLabs (versionado)
+├─ docs/
+│  └─ CURRICULUM.md        # Fuente de verdad pedagógica
+└─ PLAN.md                 # Este documento
 ```
 
-Contrato común de un juego (para que todos se integren igual):
-- Recibe: catálogo de contenido + callbacks de refuerzo/progreso.
-- Expone: una ronda jugable, eventos de acierto/intento, y "completado".
-- Reglas compartidas: sin texto, audio-first, sin castigo, botones grandes.
-
 ---
 
-## 6. Plan de contenido y assets
+## 10. Roadmap por fases
 
-Esta suele ser la parte que más trabajo lleva en una app infantil. Necesitamos:
-
-- **Voz en español** (instrucciones, nombres de números/colores/animales, frases de ánimo). Se puede generar con **texto-a-voz** (tengo herramientas de ElevenLabs disponibles en esta sesión) o grabar una voz humana. Recomiendo TTS para el MVP y valorar voz humana después.
-- **Ilustraciones e íconos** (personaje guía, objetos para contar, animales). Opciones: generar con IA, packs con licencia adecuada, o ilustración propia.
-- **Animaciones Lottie** para el personaje y las celebraciones.
-- **Efectos de sonido** (acierto, estrella, aplausos) y **música** de fondo suave (con opción de silenciar).
-
-⚠️ **Licencias:** todo asset debe tener licencia clara para uso comercial/personal. No usar material con copyright de terceros. Definir esto antes de la Fase 1.
-
----
-
-## 7. Fases y hitos
+Estrategia: **validar la diversión y la pedagogía antes de cobrar.** Primero un MVP jugable y gratis; el pago llega cuando ya hay algo que valga la pena comprar.
 
 | Fase | Entregable | Contenido |
 |---|---|---|
-| **0 — Fundaciones** | App corre y navega | Proyecto Expo, navegación, sistema de audio, componentes UI kid-friendly, store de progreso, pantalla de inicio con selector de juegos. |
-| **1 — MVP jugable** | 3 juegos + voz es | Números (contar+trazar), Colores, Animales. Refuerzo positivo, estrellas, zona de padres con candado. Offline. |
-| **2 — Ampliación** | +Juegos y progreso | Formas, Memorama, Letras; sistema de progreso/recompensas más rico; ajustes (volumen, idioma). |
-| **3 — Pulido / publicación** | Listo para tienda (opcional) | Animaciones y música pulidas, control parental, íconos/splash, build EAS, y (si se decide) publicación en App Store / Google Play. |
+| **0 · Fundaciones** | La PWA corre, instala y suena | Monorepo, PWA shell + manifest + SW offline, sistema de diseño kid-friendly, motor de audio con desbloqueo iOS, i18n base, store de progreso, pantalla de inicio con selector de mundos. |
+| **1 · MVP jugable (gratis)** | 4-5 juegos en es-MX | Niveles **N1-N5** (Etapas A y B), voces ElevenLabs es-MX, progreso local, instalable, zona de padres básica. **Sin pagos aún.** Meta: ponerla en manos de Andre y medir enganche. |
+| **2 · Cuentas y nube** | Padres + progreso sincronizado | Backend en Render, auth de padres, progreso en la nube, **panel de padres** con lectura pedagógica. |
+| **3 · Monetización** | Cobro y licencias | **Mercado Pago Checkout Pro**, licencias **por nivel** y **anual**, webhook + validación, **panel admin con aprobación manual**, tokens de licencia en cliente + revalidación. |
+| **4 · Currículo completo + idiomas** | Etapas C y D + en/pt-BR | Niveles **N6-N14**, adaptividad (ZDP), trazado (canvas), fonética por idioma, paquetes de voz **en** y **pt-BR**. |
+| **5 · Pulido y lanzamiento** | Listo para usuarios | Accesibilidad, música/animaciones finas, onboarding de instalación iOS, analítica respetuosa, términos/privacidad, dominio Neubox + despliegue productivo. |
 
-Sugerencia: cerrar Fase 0 + Fase 1 primero y ponerla en manos de Andre para ver qué le engancha antes de invertir en la Fase 2.
-
----
-
-## 8. Consideraciones legales y de privacidad
-
-- **Sin recolección de datos** en el MVP (nada de analytics ni identificadores). Es lo más limpio para una app infantil y evita requisitos de COPPA/GDPR-K.
-- Si algún día se publica: cumplir con la sección **Kids** de App Store y **Designed for Families** de Google Play (sin publicidad de comportamiento, zona de padres, política de privacidad).
-- Cualquier enlace externo (tienda, redes, "más apps") **solo** detrás de la zona de padres.
+**Sugerencia de secuencia mínima para ver valor pronto:** Fase 0 + Fase 1 (jugable con Andre) → luego decidir con datos reales antes de invertir en backend/pagos.
 
 ---
 
-## 9. Monetización (opcional, a futuro)
+## 11. Métricas de éxito
 
-Como es una app personal para Andre, el MVP no la necesita. Si se quisiera publicar, la mejor jugada frente a la referencia sería: **más contenido gratis** y, si acaso, una única compra desbloqueable — evitando el paywall temprano que critican en las reseñas.
-
----
-
-## 10. Métricas de éxito
-
-Para una app personal, la métrica real es simple: **¿Andre la disfruta y aprende?** En concreto:
-- Vuelve a abrirla por gusto.
-- Completa rondas sin frustrarse (sin castigo, todo celebra).
-- Empieza a reconocer números/colores/animales fuera de la app.
+- **Pedagógicas:** el niño progresa de nivel por **dominio** (no por edad) y transfiere aprendizajes fuera de la app.
+- **De producto:** enganche (vuelve por gusto), sesiones sin frustración, tasa de finalización de rondas.
+- **De negocio:** conversión de gratis→pago, renovación anual, reembolsos bajos.
 
 ---
 
-## 11. Decisiones abiertas (para confirmar antes de arrancar)
+## 12. Riesgos y mitigaciones
 
-1. **Stack:** ¿confirmamos **Expo/React Native**, o prefieres **web/PWA** (preview hoy mismo en el navegador) o **nativo iOS**?
-2. **Idioma:** ¿solo **español** en el MVP, o español + inglés desde el inicio?
-3. **Voz:** ¿**TTS** (la genero yo) o grabación de voz humana?
-4. **Arte:** ¿generamos ilustraciones/personaje con IA, o tienes un estilo/assets en mente?
-5. **Nombre del personaje guía:** ¿un animalito que acompañe a Andre? (ayuda a dar identidad a la app).
+| Riesgo | Mitigación |
+|---|---|
+| Límites de PWA en iOS (audio, cuota, instalación) | Desbloqueo de audio por gesto, clips cortos, precarga selectiva, onboarding de instalación. |
+| Fraude/duplicidad de licencias | Validar `x-signature` + reconsulta a MP + idempotencia por `payment.id`. |
+| Neubox no corre Node persistente | Backend en Render; Neubox solo dominio/DNS/correo (VPS Docker opcional a futuro). |
+| Costos/licencia de voces ElevenLabs | Pregenerar (no runtime), revisar licencia comercial, cachear. |
+| Alcance grande | Fases; MVP gratis primero; currículo por niveles permite entregar por partes. |
+| Contenido no apto por edad | Validación del **agente pedagógico** en cada fase (ver currículo §11). |
 
 ---
 
-## 12. Siguiente paso propuesto
+## 13. Lo que necesitaré del propietario (para fases con infra/pago)
 
-Confirmar las decisiones de §11 (sobre todo el **stack** y el **idioma**) y arrancar la **Fase 0**: dejar el proyecto corriendo con la pantalla de inicio y el primer juego de **Números**.
+*(No bloquea las Fases 0-1, que son 100% locales.)*
+- **Dominio** deseado (para configurarlo en Neubox) y acceso a DNS.
+- **Credenciales de Mercado Pago** (Access Token productivo y de prueba) — se cargan como **variables de entorno en Render**, nunca en el repo.
+- **API key de ElevenLabs** (para el script de generación de voces) — también por variable de entorno.
+- **Cuenta de Render** conectada al repo.
+- **Precios** por nivel/etapa y de la licencia anual, y qué SKUs son de **aprobación manual** vs **automática**.
+- **Identidad de marca:** nombre y estilo del **personaje guía**, paleta y logo (o me das libertad para proponerlos).
+
+---
+
+## 14. Decisiones abiertas y feedback pedagógico
+
+- **Bandera de inglés:** 🇺🇸 por defecto (ajustable a 🇬🇧 o globo neutro).
+- **Auth de padres:** magic link (menos fricción) vs correo+contraseña — se define en Fase 2.
+- **Motor de juego:** DOM/SVG + framer-motion por defecto; PixiJS/Phaser solo donde un mundo lo justifique.
+- **Feedback del agente pedagógico:** se integra aquí y en `docs/CURRICULUM.md` en cada iteración. *(Pendiente: primera ronda de revisión del especialista sobre este plan y el currículo.)*
+
+---
+
+## 15. Siguiente paso
+
+Con el plan y el currículo validados por el especialista, arrancar la **Fase 0**: dejar la PWA corriendo (instalable, con audio y selector de mundos) y el primer juego **N1 · Causa y efecto** en español mexicano.
