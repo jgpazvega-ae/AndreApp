@@ -25,3 +25,6 @@ export const N2_VOICE_MANIFEST: VoiceManifestEntry[] = [
 
 /** N3 reutiliza los clips object-*.mp3 de N1 (nombra el objeto al emparejar) y los n2-praise-*.mp3 (ronda completa). */
 export const N3_VOICE_MANIFEST: VoiceManifestEntry[] = [{ key: "n3.welcome", file: "n3-welcome.mp3", reviewed: false }];
+
+/** N4 (perceptual, sin nombrar el color) reutiliza los n2-praise-*.mp3 al completar una ronda. */
+export const N4_VOICE_MANIFEST: VoiceManifestEntry[] = [{ key: "n4.welcome", file: "n4-welcome.mp3", reviewed: false }];

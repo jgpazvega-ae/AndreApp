@@ -14,7 +14,7 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
   { id: "n3", order: 3, stage: "A", domain: "perception", titleKey: "level.n3.title", icon: "🧩", free: true, status: "playable" },
 
   // Etapa B — Exploración (muestra gratis: N4; resto de pago)
-  { id: "n4", order: 4, stage: "B", domain: "categorization", titleKey: "level.n4.title", icon: "🟥", free: true, status: "coming-soon" },
+  { id: "n4", order: 4, stage: "B", domain: "categorization", titleKey: "level.n4.title", icon: "🟥", free: true, status: "playable" },
   { id: "n5", order: 5, stage: "B", domain: "language", titleKey: "level.n5.title", icon: "🐶", free: false, status: "coming-soon" },
   { id: "n6", order: 6, stage: "B", domain: "spatial", titleKey: "level.n6.title", icon: "🧩", free: false, status: "coming-soon" },
   { id: "n7", order: 7, stage: "B", domain: "language", axis: "social-emotional", titleKey: "level.n7.title", icon: "😊", free: false, status: "coming-soon" },
