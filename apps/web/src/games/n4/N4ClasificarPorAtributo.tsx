@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playChime, playVoiceClip } from "../../audio/audioEngine";
+import { GameBuddy } from "../../components/GameBuddy";
 import { useConfetti } from "../../effects/useConfetti";
 import { useProgressStore } from "../../store/progressStore";
 
@@ -60,6 +61,7 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
   const [sortedCount, setSortedCount] = useState(0);
   const [busy, setBusy] = useState(false);
   const [shaking, setShaking] = useState(false);
+  const [celebrations, setCelebrations] = useState(0);
   const recordPlay = useProgressStore((state) => state.recordPlay);
   const { burst, confettiField } = useConfetti();
   const zoneColorsRef = useRef(zoneColors);
@@ -84,6 +86,7 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
         setBusy(true);
         playChime();
         burst(event.clientX, event.clientY);
+        setCelebrations((c) => c + 1);
         const newCount = sortedCount + 1;
 
         if (newCount >= ROUND_SIZE) {
@@ -144,6 +147,8 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
       >
         ⬅️
       </button>
+
+      <GameBuddy levelId="n4" celebrateSignal={celebrations} />
 
       {confettiField}
 

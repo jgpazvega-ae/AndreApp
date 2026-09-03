@@ -1,4 +1,5 @@
 import { motion } from "framer-motion";
+import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CURRICULUM_LEVELS, getLevelsByStage, type Stage } from "@andreapp/curriculum";
 import { APP_NAME } from "@andreapp/shared";
@@ -6,6 +7,9 @@ import { BigButton } from "../components/BigButton";
 import { asset } from "../utils/asset";
 
 const STAGES: Stage[] = ["A", "B", "C", "D"];
+
+/** Los 3 perritos de la familia, como amigos que saludan en la pantalla de inicio. */
+const FRIEND_FILES = ["illustrations/friend-1.png", "illustrations/friend-2.png", "illustrations/friend-3.png"];
 
 const STAGE_GRADIENT: Record<Stage, [string, string]> = {
   A: ["#FFC46B", "#E0912A"],
@@ -77,6 +81,12 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
             filter: "drop-shadow(0 12px 16px rgba(120,60,10,0.22))",
           }}
         />
+
+        <div style={{ position: "relative", zIndex: 1, display: "flex", justifyContent: "center", gap: "var(--space-sm)", marginTop: -4 }}>
+          {FRIEND_FILES.map((file, i) => (
+            <FriendAvatar key={file} file={file} delayIndex={i} />
+          ))}
+        </div>
       </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-lg)", padding: "0 var(--space-md)" }}>
@@ -129,6 +139,44 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
         {CURRICULUM_LEVELS.filter((l) => l.status === "playable").length} / {CURRICULUM_LEVELS.length} niveles listos
       </footer>
     </div>
+  );
+}
+
+/** Amiguito perruno tocable: hace una respiración suave y salta al tocarlo (sin sonido, es decorativo). */
+function FriendAvatar({ file, delayIndex }: { file: string; delayIndex: number }) {
+  const [tapCount, setTapCount] = useState(0);
+  const [cheering, setCheering] = useState(false);
+  const mounted = useRef(false);
+
+  useEffect(() => {
+    if (!mounted.current) {
+      mounted.current = true;
+      return;
+    }
+    setCheering(true);
+    const timeout = window.setTimeout(() => setCheering(false), 700);
+    return () => window.clearTimeout(timeout);
+  }, [tapCount]);
+
+  return (
+    <motion.button
+      type="button"
+      aria-label="Amigo"
+      onPointerDown={() => setTapCount((c) => c + 1)}
+      initial={{ opacity: 0, y: 16 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.4, delay: 0.15 + delayIndex * 0.08, ease: "easeOut" }}
+      style={{ background: "none", border: "none", padding: 0, width: 56 }}
+    >
+      <motion.img
+        src={asset(file)}
+        alt=""
+        aria-hidden="true"
+        animate={cheering ? { y: [0, -16, 0], rotate: [0, -10, 10, 0], scale: [1, 1.15, 1] } : { y: [0, -3, 0] }}
+        transition={cheering ? { duration: 0.7, ease: "easeInOut" } : { duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
+        style={{ width: "100%", height: "auto", filter: "drop-shadow(0 6px 8px rgba(0,0,0,0.18))" }}
+      />
+    </motion.button>
   );
 }
 

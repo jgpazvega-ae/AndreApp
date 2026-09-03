@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playChime, playVoiceClip } from "../../audio/audioEngine";
 import { DecorBlobs } from "../../components/DecorBlobs";
+import { GameBuddy } from "../../components/GameBuddy";
 import { useConfetti } from "../../effects/useConfetti";
 import { useProgressStore } from "../../store/progressStore";
 import { asset } from "../../utils/asset";
@@ -51,6 +52,7 @@ export function N2TocaAlObjetivo({ locale, onExit }: N2TocaAlObjetivoProps) {
   const [position, setPosition] = useState<Position>(() => randomPosition());
   const [catchCount, setCatchCount] = useState(0);
   const [showIdleHint, setShowIdleHint] = useState(false);
+  const [celebrations, setCelebrations] = useState(0);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recordPlay = useProgressStore((state) => state.recordPlay);
   const { burst, confettiField } = useConfetti();
@@ -90,6 +92,7 @@ export function N2TocaAlObjetivo({ locale, onExit }: N2TocaAlObjetivoProps) {
       playVoiceClip(locale, PRAISE_FILES[Math.floor(Math.random() * PRAISE_FILES.length)]!);
       burst(event.clientX, event.clientY);
       setCatchCount((c) => c + 1);
+      setCelebrations((c) => c + 1);
       setPosition(randomPosition());
     },
     [locale, resetIdleTimer, burst],
@@ -129,6 +132,8 @@ export function N2TocaAlObjetivo({ locale, onExit }: N2TocaAlObjetivoProps) {
       >
         ⬅️
       </button>
+
+      <GameBuddy levelId="n2" celebrateSignal={celebrations} />
 
       {confettiField}
 

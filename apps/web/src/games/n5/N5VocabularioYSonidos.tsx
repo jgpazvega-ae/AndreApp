@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playChime, playVoiceClip } from "../../audio/audioEngine";
 import { DecorBlobs } from "../../components/DecorBlobs";
+import { GameBuddy } from "../../components/GameBuddy";
 import { useConfetti } from "../../effects/useConfetti";
 import { useProgressStore } from "../../store/progressStore";
 import { asset } from "../../utils/asset";
@@ -49,6 +50,7 @@ export function N5VocabularioYSonidos({ locale, onExit }: N5VocabularioYSonidosP
   const [target, setTarget] = useState<AnimalType>(() => order[0]!);
   const [busy, setBusy] = useState(false);
   const [shakeType, setShakeType] = useState<AnimalType | null>(null);
+  const [celebrations, setCelebrations] = useState(0);
   const recordPlay = useProgressStore((state) => state.recordPlay);
   const { burst, confettiField } = useConfetti();
   const mounted = useRef(false);
@@ -70,6 +72,7 @@ export function N5VocabularioYSonidos({ locale, onExit }: N5VocabularioYSonidosP
         playChime();
         playVoiceClip(locale, ANIMAL_ASSET[type].exclaimFile);
         burst(event.clientX, event.clientY);
+        setCelebrations((c) => c + 1);
         setTimeout(() => {
           const next = pickNextTarget(target);
           setOrder(shuffle(ALL_ANIMALS));
@@ -121,6 +124,8 @@ export function N5VocabularioYSonidos({ locale, onExit }: N5VocabularioYSonidosP
       >
         ⬅️
       </button>
+
+      <GameBuddy levelId="n5" celebrateSignal={celebrations} />
 
       {confettiField}
 

@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playChime, playVoiceClip } from "../../audio/audioEngine";
 import { DecorBlobs } from "../../components/DecorBlobs";
+import { GameBuddy } from "../../components/GameBuddy";
 import { useConfetti } from "../../effects/useConfetti";
 import { useProgressStore } from "../../store/progressStore";
 import { asset } from "../../utils/asset";
@@ -42,6 +43,7 @@ interface N1CausaEfectoProps {
 export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
   const [pops, setPops] = useState<Pop[]>([]);
   const [showIdleHint, setShowIdleHint] = useState(false);
+  const [celebrations, setCelebrations] = useState(0);
   const nextId = useRef(0);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recordPlay = useProgressStore((state) => state.recordPlay);
@@ -76,6 +78,7 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
       playChime();
       playVoiceClip(locale, object.voiceFile);
       burst(x, y);
+      setCelebrations((c) => c + 1);
 
       setTimeout(() => {
         setPops((prev) => prev.filter((pop) => pop.id !== id));
@@ -122,6 +125,8 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
       >
         ⬅️
       </button>
+
+      <GameBuddy levelId="n1" celebrateSignal={celebrations} />
 
       <AnimatePresence>
         {showIdleHint && pops.length === 0 && (

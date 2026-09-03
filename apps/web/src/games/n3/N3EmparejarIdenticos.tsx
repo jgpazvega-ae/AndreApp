@@ -2,6 +2,7 @@ import { motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import { playChime, playVoiceClip } from "../../audio/audioEngine";
 import { DecorBlobs } from "../../components/DecorBlobs";
+import { GameBuddy } from "../../components/GameBuddy";
 import { useConfetti } from "../../effects/useConfetti";
 import { useProgressStore } from "../../store/progressStore";
 import { asset } from "../../utils/asset";
@@ -64,6 +65,7 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
   const [matchedIds, setMatchedIds] = useState<Set<number>>(new Set());
   const [shakeIds, setShakeIds] = useState<Set<number>>(new Set());
   const [busy, setBusy] = useState(false);
+  const [celebrations, setCelebrations] = useState(0);
   const recordPlay = useProgressStore((state) => state.recordPlay);
   const { burst, confettiField } = useConfetti();
 
@@ -104,6 +106,7 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
       if (selected.type === card.type) {
         setBusy(true);
         playVoiceClip(locale, OBJECT_ASSET[card.type].voiceFile);
+        setCelebrations((c) => c + 1);
         setTimeout(() => {
           setMatchedIds((prev) => new Set(prev).add(selected.id).add(card.id));
           setSelected(null);
@@ -156,6 +159,8 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
       >
         ⬅️
       </button>
+
+      <GameBuddy levelId="n3" celebrateSignal={celebrations} />
 
       {confettiField}
 
