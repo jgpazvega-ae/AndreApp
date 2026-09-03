@@ -1,7 +1,14 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
-import { APP_NAME } from "@andreapp/shared";
+
+/**
+ * No se importa desde "@andreapp/shared" aquí: este archivo lo ejecuta Node
+ * directamente (no pasa por el pipeline de bundling de Vite), y el paquete
+ * expone su código fuente .ts sin compilar — Node no puede parsearlo (falla
+ * en CI con Node 20). Mantener sincronizado a mano con packages/shared/src/index.ts.
+ */
+const APP_NAME = "Anico";
 
 /**
  * En producción real (Neubox/Render, PLAN.md §4.3) la app vive en la raíz
