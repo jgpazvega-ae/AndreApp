@@ -28,3 +28,12 @@ export const N3_VOICE_MANIFEST: VoiceManifestEntry[] = [{ key: "n3.welcome", fil
 
 /** N4 (perceptual, sin nombrar el color) reutiliza los n2-praise-*.mp3 al completar una ronda. */
 export const N4_VOICE_MANIFEST: VoiceManifestEntry[] = [{ key: "n4.welcome", file: "n4-welcome.mp3", reviewed: false }];
+
+export const N5_VOICE_MANIFEST: VoiceManifestEntry[] = [
+  { key: "n5.question.dog", file: "n5-question-dog.mp3", reviewed: false },
+  { key: "n5.question.cat", file: "n5-question-cat.mp3", reviewed: false },
+  { key: "n5.question.duck", file: "n5-question-duck.mp3", reviewed: false },
+  { key: "n5.exclaim.dog", file: "n5-exclaim-dog.mp3", reviewed: false },
+  { key: "n5.exclaim.cat", file: "n5-exclaim-cat.mp3", reviewed: false },
+  { key: "n5.exclaim.duck", file: "n5-exclaim-duck.mp3", reviewed: false },
+];
