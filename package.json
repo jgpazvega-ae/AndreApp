@@ -1,0 +1,19 @@
+{
+  "name": "andreapp",
+  "private": true,
+  "version": "0.1.0",
+  "description": "PWA educativa e interactiva para niños de 0 a 5 años",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspace=apps/web",
+    "preview": "npm run preview --workspace=apps/web",
+    "typecheck": "npm run typecheck --workspaces --if-present"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

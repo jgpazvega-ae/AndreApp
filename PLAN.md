@@ -218,10 +218,10 @@ AndreApp/
 
 Estrategia: **validar la diversión y la pedagogía antes de cobrar.** Primero un MVP jugable y gratis; el pago llega cuando ya hay algo que valga la pena comprar.
 
-| Fase | Entregable | Contenido |
-|---|---|---|
-| **0 · Fundaciones** | La PWA corre, instala y suena | Monorepo, PWA shell + manifest + SW offline, sistema de diseño kid-friendly, motor de audio con desbloqueo iOS, i18n base, store de progreso, pantalla de inicio con selector de mundos. |
-| **1 · MVP jugable (gratis)** | 4-5 juegos en es-MX | Niveles **N1-N5** (Etapas A y B), voces ElevenLabs es-MX, progreso local, instalable, zona de padres básica. **Sin pagos aún.** Meta: ponerla en manos de Andre y medir enganche. |
+| Fase | Entregable | Contenido | Estado |
+|---|---|---|---|
+| **0 · Fundaciones** | La PWA corre, instala y suena | Monorepo, PWA shell + manifest + SW offline, sistema de diseño kid-friendly, motor de audio con desbloqueo iOS, i18n base, store de progreso, pantalla de inicio con selector de mundos. | ✅ **Hecho** |
+| **1 · MVP jugable (gratis)** | 4-5 juegos en es-MX | Niveles **N1-N5** (Etapas A y B), voces ElevenLabs es-MX, progreso local, instalable, zona de padres básica. **Sin pagos aún.** Meta: ponerla en manos de Andre y medir enganche. | 🔶 **N1 listo** (con voces ElevenLabs es-MX reales); faltan N2-N5 |
 | **2 · Currículo completo + idiomas** | Etapas C y D + en/pt-BR | Niveles **N6-N22** (incluye ejes 🧠 función ejecutiva y ❤️ socioemocional, subitización, conciencia fonológica oral), adaptividad (ZDP), trazado (canvas), fonética por idioma, paquetes de voz **en** y **pt-BR**. |
 | **3 · Monetización (backend mínimo)** | Licencias por link de PayPal | **Backend de licencias en Render** (Fastify + SQLite, sin cuentas), **panel admin** para que emitas/revoques códigos, campo "introduce tu código" en la zona de padres, **link(s) de PayPal** por nivel/etapa y por licencia anual. Liberación y revocación **100% manuales**, tal como pediste. |
 | **4 · Pulido y lanzamiento** | Listo para usuarios | Accesibilidad, música/animaciones finas, onboarding de instalación iOS, analítica respetuosa, términos/privacidad, dominio Neubox + despliegue productivo. |
@@ -276,4 +276,13 @@ Estrategia: **validar la diversión y la pedagogía antes de cobrar.** Primero u
 
 ## 15. Siguiente paso
 
-Con el plan y el currículo validados por el especialista, arrancar la **Fase 0**: dejar la PWA corriendo (instalable, con audio y selector de mundos) y el primer juego **N1 · Causa y efecto** en español mexicano.
+**Fase 0 completa y Fase 1 en marcha.** La PWA corre, instala (manifest + Service Worker offline), tiene el sistema de diseño kid-friendly, el motor de audio con desbloqueo iOS, i18n base (es-MX/en/pt-BR) y el store de progreso. El primer juego, **N1 · Causa y efecto**, está jugable con voces reales de ElevenLabs en español mexicano (voz "Camila", acento mexicano) y verificado con pruebas automatizadas de extremo a extremo (Playwright): desbloqueo de audio, selector de mundos, juego, niveles bloqueados, zona de padres y cambio de idioma — todo sin errores de consola.
+
+Cómo correrlo:
+```bash
+npm install
+npm run dev       # servidor de desarrollo
+npm run build     # build de producción + Service Worker
+```
+
+**Siguiente paso:** implementar **N2-N5** (Etapas A y B) para completar el MVP gratis de la Fase 1, siguiendo el mismo patrón (registrar el juego en `apps/web/src/games/registry.tsx`, generar sus voces según `scripts/gen-voices/README.md` y marcarlo `"playable"` en `packages/curriculum`).
