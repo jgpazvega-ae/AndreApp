@@ -29,17 +29,19 @@ Una PWA **offline-first, sin publicidad**, donde un niño de 0-5 aprende jugando
 
 ## 2. Principios de diseño (producto)
 
-Reglas duras para 0-5 (ver detalle en el currículo, §2-3):
+Reglas duras para 0-5 (ver detalle en el currículo, §2):
 
 | Principio | Implicación técnica |
 |---|---|
-| Sin lectura | Instrucciones por **voz + íconos**; el texto solo en la zona de padres. |
+| Audio + apoyo visual | Cada instrucción hablada se acompaña de **icono + demostración animada del gesto** (no "solo audio": excluiría a niños sordos). Texto solo en la zona de padres. |
 | Botones grandes | Objetivos táctiles ≥ ~64 px, muy separados. |
-| Gestos simples | Solo *tocar* y *arrastrar lento*. |
-| Sin castigo | El error nunca da sonido negativo ni bloquea. |
-| Refuerzo constante | Acierto = animación + sonido + voz que felicita por su nombre. |
-| Zona de padres protegida | Candado (mantener pulsado / operación simple) para ajustes, compra y enlaces externos. |
-| Privacidad primero | Sin datos del niño; sin analítica invasiva; todo lo sensible del lado de Mercado Pago. |
+| Gestos simples + alternativa | Solo *tocar* y *arrastrar lento*; **todo arrastre ofrece "tocar-tocar"** e **imán con radio de captura generoso**. Nunca multitáctil. |
+| Sin castigo | El error nunca da sonido negativo ni bloquea; rebota suave y la pista sube de nivel. |
+| Elogio de proceso | Acierto = animación + sonido + voz que felicita el **esfuerzo** ("¡lo intentaste!"), nunca el rasgo ("¡qué listo!"). Sin *loot*/recompensa aleatoria. |
+| Sesiones saludables | Finales naturales, pausas activas y **límite de tiempo por defecto por edad**; la franja más pequeña, **uso acompañado** (ver §8). |
+| Modo sensorial | Preset agrupado (menos animación + audio suave + ritmo lento) para perfiles neurodivergentes. |
+| Zona de padres protegida | Candado para ajustes, compra y enlaces externos. |
+| Privacidad primero | Sin datos del niño; sin analítica invasiva; lo sensible, del lado de Mercado Pago. |
 
 ### Restricciones específicas de PWA en iOS (críticas)
 Confirmadas en investigación; condicionan la arquitectura:
@@ -52,12 +54,12 @@ Confirmadas en investigación; condicionan la arquitectura:
 
 ## 3. Alcance del producto
 
-El **catálogo de juegos = los 14 niveles** del currículo (`docs/CURRICULUM.md`, §3). Agrupación para roadmap:
+El **catálogo de juegos = los 22 niveles** del currículo (`docs/CURRICULUM.md`, §4), con dos ejes transversales (🧠 función ejecutiva, ❤️ socioemocional). Agrupación para roadmap:
 
-- **Etapa A — Descubrimiento** (N1-N2): causa-efecto, tocar objetivo. *(gratis)*
-- **Etapa B — Exploración** (N3-N5): clasificar, vocabulario, rompecabezas. *(gratis parcial)*
-- **Etapa C — Fundamentos** (N6-N9): contar 1-5, formas/patrones, memoria, trazado. *(de pago)*
-- **Etapa D — Preescolar** (N10-N14): números 1-20 y sumar, letras/fonética, trazar, lógica, lectura. *(de pago)*
+- **Etapa A — Descubrimiento** (N1-N3): causa-efecto, tocar objetivo, emparejar idénticos. *(gratis, uso acompañado)*
+- **Etapa B — Exploración** (N4-N8): clasificar, vocabulario, rompecabezas, ❤️ emociones, 🧠 para y sigue. *(gratis parcial)*
+- **Etapa C — Fundamentos** (N9-N16): subitizar, contar 1-5 y 6-10, formas/patrones, memoria, conciencia fonológica oral, seriar/secuencia temporal, trazado. *(de pago)*
+- **Etapa D — Preescolar** (N17-N22): números 11-20 y comparar, sumar, 🧠 flexibilidad + 2 atributos, letras/fonética, trazar, lectura temprana. *(de pago)*
 
 **Empaquetado comercial:**
 - **Gratis:** Etapa A completa + una muestra de la B (para que el niño se enganche y el padre valore).
@@ -177,14 +179,16 @@ Detalles clave:
 
 - Selector con **tres opciones**: **Español 🇲🇽** (etiqueta única "Español"), **English 🇺🇸**, **Português 🇧🇷**. *(La bandera de inglés es ajustable.)*
 - Cada idioma tiene su **paquete de voces** y sus textos de la zona de padres.
-- **Fonética/lectura (niveles 11 y 14) rediseñados por idioma**, no traducidos (ver currículo §10).
+- **Conciencia fonológica oral, letras y lectura (N14, N20, N22) rediseñados por idioma**, no traducidos (ver currículo §11): español silábico/CV, inglés opaco (rima + CVC, secuencia *s-a-t-p-i-n*), portugués con vocales nasales/dígrafos.
+- **Revisión humana obligatoria** de los clips de **fonemas aislados** (ElevenLabs tiende a añadir "schwa"): no publicar sonidos de letras sin validarlos.
 - Idioma persistente por dispositivo; cambiable desde la zona de padres.
 
 ---
 
-## 8. Seguridad y privacidad (app infantil)
+## 8. Seguridad, privacidad y salud (app infantil)
 
 - **Sin PII del niño** (a lo más, un nombre/apodo local para personalizar la voz, guardado en el dispositivo).
+- **Tiempo de pantalla saludable** (OMS/AAP): **< ~18-24 m** solo uso acompañado; **2-5 años** hasta ~1 h/día con co-juego. **Límites por defecto por edad** en la zona de padres, con finales de sesión y pausas activas (ver currículo §8).
 - **Zona de padres** con candado ante compras/ajustes/enlaces externos.
 - Cumplimiento con la ley mexicana de datos (**LFPDPPP**) y buenas prácticas tipo **COPPA/GDPR-K** si se expande; **pagos y datos financieros** los procesa Mercado Pago.
 - Analítica **mínima y respetuosa** (o nula en el MVP).
@@ -222,7 +226,7 @@ Estrategia: **validar la diversión y la pedagogía antes de cobrar.** Primero u
 | **1 · MVP jugable (gratis)** | 4-5 juegos en es-MX | Niveles **N1-N5** (Etapas A y B), voces ElevenLabs es-MX, progreso local, instalable, zona de padres básica. **Sin pagos aún.** Meta: ponerla en manos de Andre y medir enganche. |
 | **2 · Cuentas y nube** | Padres + progreso sincronizado | Backend en Render, auth de padres, progreso en la nube, **panel de padres** con lectura pedagógica. |
 | **3 · Monetización** | Cobro y licencias | **Mercado Pago Checkout Pro**, licencias **por nivel** y **anual**, webhook + validación, **panel admin con aprobación manual**, tokens de licencia en cliente + revalidación. |
-| **4 · Currículo completo + idiomas** | Etapas C y D + en/pt-BR | Niveles **N6-N14**, adaptividad (ZDP), trazado (canvas), fonética por idioma, paquetes de voz **en** y **pt-BR**. |
+| **4 · Currículo completo + idiomas** | Etapas C y D + en/pt-BR | Niveles **N6-N22** (incluye ejes 🧠 función ejecutiva y ❤️ socioemocional, subitización, conciencia fonológica oral), adaptividad (ZDP), trazado (canvas), fonética por idioma, paquetes de voz **en** y **pt-BR**. |
 | **5 · Pulido y lanzamiento** | Listo para usuarios | Accesibilidad, música/animaciones finas, onboarding de instalación iOS, analítica respetuosa, términos/privacidad, dominio Neubox + despliegue productivo. |
 
 **Sugerencia de secuencia mínima para ver valor pronto:** Fase 0 + Fase 1 (jugable con Andre) → luego decidir con datos reales antes de invertir en backend/pagos.
@@ -267,7 +271,7 @@ Estrategia: **validar la diversión y la pedagogía antes de cobrar.** Primero u
 - **Bandera de inglés:** 🇺🇸 por defecto (ajustable a 🇬🇧 o globo neutro).
 - **Auth de padres:** magic link (menos fricción) vs correo+contraseña — se define en Fase 2.
 - **Motor de juego:** DOM/SVG + framer-motion por defecto; PixiJS/Phaser solo donde un mundo lo justifique.
-- **Feedback del agente pedagógico:** se integra aquí y en `docs/CURRICULUM.md` en cada iteración. *(Pendiente: primera ronda de revisión del especialista sobre este plan y el currículo.)*
+- **Feedback del agente pedagógico:** se integra aquí y en `docs/CURRICULUM.md` en cada iteración. *(Ronda 1 **incorporada**: ejes de función ejecutiva y socioemocional, conciencia fonológica oral, sentido numérico corregido, tiempo de pantalla saludable, elogio de proceso e inclusión reforzada — ver `docs/CURRICULUM.md` §13.)*
 
 ---
 

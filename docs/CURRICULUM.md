@@ -2,6 +2,8 @@
 
 > **Rol:** documento redactado desde la perspectiva de un especialista en desarrollo infantil y pedagogía de 0 a 5 años.
 > **Propósito:** definir el panorama de actividades y juegos **por niveles**, de lo más sencillo a lo más complejo, fundamentado en investigación de aprendizaje temprano, tomando la app de inspiración (*Bimi Boo — Juegos para niños & niñas 2-5*) como punto de partida a superar.
+>
+> **Estado:** incorpora la **1ª ronda de revisión del especialista en pedagogía** (ver §13). Cambios mayores: ejes de **función ejecutiva y socioemocional**, **conciencia fonológica oral** antes de la fonética, secuencia de **sentido numérico** corregida (subitización → 6-10 → comparar → sumar), postura de **tiempo de pantalla saludable** y **elogio de proceso**, e **inclusión** reforzada (redundancia visual, alternativa al arrastre, modo sensorial).
 
 Este mapa es la **fuente de verdad pedagógica**. El plan técnico (`../PLAN.md`) se construye sobre él: cada nivel aquí descrito se convierte en uno o varios módulos de juego.
 
@@ -15,11 +17,14 @@ La app se apoya en marcos de aprendizaje temprano ampliamente validados:
 |---|---|
 | **Piaget** (etapas sensoriomotora 0-2 y preoperacional 2-7) | El niño aprende **manipulando** y por **símbolos concretos**, no por explicaciones abstractas. Todo es tocable y visual. |
 | **Vygotsky** (Zona de Desarrollo Próximo) | Cada actividad se sitúa un paso por encima de lo que el niño ya domina, con **andamiaje** (pistas graduales) que se retira conforme progresa. |
+| **Función ejecutiva y autorregulación** (Diamond; Center on the Developing Child, Harvard) | El **control inhibitorio**, la **flexibilidad cognitiva** y la **memoria de trabajo** son los **predictores más fuertes** del éxito escolar 0-5, por encima de lo prenumérico/prealfabético. Se trabajan como **eje transversal**. |
+| **Desarrollo socioemocional** | Reconocer y nombrar emociones, empatía y "primero-después" son parte esencial del desarrollo 0-5. Otro **eje transversal**. |
 | **Montessori** | Materiales **sensoriales**, **autonomía** del niño, orden, y **"control del error"**: la actividad misma revela el acierto sin que un adulto corrija. |
 | **Aprendizaje a través del juego** (LEGO Foundation / *Learning through Play*) | El juego debe ser **gozoso, con sentido, activo, iterativo y social**. Un juego "educativo" aburrido no enseña. |
+| **Co-juego adulto-niño** (*joint media engagement*) | La evidencia sobre pantallas 0-5 recomienda **uso acompañado**. El pilar "social" se cumple diseñando actividades para **jugar junto a un adulto**, no en soledad. |
 | **Hitos del desarrollo** (referencias tipo CDC/OMS) | Las expectativas motoras, cognitivas y de lenguaje se ajustan a la edad real; no se pide lo que el niño aún no puede hacer. |
 
-**Principio rector:** *jugar es la forma en que los niños investigan el mundo.* La app no "da clase"; **provoca descubrimiento** y lo celebra.
+**Principio rector:** *jugar es la forma en que los niños investigan el mundo.* La app no "da clase"; **provoca descubrimiento**, lo celebra e **invita al adulto a jugar con el niño**.
 
 ---
 
@@ -29,147 +34,187 @@ El diseño de cada nivel respeta estas capacidades por edad (son orientativas: l
 
 | Edad | Atención sostenida | Motricidad fina | Cognición | Lenguaje |
 |---|---|---|---|---|
-| **0-2** | ~1-3 min | Toque impreciso, palma; sin arrastre fino | Causa-efecto, permanencia del objeto | Recibe vocabulario; primeras palabras |
-| **2-3** | ~3-5 min | Toque puntual; arrastre lento | Clasifica por 1 atributo; imita | Explosión de vocabulario; frases de 2-3 palabras |
-| **3-4** | ~5-8 min | Arrastre con control; traza líneas | Cuenta 1-5; secuencias simples | Sigue instrucciones de 2 pasos |
-| **4-5** | ~8-15 min | Traza formas/números; precisión creciente | Cuenta 1-20; compara cantidades; patrones | Reconoce letras y sonidos; narra |
+| **~18-24 m** (acompañado) | ~1-3 min | Toque impreciso, palma; sin arrastre fino | Causa-efecto, permanencia del objeto | Recibe vocabulario; primeras palabras |
+| **2-3** | ~3-5 min | Toque puntual; arrastre lento e impreciso | Empareja idénticos; clasifica por 1 atributo; imita | Explosión de vocabulario; frases de 2-3 palabras |
+| **3-4** | ~5-8 min | Arrastre con control; traza líneas | Subitiza 1-3; cuenta 1-5; secuencias simples | Sigue instrucciones de 2 pasos; rima |
+| **4-5** | ~8-15 min | Traza formas/números; precisión creciente | Cuenta 1-20; compara y suma; patrones; cambia de regla | Reconoce letras y sonidos; narra |
 
 **Implicaciones de diseño no negociables:**
-- **Sin texto para el niño**: toda instrucción es por **voz + íconos**.
+- **Instrucción por audio + apoyo visual redundante**: cada indicación hablada se acompaña de **icono + demostración animada del gesto**. *(No "solo audio": eso excluiría a niños sordos o con hipoacusia.)* El texto solo aparece en la zona de padres.
 - **Objetivos táctiles grandes** (≥ ~64 px) y bien separados.
-- **Gestos simples**: solo *tocar* y *arrastrar lento*. Nada de doble toque, swipe preciso ni pellizco.
-- **Sin castigo**: el error no produce sonido negativo ni bloquea; se repite la pista con más apoyo.
-- **Sesiones cortas** con celebración frecuente; sin cronómetros que presionen.
+- **Gestos simples**: solo *tocar* y *arrastrar lento*. Además, **todo arrastre ofrece alternativa "tocar origen → tocar destino"** y **imán con radio de captura generoso** (el arrastre-soltar puro es difícil e frustrante a los 2-3). Nunca multitáctil.
+- **Sin castigo**: el error no produce sonido negativo ni bloquea; el objeto "rebota" suave y la pista sube de nivel.
+- **Sesiones cortas con finales naturales** (saciedad) y **pausas activas**; la app **no depende de que el niño pare** (ver §8).
+- **Franja más pequeña = experiencia acompañada.** Para ~18-24 meses la app se posiciona como juego **con un adulto**, no de uso en solitario (ver §8).
 
 ---
 
-## 3. El mapa por niveles
+## 3. Ejes de aprendizaje
 
-Progresión en **4 etapas** (A→D) y **14 niveles**, de lo más simple a lo más complejo. Cada nivel es un "mundo" temático con un personaje guía que da narrativa y sentido.
+Dos tipos de contenido que se entrelazan:
+
+- **Dominios de contenido:** vocabulario y lenguaje · sentido numérico · formas/espacio · lectura emergente (conciencia fonológica → letras) · motricidad/preescritura.
+- **Ejes transversales** (recorren todas las etapas): **función ejecutiva/autorregulación** (control inhibitorio, flexibilidad cognitiva, memoria de trabajo) y **socioemocional** (emociones, empatía, secuencia "primero-después").
+
+Los ejes transversales no son un "mundo" aparte: aparecen como niveles propios **y** como mecánicas dentro de otros.
+
+---
+
+## 4. El mapa por niveles
+
+Progresión en **4 etapas** (A→D) y **22 niveles**, de lo más simple a lo más complejo. Cada nivel es un "mundo" temático con un personaje guía que da narrativa y sentido. Los íconos marcan el **eje transversal**: 🧠 función ejecutiva · ❤️ socioemocional.
 
 ```mermaid
 flowchart LR
-    subgraph A["Etapa A · Descubrimiento (~0-2)"]
-        N1["N1 Causa y efecto"] --> N2["N2 Toca al objetivo"]
+    subgraph A["Etapa A · Descubrimiento (~18 m+, acompañado)"]
+        N1["N1 Causa y efecto"] --> N2["N2 Toca al objetivo<br/>(estático→móvil)"] --> N3["N3 Emparejar idénticos"]
     end
     subgraph B["Etapa B · Exploración (~2-3)"]
-        N3["N3 Clasificar por 1 atributo"] --> N4["N4 Vocabulario y sonidos"] --> N5["N5 Rompecabezas 2-4 piezas"]
+        N4["N4 Clasificar por 1 atributo"] --> N5["N5 Vocabulario y sonidos"] --> N6["N6 Rompecabezas 2-4"] --> N7["N7 ❤️ Emociones"] --> N8["N8 🧠 Para y sigue"]
     end
     subgraph C["Etapa C · Fundamentos (~3-4)"]
-        N6["N6 Contar 1-5"] --> N7["N7 Formas y patrones"] --> N8["N8 Memoria"] --> N9["N9 Trazado guiado"]
+        N9["N9 Subitizar 1-3"] --> N10["N10 Contar 1-5"] --> N11["N11 Contar 6-10"] --> N12["N12 Formas y patrones"] --> N13["N13 Memoria"] --> N14["N14 Conciencia fonológica oral"] --> N15["N15 ❤️🧠 Seriar y secuencia temporal"] --> N16["N16 Trazado guiado"]
     end
     subgraph D["Etapa D · Preescolar (~4-5)"]
-        N10["N10 Números 1-20 y sumar"] --> N11["N11 Letras y fonética"] --> N12["N12 Trazar letras/números"] --> N13["N13 Lógica y secuencias"] --> N14["N14 Lectura temprana"]
+        N17["N17 Números 11-20 y comparar"] --> N18["N18 Sumar"] --> N19["N19 🧠 Flexibilidad + 2 atributos"] --> N20["N20 Letras y fonética"] --> N21["N21 Trazar letras/números"] --> N22["N22 Lectura temprana"]
     end
     A --> B --> C --> D
 ```
 
 ### Tabla maestra
 
-| # | Nivel | Objetivo pedagógico | Habilidades (cognitiva / motora / lenguaje) | Mecánica de juego |
+| # | Nivel | Objetivo pedagógico | Eje | Mecánica de juego |
 |---|---|---|---|---|
-| 1 | **Causa y efecto** | Descubrir que "mis acciones producen resultados" (intencionalidad) | Atención · toque · exposición a vocabulario | Tocar cualquier parte → animación + sonido + la voz nombra lo que apareció. Sin fallo posible. |
-| 2 | **Toca al objetivo** | Dirigir la atención y apuntar | Atención sostenida · puntería · vocabulario receptivo | Un personaje aparece y se mueve suave; tocarlo → recompensa. |
-| 3 | **Clasificar por 1 atributo** | Discriminar y categorizar (color, forma o tamaño) | Categorización · arrastre · nombres de atributos | Arrastrar objetos a la caja del color/forma correcta. |
-| 4 | **Vocabulario y sonidos** | Comprensión auditiva y ampliación de léxico | Escucha · toque · lenguaje receptivo | "¿Dónde está el perro?" → tocar el correcto; escucha nombre + sonido. |
-| 5 | **Rompecabezas 2-4 piezas** | Razonamiento espacial y persistencia | Percepción espacial · arrastre con control | Encajar siluetas/piezas grandes en su hueco (control del error: solo entra la correcta). |
-| 6 | **Contar 1-5** | Correspondencia uno a uno y cardinalidad | Conteo · toque · números hablados | Contar objetos que aparecen uno a uno; tocar el número o la cantidad correcta. |
-| 7 | **Formas y patrones** | Reconocer formas y completar patrones ABAB | Reconocimiento · secuenciación · arrastre | Emparejar formas; completar el patrón "🔴🔵🔴🔵__". |
-| 8 | **Memoria** | Memoria de trabajo | Memoria · toque | Memorama de 2→6 pares (según dominio). |
-| 9 | **Trazado guiado** | Preescritura y control motor fino | Coordinación óculo-manual · trazo | Seguir con el dedo líneas y formas guiadas (canvas); la voz acompaña. |
-| 10 | **Números 1-20 y sumar** | Sentido numérico; comparar cantidades; sumas de 1 dígito con apoyo | Conteo avanzado · comparación · toque | Contar hasta 20; "¿cuál tiene más?"; sumar con objetos visuales. |
-| 11 | **Letras y fonética** | Conciencia fonológica y reconocimiento de letras | Asociación letra-sonido · escucha | Reconocer la letra, su **sonido** y una palabra que empieza con ella (fonética adaptada al idioma). |
-| 12 | **Trazar letras y números** | Escritura emergente | Trazo preciso · secuencia de trazos | Trazar números y letras siguiendo la guía animada. |
-| 13 | **Lógica y secuencias** | Ordenar, seriar y clasificar por 2 atributos | Razonamiento lógico · arrastre | Ordenar por tamaño; secuencia de una rutina (mañana→noche); clasificar por color **y** forma. |
-| 14 | **Lectura temprana** | Asociación palabra-imagen y sílabas simples | Decodificación inicial · escucha | Emparejar palabra con imagen; formar sílabas simples (CV) por audio. |
+| 1 | **Causa y efecto** | "Mis acciones producen resultados" (intencionalidad) | Atención | Tocar cualquier parte → animación + sonido + la voz nombra lo que apareció. Sin fallo posible. |
+| 2 | **Toca al objetivo** | Dirigir la atención y apuntar | Atención | Personaje **primero estático** (solo "respira"), luego con movimiento que **escala de velocidad**; tocarlo → recompensa. |
+| 3 | **Emparejar idénticos** | Emparejamiento por identidad (precursor de clasificar) | Percepción | Juntar dos objetos **iguales** (tocar-tocar o arrastre). |
+| 4 | **Clasificar por 1 atributo** | Discriminar y categorizar | Categorización | Ordenar por color/forma/tamaño: primero **perceptual** (sin nombrar), luego **nombrado** (apoyado en el léxico de N5). |
+| 5 | **Vocabulario y sonidos** | Comprensión auditiva y léxico | Lenguaje | "¿Dónde está el perro?" → tocar el correcto; escucha nombre + sonido. |
+| 6 | **Rompecabezas 2-4 piezas** | Razonamiento espacial y persistencia | Espacial | Encajar siluetas grandes (control del error: solo entra la correcta; imán generoso). |
+| 7 | **Emociones** | Reconocer y nombrar emociones (feliz/triste/enojado/asustado) | ❤️ | Emparejar cara ↔ emoción; "¿cómo se siente?"; historias "primero-después". |
+| 8 | **Para y sigue** | Control inhibitorio (esperar la señal, go/no-go) | 🧠 | Bailar/moverse con la música y **congelarse** cuando para; tocar solo ante la señal correcta. Uno de los más divertidos. |
+| 9 | **Subitizar 1-3** | Reconocer cantidades pequeñas **sin contar** | Número | Aparecen 1-3 objetos un instante; elegir cuántos había. |
+| 10 | **Contar 1-5** | Correspondencia uno a uno y cardinalidad | Número | Contar tocando (un toque = un objeto = un número dicho). |
+| 11 | **Contar 6-10** | Extender el conteo | Número | Igual que N10 con conjuntos 6-10; cuidar nombres irregulares por idioma. |
+| 12 | **Formas y patrones** | Reconocer formas y completar patrones ABAB | Formas | Emparejar formas; completar "🔴🔵🔴🔵__". |
+| 13 | **Memoria** | Memoria de trabajo | 🧠 | Memorama con techo **adaptativo por edad** (2-3 pares a los 3 → hasta 6 a los 5). |
+| 14 | **Conciencia fonológica oral** | Rima, sílabas y aliteración **sin letras** | Lenguaje | Juegos auditivos: "¿cuál rima?", aplaudir sílabas, "¿con qué sonido empieza?". **Rediseñado por idioma.** |
+| 15 | **Seriar y secuencia temporal** | Ordenar por tamaño; "primero-después" | ❤️🧠 | Ordenar de pequeño a grande; ordenar una rutina (mañana→noche). |
+| 16 | **Trazado guiado** | Preescritura y control motor fino | Motriz | Seguir líneas/formas guiadas. **Éxito por esfuerzo/participación, no por precisión** (la guía se atenúa con el dominio). |
+| 17 | **Números 11-20 y comparar** | Contar hasta 20; "¿cuál tiene más?" | Número | Conteo a 20; comparación de cantidades. |
+| 18 | **Sumar** | Combinar conjuntos (suma de 1 dígito con apoyo visual) | Número | Juntar dos grupos de objetos y contar el total. |
+| 19 | **Flexibilidad + 2 atributos** | Cambiar de regla; clasificar por 2 atributos | 🧠 | Clasificar por color y **luego cambiar la regla** a forma; ordenar por 2 atributos. |
+| 20 | **Letras y fonética** | Asociación letra-sonido | Lenguaje | Reconocer la letra, su **sonido** (no su nombre) y una palabra que empieza así. **Rediseñado por idioma.** |
+| 21 | **Trazar letras y números** | Escritura emergente | Motriz | Trazar números y letras siguiendo la guía animada (éxito por esfuerzo). |
+| 22 | **Lectura temprana** | Asociación palabra-imagen y sílabas simples | Lenguaje | Emparejar palabra ↔ imagen; formar sílabas CV por audio. **Rediseñado por idioma.** |
 
 ---
 
-## 4. Fichas de los niveles clave
+## 5. Fichas de niveles clave
 
-Ejemplos del detalle que cada módulo debe cumplir (los 14 se documentan igual en implementación):
+Ejemplos del detalle que cada módulo debe cumplir (los 22 se documentan igual en implementación):
 
-**Nivel 1 — Causa y efecto**
-- *Meta:* el bebé/niño entiende que tocar produce algo maravilloso.
-- *Éxito:* toca repetidamente y sonríe/repite (no hay "correcto/incorrecto").
-- *Andamiaje:* si no toca en ~5 s, un brillo invita a tocar.
-- *Mejora sobre la referencia:* la app de inspiración arranca directo en números; aquí primero se construye **intención y confianza**.
+**N1 — Causa y efecto** · *Meta:* entender que tocar produce algo maravilloso. *Éxito:* toca y repite (no hay "correcto/incorrecto"). *Andamiaje:* si no toca en ~5 s, un brillo invita. *Mejora sobre la referencia:* primero **intención y confianza**, no números.
 
-**Nivel 6 — Contar 1-5**
-- *Meta:* correspondencia uno a uno (un toque = un objeto = un número dicho).
-- *Éxito:* cuenta 3 conjuntos seguidos sin ayuda.
-- *Andamiaje:* nivel 1 la voz cuenta con el niño; nivel 2 el niño cuenta solo; nivel 3 elige el número sin conteo guiado.
-- *Control del error:* al tocar de más, el objeto "rebota" suave sin sonido negativo.
+**N8 — Para y sigue (control inhibitorio)** · *Meta:* inhibir la respuesta dominante (parar cuando la música se detiene). *Éxito:* se congela en 3 señales seguidas. *Por qué importa:* la función ejecutiva predice el éxito escolar mejor que lo prenumérico. *Diversión:* es de los juegos más gozosos de la edad (baile + sorpresa).
 
-**Nivel 9 / 12 — Trazado**
-- *Meta:* control motor fino y memoria del trazo (secuencia correcta de un número/letra).
-- *Éxito:* completa el trazo dentro de la guía en 2 intentos.
-- *Andamiaje:* punto de inicio parpadeante + flecha; la guía se hace más tenue conforme domina.
+**N9 — Subitizar 1-3** · *Meta:* "ver" la cantidad sin contar (base de la cardinalidad). *Andamiaje:* exposición breve → si duda, se permite contar. *Precede a N10.*
+
+**N14 — Conciencia fonológica oral** · *Meta:* jugar con los sonidos del habla **antes** de las letras (predictor #1 de la lectura). *Clave:* es **auditivo, sin letras**, y **distinto por idioma** (ver §11).
+
+**N16 / N21 — Trazado** · *Meta:* control motor y memoria del trazo. *Éxito:* **por intentar el trazo completo**, no por exactitud; la guía se atenúa con el dominio.
 
 ---
 
-## 5. Progresión y adaptividad
+## 6. Progresión y adaptividad
 
-- **Desbloqueo por dominio, no por edad:** un nivel se abre cuando el anterior se domina (p. ej. 3 rondas con ≥80% de acierto sin pista). El adulto puede fijar la edad para sugerir un punto de entrada.
-- **Andamiaje dinámico (ZDP):** si el niño falla 2 veces, la pista sube de nivel (resalte → voz → demostración). Si acierta rápido, la dificultad sube (más elementos, menos pistas).
-- **Repetición con variación:** el mismo objetivo (p. ej. "contar 3") reaparece con distintos contextos/temas para consolidar sin aburrir (*práctica espaciada*).
-- **Sin caminos únicos:** el niño elige el mundo; dentro de él, la app gradúa.
-
----
-
-## 6. Sistema de recompensas (motivación intrínseca)
-
-La investigación advierte contra premios extrínsecos que apagan el interés. Por eso:
-- **Celebración del logro** (animación, aplauso, la voz felicita por su nombre).
-- **Colección de calcomanías/personajes** que se ganan al dominar, no por competir.
-- **Nada de rankings, vidas, ni "game over".** No hay presión ni pérdida.
-- **Progreso visible para el niño** como un mapa que se ilumina (sentido de avance).
+- **Desbloqueo por dominio, no por edad:** un nivel se abre al dominar el anterior (p. ej. 3 rondas con ≥80% de acierto sin pista). El adulto puede fijar la edad como punto de entrada sugerido.
+- **La maestría no es un examen:** los mundos ya vistos quedan **siempre disponibles para juego libre**; el "candado por dominio" es una **sugerencia** de la app, no una barrera que frustre al que quiere repetir.
+- **Andamiaje dinámico (ZDP):** tras 2 fallos la pista sube (resalte → voz → demostración), con **desvanecimiento fiable** y **variación del tipo de pista** para evitar que el niño "espere la demo". De vez en cuando se pide un intento independiente antes de volver a la ayuda máxima.
+- **Repetición con variación:** el mismo objetivo reaparece en distintos contextos/temas (*práctica espaciada*) para consolidar sin aburrir.
 
 ---
 
-## 7. Qué mejora frente a la app de inspiración
+## 7. Recompensas (motivación intrínseca)
+
+La investigación advierte contra premios extrínsecos que apagan el interés (efecto de sobrejustificación; Deci, Lepper). Por eso:
+- **Elogio de proceso, no de rasgo** (Dweck): la voz dice *"¡lo intentaste muchísimo!"*, *"¡lo lograste tú solo!"* — **nunca** *"¡qué inteligente!"*.
+- **Celebración del logro** (animación + sonido + felicitación por su nombre).
+- **Coleccionables de baja prominencia y narrativos** ("descubriste un nuevo amigo del bosque"), no trofeos ni contadores de "te faltan 3".
+- **Prohibido** todo mecanismo de **recompensa variable/aleatoria** (cajas sorpresa, ruletas, *loot*): son adictivos por diseño e inapropiados para menores.
+- **Nada de rankings, vidas ni "game over".** Sin presión ni pérdida.
+- **Progreso visible** como un mapa que se ilumina (sentido de avance).
+
+---
+
+## 8. Tiempo de pantalla saludable
+
+Postura explícita del producto (OMS / AAP), un diferenciador honesto frente a la referencia:
+- **< ~18-24 meses:** desaconsejado el uso en solitario; la app se usa **solo acompañada** por un adulto (o nada). La Etapa A se comunica como **experiencia conjunta**.
+- **2-5 años:** hasta **~1 hora/día** de contenido de calidad, preferentemente **con co-visionado/co-juego**.
+- **Límites de tiempo por defecto por edad** en la zona de padres (no solo un control opcional), con aviso amable de descanso.
+- **Finales de sesión naturales** y **pausas activas** ("levántate y salta 3 veces con el personaje") — que además entrenan autorregulación.
+- La app **educa al padre** sobre co-juego y descansos, sin culpabilizar.
+
+---
+
+## 9. Accesibilidad e inclusión
+
+Base: no depender solo del color (formas/íconos redundantes), objetivos grandes y tolerantes, volumen/música ajustables, opción de reducir animaciones, sin destellos ni sonidos estridentes.
+
+Refuerzos por perfil:
+- **Sordera / hipoacusia:** toda instrucción por voz tiene **redundancia visual** (icono + demostración animada del gesto). *(De ahí "audio + apoyo visual", nunca "solo audio".)*
+- **Neurodivergencia (autismo, TDAH):** **predictibilidad** (previsualización "primero-después", rutinas consistentes), sin sonidos fuertes inesperados. **Modo sensorial suave** (preset agrupado: menos animación + audio más bajo y espaciado + ritmo más lento) frente a un modo más rico, para niños hiper- e hiporreactivos. Sesiones cortas, trozos pequeños y pausas de movimiento.
+- **Motricidad atípica:** un solo toque (nunca multitáctil), **alternativa tocar-tocar** al arrastre, radios de acierto generosos, y considerar **selección por permanencia (dwell)**.
+- **Zona de padres (única parte con texto):** contraste y tamaño de fuente ajustables, compatible con lector de pantalla.
+
+---
+
+## 10. Rol de los padres
+
+- **Zona de padres protegida** (candado con gesto/operación simple) — nunca accesible por accidente para el niño.
+- **Panel** con: dominios y ejes trabajados, nivel alcanzado por área, tiempo de uso, y **sugerencias** ("Andre domina contar hasta 5; probemos formas").
+- **Invitaciones a co-jugar** ("este nivel es más rico si lo juegan juntos").
+- **Controles**: **límite de tiempo por defecto según edad**, idioma, música, modo sensorial, y compra/licencia.
+
+---
+
+## 11. Localización pedagógica (por idioma, no traducción)
+
+Cada idioma tiene su **fonética y su realidad cultural**; los niveles de sonidos/letras/lectura (N14, N20, N22) se **rediseñan**, no se traducen.
+
+- **Español (México) 🇲🇽** — etiqueta única "Español". Ortografía **transparente**: ruta **silábica (CV)** natural, empezar por las **5 vocales puras**, enseñar el **sonido** (no el nombre de la letra), cuidar dígrafos (ch, ll, rr) y la ñ, evitar el "schwa" al aislar consonantes. Voz cálida neutra-mexicana.
+- **Inglés 🇺🇸** — ortografía **opaca**: **NO** replicar la ruta silábica del español. Más **conciencia fonémica**, distinguir **nombre vs sonido** de la letra, vocales cortas, palabras **CVC** (cat), mucha **rima / onset-rime**, e introducir letras por **utilidad fonética** (secuencia tipo *s-a-t-p-i-n*), no alfabéticamente.
+- **Português (Brasil) 🇧🇷** — silábico con más complejidad vocálica: **vocales nasales** (ã, õ), abiertas/cerradas, dígrafos (nh, lh, ch, rr) y diacríticos; pronunciación regional consistente.
+- **Transversal:** la **conciencia fonológica oral** (N14) es específica de cada idioma y precede a las letras en todos.
+- **Riesgo del audio pregenerado (ElevenLabs):** aislar **fonemas** limpiamente es difícil para un TTS (tiende a añadir schwa: "buh" por /b/). Para N14/N20/N22, **revisión humana obligatoria** de cada clip de sonido aislado.
+- **Realia cultural:** objetos, animales y alimentos familiares por locale, no genéricos.
+
+---
+
+## 12. Qué mejora frente a la app de inspiración
 
 | Aspecto | Bimi Boo (referencia) | AndreApp (propuesta) |
 |---|---|---|
-| Alcance | Foco casi único en números 1-20 | **Currículo completo** 0-5 (14 niveles, 4 dominios) |
-| Progresión | Lineal por número | **Por dominio + adaptividad (ZDP)** |
+| Alcance | Foco casi único en números 1-20 | **Currículo completo** 0-5: 22 niveles, dominios + **ejes de función ejecutiva y socioemocional** |
+| Progresión | Lineal por número | **Por dominio + adaptividad (ZDP)**, con juego libre siempre disponible |
 | Entrada | Empieza en abstracto (números) | Empieza en **causa-efecto** y construye confianza |
-| Sentido | Actividades sueltas | **Narrativa con personaje guía** (aprendizaje con significado) |
-| Adulto | Poca información | **Panel de padres** con progreso real por dominio |
+| Lectura | Salta a letras | **Conciencia fonológica oral primero** (predictor #1) |
+| Sentido | Actividades sueltas | **Narrativa con personaje guía** + **co-juego con el adulto** |
+| Salud | Sin postura | **Tiempo de pantalla saludable** y elogio de proceso explícitos |
+| Inclusión | Limitada | **Redundancia visual, alternativa al arrastre, modo sensorial** |
 | Cultura | Traducción genérica | **Localización real** (fonética es-MX / en / pt-BR) |
-| Acceso | Muro de pago temprano (num. 1-3 gratis) | **Nivel gratuito generoso**; el pago desbloquea profundidad, no lo básico |
+| Acceso | Muro de pago temprano | **Nivel gratuito generoso**; el pago desbloquea profundidad, no lo básico |
 
 ---
 
-## 8. Accesibilidad e inclusión
+## 13. Feedback del especialista (ciclo continuo)
 
-- **No depender solo del color** (formas/íconos redundantes) → apto para daltonismo.
-- **Todo por audio** → apto para prelectores y para acompañar a niños con dificultades visuales.
-- **Objetivos grandes y tolerantes** → apto para motricidad en desarrollo o atípica.
-- **Volumen y música ajustables**; opción de reducir animaciones (sensibilidad sensorial).
-- **Sin destellos bruscos** ni sonidos estridentes.
+**Ronda 1 (incorporada en esta versión).** El especialista validó la columna vertebral (causa-efecto primero, control del error, sin castigo, progresión por dominio, ZDP, rediseño por idioma) y señaló mejoras que ya se aplicaron:
+1. Nuevos **ejes de función ejecutiva y socioemocional** (N7 emociones, N8 para/sigue, N15 secuencia temporal, N19 flexibilidad) + co-juego como pilar "social".
+2. **Conciencia fonológica oral** (N14) antes de la fonética (N20).
+3. Sentido numérico reparado: **subitización** (N9), **6-10** (N11) y **N10 partido** en contar/comparar/sumar (N10, N17, N18).
+4. **Tiempo de pantalla saludable** (§8), **elogio de proceso** (§7) y reencuadre del "0" como uso acompañado.
+5. **Inclusión**: "audio + apoyo visual" (no solo audio), **alternativa al arrastre**, **modo sensorial** (§2, §9).
 
----
-
-## 9. Rol de los padres
-
-- **Zona de padres protegida** (candado con gesto/operación simple) — nunca accesible por accidente para el niño.
-- **Panel** con: dominios trabajados, nivel alcanzado por área, tiempo de uso, y **sugerencias** ("Andre domina contar hasta 5; probemos formas").
-- **Controles**: límite de tiempo, idioma, música, y compra/licencia.
-
----
-
-## 10. Localización cultural (pedagógica)
-
-No es traducir: cada idioma tiene su **fonética y su realidad cultural**.
-- **Español (México) 🇲🇽** — etiqueta única "Español". Fonética y vocabulario mexicano; voz neutra-mexicana cálida.
-- **Inglés** — fonética y nombres en inglés; el juego de letras usa el alfabeto y sonidos del inglés (no es el español traducido).
-- **Português (Brasil) 🇧🇷** — fonética y vocabulario brasileños.
-
-Los niveles de **letras/fonética y lectura (11, 14)** se **rediseñan por idioma**, no se traducen. El resto (números, formas, memoria) se localiza en voz y texto de apoyo del adulto.
-
----
-
-## 11. Feedback del especialista (ciclo continuo)
-
-Este mapa se revisa con un **agente experto en pedagogía** en cada iteración del plan y del producto: valida que cada juego respete la etapa de desarrollo, el andamiaje y la ausencia de castigo, y propone mejoras. Las observaciones se registran en `../PLAN.md` (sección de decisiones) y aquí.
+Cada iteración futura del plan y del producto se revisa igual con el agente pedagógico; las observaciones se registran aquí y en `../PLAN.md`.
