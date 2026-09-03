@@ -1,8 +1,18 @@
+import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { CURRICULUM_LEVELS, getLevelsByStage, type Stage } from "@andreapp/curriculum";
 import { BigButton } from "../components/BigButton";
 
 const STAGES: Stage[] = ["A", "B", "C", "D"];
+
+const STAGE_GRADIENT: Record<Stage, [string, string]> = {
+  A: ["#FFC46B", "#E0912A"],
+  B: ["#6BD6C2", "#2E9C89"],
+  C: ["#8B7FF5", "#5B4FE0"],
+  D: ["#F58BC0", "#D94F94"],
+};
+
+const STAGE_BADGE: Record<Stage, string> = { A: "🌟", B: "🧭", C: "🧠", D: "🎓" };
 
 interface HomeScreenProps {
   onPlay: (levelId: string) => void;
@@ -11,56 +21,102 @@ interface HomeScreenProps {
 
 export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
   const { t } = useTranslation();
+  let tileIndex = 0;
 
   return (
-    <div
-      style={{
-        flex: 1,
-        display: "flex",
-        flexDirection: "column",
-        background: "var(--color-bg)",
-        paddingBottom: "var(--space-xl)",
-      }}
-    >
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "space-between",
-          padding: "var(--space-md)",
-        }}
-      >
-        <span style={{ fontSize: "1.3rem", fontWeight: 800 }}>{t("home.title")}</span>
-        {/* Zona de padres: candado por mantener-pulsado, ver PLAN.md §2 */}
-        <ParentZoneUnlockButton onOpen={onOpenParentZone} />
-      </header>
+    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "var(--color-bg)", paddingBottom: "var(--space-xl)" }}>
+      {/* Hero: fondo ilustrado + mascota + saludo */}
+      <div style={{ position: "relative", overflow: "hidden", paddingBottom: "var(--space-lg)" }}>
+        <img
+          src="/illustrations/background.webp"
+          alt=""
+          aria-hidden="true"
+          style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%" }}
+        />
+        <div
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            inset: 0,
+            background: "linear-gradient(180deg, rgba(255,247,237,0.15) 0%, rgba(255,247,237,0.55) 65%, var(--color-bg) 100%)",
+          }}
+        />
+
+        <header
+          style={{
+            position: "relative",
+            zIndex: 1,
+            display: "flex",
+            alignItems: "center",
+            justifyContent: "space-between",
+            padding: "max(env(safe-area-inset-top), var(--space-md)) var(--space-md) 0",
+          }}
+        >
+          <div>
+            <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--color-text-muted)" }}>AndreApp</div>
+            <div style={{ fontSize: "1.4rem", fontWeight: 800, textShadow: "0 2px 8px rgba(255,255,255,0.6)" }}>{t("home.title")}</div>
+          </div>
+          <ParentZoneUnlockButton onOpen={onOpenParentZone} />
+        </header>
+
+        <motion.img
+          src="/illustrations/mascot.png"
+          alt=""
+          aria-hidden="true"
+          initial={{ opacity: 0, y: 24 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.5, ease: "easeOut" }}
+          style={{
+            position: "relative",
+            zIndex: 1,
+            display: "block",
+            margin: "0 auto",
+            width: "min(38vw, 168px)",
+            filter: "drop-shadow(0 12px 16px rgba(120,60,10,0.22))",
+          }}
+        />
+      </div>
 
       <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-lg)", padding: "0 var(--space-md)" }}>
         {STAGES.map((stage) => {
           const levels = getLevelsByStage(stage);
           if (levels.length === 0) return null;
+          const [from, to] = STAGE_GRADIENT[stage];
           return (
             <section key={stage}>
-              <h2 style={{ fontSize: "1rem", color: "var(--color-text-muted)", margin: "0 0 var(--space-sm)" }}>
-                {t(`home.stage.${stage}`)}
-              </h2>
               <div
                 style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))",
-                  gap: "var(--space-sm)",
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "4px 12px 4px 8px",
+                  borderRadius: "var(--radius-pill)",
+                  background: `linear-gradient(90deg, ${from}, ${to})`,
+                  marginBottom: "var(--space-sm)",
                 }}
               >
-                {levels.map((level) => (
-                  <BigButton
-                    key={level.id}
-                    icon={level.status === "playable" ? level.icon : level.free ? "⏳" : "🔒"}
-                    label={t(level.titleKey)}
-                    variant={level.status === "playable" ? "primary" : "locked"}
-                    disabled={level.status !== "playable"}
-                    onTap={() => onPlay(level.id)}
-                  />
-                ))}
+                <span aria-hidden="true">{STAGE_BADGE[stage]}</span>
+                <h2 style={{ fontSize: "0.85rem", fontWeight: 800, color: "#fff", margin: 0, textShadow: "0 1px 2px rgba(0,0,0,0.15)" }}>
+                  {t(`home.stage.${stage}`)}
+                </h2>
+              </div>
+              <div style={{ display: "grid", gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))", gap: "var(--space-sm)" }}>
+                {levels.map((level) => {
+                  const isPlayable = level.status === "playable";
+                  const idx = tileIndex++;
+                  return (
+                    <BigButton
+                      key={level.id}
+                      icon={isPlayable ? level.icon : level.free ? "⏳" : "🔒"}
+                      label={t(level.titleKey)}
+                      gradient={STAGE_GRADIENT[stage]}
+                      locked={!isPlayable}
+                      disabled={!isPlayable}
+                      delayIndex={idx}
+                      onTap={() => onPlay(level.id)}
+                    />
+                  );
+                })}
               </div>
             </section>
           );
@@ -99,7 +155,8 @@ function ParentZoneUnlockButton({ onOpen }: { onOpen: () => void }) {
         width: 44,
         height: 44,
         borderRadius: "var(--radius-pill)",
-        background: "var(--color-bg-elevated)",
+        background: "rgba(255,255,255,0.85)",
+        backdropFilter: "blur(4px)",
         boxShadow: "var(--shadow-soft)",
         fontSize: "1.1rem",
       }}

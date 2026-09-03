@@ -4,25 +4,37 @@ import { playChime, playVoiceClip } from "../../audio/audioEngine";
 import { useProgressStore } from "../../store/progressStore";
 
 interface DelightObject {
-  icon: string;
+  image: string;
   voiceFile: string;
 }
 
 const OBJECTS: DelightObject[] = [
-  { icon: "⭐", voiceFile: "object-star.mp3" },
-  { icon: "🔔", voiceFile: "object-bell.mp3" },
-  { icon: "🎈", voiceFile: "object-balloon.mp3" },
-  { icon: "🌸", voiceFile: "object-flower.mp3" },
+  { image: "/illustrations/object-star.png", voiceFile: "object-star.mp3" },
+  { image: "/illustrations/object-bell.png", voiceFile: "object-bell.mp3" },
+  { image: "/illustrations/object-balloon.png", voiceFile: "object-balloon.mp3" },
+  { image: "/illustrations/object-flower.png", voiceFile: "object-flower.mp3" },
 ];
+
+const CONFETTI_COLORS = ["#FFB03B", "#4F46E5", "#F58BC0", "#6BD6C2", "#FFFFFF"];
 
 const IDLE_HINT_DELAY_MS = 5000;
 const POP_LIFETIME_MS = 1200;
+const CONFETTI_LIFETIME_MS = 700;
 
 interface Pop {
   id: number;
   x: number;
   y: number;
-  icon: string;
+  image: string;
+}
+
+interface Confetti {
+  id: number;
+  x: number;
+  y: number;
+  dx: number;
+  dy: number;
+  color: string;
 }
 
 interface N1CausaEfectoProps {
@@ -34,10 +46,11 @@ interface N1CausaEfectoProps {
  * N1 · Causa y efecto (docs/CURRICULUM.md ficha N1).
  * Tocar cualquier parte de la pantalla produce una animación + sonido +
  * la voz nombra lo que apareció. Sin estado de fallo: cualquier toque es
- * "correcto". Si no toca en ~5s, un brillo suave invita a intentar.
+ * "correcto". Si no toca en ~5s, la mascota se asoma invitando a intentar.
  */
 export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
   const [pops, setPops] = useState<Pop[]>([]);
+  const [confetti, setConfetti] = useState<Confetti[]>([]);
   const [showIdleHint, setShowIdleHint] = useState(false);
   const nextId = useRef(0);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -68,13 +81,31 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
       const x = event.clientX;
       const y = event.clientY;
 
-      setPops((prev) => [...prev, { id, x, y, icon: object.icon }]);
+      setPops((prev) => [...prev, { id, x, y, image: object.image }]);
       playChime();
       playVoiceClip(locale, object.voiceFile);
+
+      const burst: Confetti[] = Array.from({ length: 8 }, (_, i) => {
+        const angle = (Math.PI * 2 * i) / 8 + Math.random() * 0.4;
+        const distance = 50 + Math.random() * 40;
+        return {
+          id: nextId.current++,
+          x,
+          y,
+          dx: Math.cos(angle) * distance,
+          dy: Math.sin(angle) * distance,
+          color: CONFETTI_COLORS[i % CONFETTI_COLORS.length]!,
+        };
+      });
+      setConfetti((prev) => [...prev, ...burst]);
 
       setTimeout(() => {
         setPops((prev) => prev.filter((pop) => pop.id !== id));
       }, POP_LIFETIME_MS);
+      setTimeout(() => {
+        const burstIds = new Set(burst.map((c) => c.id));
+        setConfetti((prev) => prev.filter((c) => !burstIds.has(c.id)));
+      }, CONFETTI_LIFETIME_MS);
     },
     [locale, resetIdleTimer],
   );
@@ -87,10 +118,14 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
         flex: 1,
         minHeight: "100vh",
         overflow: "hidden",
-        background: "linear-gradient(160deg, #FFE3B3 0%, #FFB03B 100%)",
+        background: "radial-gradient(circle at 20% 15%, #FFD68A 0%, #FFB03B 45%, #F58C1F 100%)",
         touchAction: "manipulation",
       }}
     >
+      {/* Manchas decorativas suaves, sin distraer del objetivo táctil */}
+      <div aria-hidden="true" style={DECOR_BLOB_1} />
+      <div aria-hidden="true" style={DECOR_BLOB_2} />
+
       <button
         type="button"
         aria-label="Regresar"
@@ -118,53 +153,96 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
 
       <AnimatePresence>
         {showIdleHint && pops.length === 0 && (
-          <motion.div
+          <motion.img
             key="idle-hint"
-            initial={{ opacity: 0 }}
-            animate={{ opacity: 1 }}
-            exit={{ opacity: 0 }}
+            src="/illustrations/mascot.png"
+            alt=""
+            aria-hidden="true"
+            initial={{ opacity: 0, y: 80 }}
+            animate={{ opacity: 1, y: [80, 40, 80] }}
+            exit={{ opacity: 0, y: 80 }}
+            transition={{ y: { duration: 1.6, repeat: Infinity, ease: "easeInOut" }, opacity: { duration: 0.4 } }}
             style={{
               position: "absolute",
-              inset: 0,
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
+              bottom: 0,
+              left: "50%",
+              marginLeft: "-90px",
+              width: 180,
               pointerEvents: "none",
+              filter: "drop-shadow(0 12px 16px rgba(120,60,10,0.25))",
             }}
-          >
-            <motion.span
-              aria-hidden="true"
-              style={{ fontSize: "5rem", filter: "drop-shadow(0 0 24px rgba(255,255,255,0.9))" }}
-              animate={{ scale: [1, 1.15, 1], opacity: [0.7, 1, 0.7] }}
-              transition={{ duration: 1.4, repeat: Infinity, ease: "easeInOut" }}
-            >
-              👋
-            </motion.span>
-          </motion.div>
+          />
         )}
       </AnimatePresence>
 
       <AnimatePresence>
-        {pops.map((pop) => (
+        {confetti.map((c) => (
           <motion.span
-            key={pop.id}
+            key={c.id}
             aria-hidden="true"
-            initial={{ opacity: 0, scale: 0.2, x: pop.x - 40, y: pop.y - 40 }}
-            animate={{ opacity: 1, scale: 1.3, y: pop.y - 90 }}
-            exit={{ opacity: 0, scale: 0.5 }}
-            transition={{ duration: 0.5, ease: "easeOut" }}
+            initial={{ opacity: 1, x: c.x - 5, y: c.y - 5, scale: 1 }}
+            animate={{ opacity: 0, x: c.x + c.dx, y: c.y + c.dy, scale: 0.3 }}
+            transition={{ duration: CONFETTI_LIFETIME_MS / 1000, ease: "easeOut" }}
             style={{
               position: "absolute",
               left: 0,
               top: 0,
-              fontSize: "4rem",
+              width: 10,
+              height: 10,
+              borderRadius: "50%",
+              background: c.color,
               pointerEvents: "none",
             }}
-          >
-            {pop.icon}
-          </motion.span>
+          />
+        ))}
+      </AnimatePresence>
+
+      <AnimatePresence>
+        {pops.map((pop) => (
+          <motion.img
+            key={pop.id}
+            src={pop.image}
+            alt=""
+            aria-hidden="true"
+            initial={{ opacity: 0, scale: 0.2, rotate: -8, x: pop.x - 60, y: pop.y - 60 }}
+            animate={{ opacity: 1, scale: 1, rotate: [0, -6, 6, 0], y: pop.y - 110 }}
+            exit={{ opacity: 0, scale: 0.5 }}
+            transition={{ duration: 0.55, ease: "easeOut" }}
+            style={{
+              position: "absolute",
+              left: 0,
+              top: 0,
+              width: 120,
+              height: 120,
+              objectFit: "contain",
+              pointerEvents: "none",
+              filter: "drop-shadow(0 10px 14px rgba(120,60,10,0.3))",
+            }}
+          />
         ))}
       </AnimatePresence>
     </div>
   );
 }
+
+const DECOR_BLOB_1: React.CSSProperties = {
+  position: "absolute",
+  top: "-10%",
+  right: "-15%",
+  width: "50vw",
+  height: "50vw",
+  borderRadius: "50%",
+  background: "rgba(255,255,255,0.18)",
+  pointerEvents: "none",
+};
+
+const DECOR_BLOB_2: React.CSSProperties = {
+  position: "absolute",
+  bottom: "-15%",
+  left: "-10%",
+  width: "40vw",
+  height: "40vw",
+  borderRadius: "50%",
+  background: "rgba(255,255,255,0.12)",
+  pointerEvents: "none",
+};

@@ -49,6 +49,14 @@ export default defineConfig({
             handler: "CacheFirst",
             options: { cacheName: "andreapp-icons" },
           },
+          {
+            urlPattern: /\/illustrations\/.*\.(png|webp)$/,
+            handler: "CacheFirst",
+            options: {
+              cacheName: "andreapp-illustrations",
+              expiration: { maxEntries: 50, maxAgeSeconds: 60 * 60 * 24 * 90 },
+            },
+          },
         ],
       },
     }),
