@@ -2,6 +2,7 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playChime, playVoiceClip } from "../../audio/audioEngine";
 import { useProgressStore } from "../../store/progressStore";
+import { asset } from "../../utils/asset";
 
 interface DelightObject {
   image: string;
@@ -9,10 +10,10 @@ interface DelightObject {
 }
 
 const OBJECTS: DelightObject[] = [
-  { image: "/illustrations/object-star.png", voiceFile: "object-star.mp3" },
-  { image: "/illustrations/object-bell.png", voiceFile: "object-bell.mp3" },
-  { image: "/illustrations/object-balloon.png", voiceFile: "object-balloon.mp3" },
-  { image: "/illustrations/object-flower.png", voiceFile: "object-flower.mp3" },
+  { image: asset("illustrations/object-star.png"), voiceFile: "object-star.mp3" },
+  { image: asset("illustrations/object-bell.png"), voiceFile: "object-bell.mp3" },
+  { image: asset("illustrations/object-balloon.png"), voiceFile: "object-balloon.mp3" },
+  { image: asset("illustrations/object-flower.png"), voiceFile: "object-flower.mp3" },
 ];
 
 const CONFETTI_COLORS = ["#FFB03B", "#4F46E5", "#F58BC0", "#6BD6C2", "#FFFFFF"];
@@ -155,7 +156,7 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
         {showIdleHint && pops.length === 0 && (
           <motion.img
             key="idle-hint"
-            src="/illustrations/mascot.png"
+            src={asset("illustrations/mascot.png")}
             alt=""
             aria-hidden="true"
             initial={{ opacity: 0, y: 80 }}

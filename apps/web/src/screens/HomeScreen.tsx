@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { CURRICULUM_LEVELS, getLevelsByStage, type Stage } from "@andreapp/curriculum";
 import { APP_NAME } from "@andreapp/shared";
 import { BigButton } from "../components/BigButton";
+import { asset } from "../utils/asset";
 
 const STAGES: Stage[] = ["A", "B", "C", "D"];
 
@@ -29,7 +30,7 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
       {/* Hero: fondo ilustrado + mascota + saludo */}
       <div style={{ position: "relative", overflow: "hidden", paddingBottom: "var(--space-lg)" }}>
         <img
-          src="/illustrations/background.webp"
+          src={asset("illustrations/background.webp")}
           alt=""
           aria-hidden="true"
           style={{ position: "absolute", inset: 0, width: "100%", height: "100%", objectFit: "cover", objectPosition: "center 20%" }}
@@ -61,7 +62,7 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
         </header>
 
         <motion.img
-          src="/illustrations/mascot.png"
+          src={asset("illustrations/mascot.png")}
           alt=""
           aria-hidden="true"
           initial={{ opacity: 0, y: 24 }}

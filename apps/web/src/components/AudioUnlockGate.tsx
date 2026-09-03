@@ -3,6 +3,7 @@ import type { ReactNode } from "react";
 import { APP_NAME } from "@andreapp/shared";
 import { unlockAudio } from "../audio/audioEngine";
 import { useAudioUnlock } from "../audio/useAudioUnlock";
+import { asset } from "../utils/asset";
 
 interface AudioUnlockGateProps {
   children: ReactNode;
@@ -44,7 +45,7 @@ export function AudioUnlockGate({ children }: AudioUnlockGateProps) {
       }}
     >
       <img
-        src="/illustrations/background.webp"
+        src={asset("illustrations/background.webp")}
         alt=""
         aria-hidden="true"
         style={{
@@ -79,7 +80,7 @@ export function AudioUnlockGate({ children }: AudioUnlockGateProps) {
       ))}
 
       <motion.img
-        src="/illustrations/mascot.png"
+        src={asset("illustrations/mascot.png")}
         alt=""
         aria-hidden="true"
         style={{ position: "relative", zIndex: 2, width: "min(58vw, 280px)", filter: "drop-shadow(0 18px 24px rgba(120,60,10,0.28))" }}

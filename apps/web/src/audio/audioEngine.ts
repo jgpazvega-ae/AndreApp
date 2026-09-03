@@ -1,4 +1,5 @@
 import { Howl, Howler } from "howler";
+import { asset } from "../utils/asset";
 
 /**
  * Motor de audio con desbloqueo explícito por gesto del usuario.
@@ -58,7 +59,7 @@ function getHowl(src: string): Howl {
 /** Reproduce un clip de voz pregenerado. No lanza si el archivo falta (assets aún por generar). */
 export function playVoiceClip(locale: string, file: string): void {
   if (!unlocked) return;
-  const src = `/audio/${locale}/${file}`;
+  const src = asset(`audio/${locale}/${file}`);
   const howl = getHowl(src);
   howl.once("loaderror", () => {
     console.warn(`[audio] No se pudo cargar el clip de voz: ${src}`);
