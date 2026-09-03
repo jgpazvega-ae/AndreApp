@@ -1,6 +1,7 @@
 import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { VitePWA } from "vite-plugin-pwa";
+import { APP_NAME } from "@andreapp/shared";
 
 export default defineConfig({
   plugins: [
@@ -10,8 +11,8 @@ export default defineConfig({
       includeAssets: ["icons/apple-touch-icon.png"],
       manifest: {
         id: "/",
-        name: "AndreApp",
-        short_name: "AndreApp",
+        name: APP_NAME,
+        short_name: APP_NAME,
         description: "Juegos educativos para niños de 0 a 5 años",
         start_url: "/",
         scope: "/",

@@ -1,5 +1,5 @@
 {
-  "app.name": "AndreApp",
+  "app.name": "{{appName}}",
   "common.continue": "Continuar",
   "common.back": "Voltar",
   "common.close": "Fechar",
@@ -16,10 +16,10 @@
   "parentZone.title": "Área dos pais",
   "parentZone.unlockHint": "Mantenha pressionado por 3 segundos para entrar",
   "parentZone.language": "Idioma",
-  "parentZone.about": "Sobre o AndreApp",
+  "parentZone.about": "Sobre o {{appName}}",
   "parentZone.progress": "Progresso do seu filho(a)",
 
-  "install.title": "Instale o AndreApp",
+  "install.title": "Instale o {{appName}}",
   "install.iosHint": "Toque em Compartilhar e depois em \"Adicionar à Tela de Início\"",
 
   "level.n1.title": "Causa e efeito",

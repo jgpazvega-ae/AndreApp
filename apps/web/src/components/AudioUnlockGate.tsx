@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
+import { APP_NAME } from "@andreapp/shared";
 import { unlockAudio } from "../audio/audioEngine";
 import { useAudioUnlock } from "../audio/useAudioUnlock";
 
@@ -99,7 +100,7 @@ export function AudioUnlockGate({ children }: AudioUnlockGateProps) {
         transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
       >
         <span style={{ fontSize: "1.8rem", fontWeight: 800, color: "#fff", textShadow: "0 3px 10px rgba(120,60,10,0.4)" }}>
-          AndreApp
+          {APP_NAME}
         </span>
         <span style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff", textShadow: "0 2px 8px rgba(120,60,10,0.4)" }}>
           👉 Toca para empezar

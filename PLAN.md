@@ -1,6 +1,8 @@
-# Plan Maestro — AndreApp
+# Plan Maestro — Anico
 
 > **App web (PWA) educativa e interactiva para niños de 0 a 5 años**, instalable en celulares y tabletas (iOS-first, no exclusiva). Inspirada en *Bimi Boo — Juegos para niños & niñas 2-5*, con la meta explícita de **superarla**: más currículo, mejor pedagogía, y diversión real.
+>
+> **Nombre del producto: "Anico"** (por André Nicolás). Es flexible y se puede cambiar — el código lo centraliza en `APP_NAME` (`packages/shared/src/index.ts`) para que un futuro cambio sea mínimo. El repositorio conserva el nombre `AndreApp` por razones históricas; no son lo mismo.
 >
 > Este documento es el plan de producto + técnico + de negocio. La base pedagógica vive en [`docs/CURRICULUM.md`](docs/CURRICULUM.md) y es la fuente de verdad de qué se enseña y en qué orden.
 

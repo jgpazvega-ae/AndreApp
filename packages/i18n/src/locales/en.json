@@ -1,5 +1,5 @@
 {
-  "app.name": "AndreApp",
+  "app.name": "{{appName}}",
   "common.continue": "Continue",
   "common.back": "Back",
   "common.close": "Close",
@@ -16,10 +16,10 @@
   "parentZone.title": "Parents' zone",
   "parentZone.unlockHint": "Hold for 3 seconds to enter",
   "parentZone.language": "Language",
-  "parentZone.about": "About AndreApp",
+  "parentZone.about": "About {{appName}}",
   "parentZone.progress": "Your child's progress",
 
-  "install.title": "Install AndreApp",
+  "install.title": "Install {{appName}}",
   "install.iosHint": "Tap Share, then \"Add to Home Screen\"",
 
   "level.n1.title": "Cause and effect",

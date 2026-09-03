@@ -1,3 +1,10 @@
+/**
+ * Nombre de marca de la app — fuente única de verdad. Cambiarlo aquí (y
+ * en apps/web/index.html, que es HTML estático sin acceso a este módulo)
+ * actualiza el nombre en toda la UI, el manifest de la PWA y los locales.
+ */
+export const APP_NAME = "Anico";
+
 /** Idiomas soportados por la app (ver PLAN.md §7). */
 export type AppLocale = "es-MX" | "en" | "pt-BR";
 

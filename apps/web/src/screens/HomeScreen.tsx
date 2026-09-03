@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { CURRICULUM_LEVELS, getLevelsByStage, type Stage } from "@andreapp/curriculum";
+import { APP_NAME } from "@andreapp/shared";
 import { BigButton } from "../components/BigButton";
 
 const STAGES: Stage[] = ["A", "B", "C", "D"];
@@ -53,7 +54,7 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
           }}
         >
           <div>
-            <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--color-text-muted)" }}>AndreApp</div>
+            <div style={{ fontSize: "0.85rem", fontWeight: 700, color: "var(--color-text-muted)" }}>{APP_NAME}</div>
             <div style={{ fontSize: "1.4rem", fontWeight: 800, textShadow: "0 2px 8px rgba(255,255,255,0.6)" }}>{t("home.title")}</div>
           </div>
           <ParentZoneUnlockButton onOpen={onOpenParentZone} />

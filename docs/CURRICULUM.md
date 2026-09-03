@@ -1,4 +1,4 @@
-# Mapa Curricular — AndreApp
+# Mapa Curricular — Anico
 
 > **Rol:** documento redactado desde la perspectiva de un especialista en desarrollo infantil y pedagogía de 0 a 5 años.
 > **Propósito:** definir el panorama de actividades y juegos **por niveles**, de lo más sencillo a lo más complejo, fundamentado en investigación de aprendizaje temprano, tomando la app de inspiración (*Bimi Boo — Juegos para niños & niñas 2-5*) como punto de partida a superar.
@@ -194,7 +194,7 @@ Cada idioma tiene su **fonética y su realidad cultural**; los niveles de sonido
 
 ## 12. Qué mejora frente a la app de inspiración
 
-| Aspecto | Bimi Boo (referencia) | AndreApp (propuesta) |
+| Aspecto | Bimi Boo (referencia) | Anico (propuesta) |
 |---|---|---|
 | Alcance | Foco casi único en números 1-20 | **Currículo completo** 0-5: 22 niveles, dominios + **ejes de función ejecutiva y socioemocional** |
 | Progresión | Lineal por número | **Por dominio + adaptividad (ZDP)**, con juego libre siempre disponible |
