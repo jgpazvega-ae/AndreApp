@@ -10,8 +10,8 @@ import type { CurriculumLevel } from "./types";
 export const CURRICULUM_LEVELS: CurriculumLevel[] = [
   // Etapa A — Descubrimiento (gratis, uso acompañado)
   { id: "n1", order: 1, stage: "A", domain: "attention", titleKey: "level.n1.title", icon: "✨", free: true, status: "playable" },
-  { id: "n2", order: 2, stage: "A", domain: "attention", titleKey: "level.n2.title", icon: "🎯", free: true, status: "coming-soon" },
-  { id: "n3", order: 3, stage: "A", domain: "perception", titleKey: "level.n3.title", icon: "🧩", free: true, status: "coming-soon" },
+  { id: "n2", order: 2, stage: "A", domain: "attention", titleKey: "level.n2.title", icon: "🎯", free: true, status: "playable" },
+  { id: "n3", order: 3, stage: "A", domain: "perception", titleKey: "level.n3.title", icon: "🧩", free: true, status: "playable" },
 
   // Etapa B — Exploración (muestra gratis: N4; resto de pago)
   { id: "n4", order: 4, stage: "B", domain: "categorization", titleKey: "level.n4.title", icon: "🟥", free: true, status: "coming-soon" },

@@ -1,6 +1,8 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { playChime, playVoiceClip } from "../../audio/audioEngine";
+import { DecorBlobs } from "../../components/DecorBlobs";
+import { useConfetti } from "../../effects/useConfetti";
 import { useProgressStore } from "../../store/progressStore";
 import { asset } from "../../utils/asset";
 
@@ -16,26 +18,14 @@ const OBJECTS: DelightObject[] = [
   { image: asset("illustrations/object-flower.png"), voiceFile: "object-flower.mp3" },
 ];
 
-const CONFETTI_COLORS = ["#FFB03B", "#4F46E5", "#F58BC0", "#6BD6C2", "#FFFFFF"];
-
 const IDLE_HINT_DELAY_MS = 5000;
 const POP_LIFETIME_MS = 1200;
-const CONFETTI_LIFETIME_MS = 700;
 
 interface Pop {
   id: number;
   x: number;
   y: number;
   image: string;
-}
-
-interface Confetti {
-  id: number;
-  x: number;
-  y: number;
-  dx: number;
-  dy: number;
-  color: string;
 }
 
 interface N1CausaEfectoProps {
@@ -51,11 +41,11 @@ interface N1CausaEfectoProps {
  */
 export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
   const [pops, setPops] = useState<Pop[]>([]);
-  const [confetti, setConfetti] = useState<Confetti[]>([]);
   const [showIdleHint, setShowIdleHint] = useState(false);
   const nextId = useRef(0);
   const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const recordPlay = useProgressStore((state) => state.recordPlay);
+  const { burst, confettiField } = useConfetti();
 
   const resetIdleTimer = useCallback(() => {
     setShowIdleHint(false);
@@ -85,30 +75,13 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
       setPops((prev) => [...prev, { id, x, y, image: object.image }]);
       playChime();
       playVoiceClip(locale, object.voiceFile);
-
-      const burst: Confetti[] = Array.from({ length: 8 }, (_, i) => {
-        const angle = (Math.PI * 2 * i) / 8 + Math.random() * 0.4;
-        const distance = 50 + Math.random() * 40;
-        return {
-          id: nextId.current++,
-          x,
-          y,
-          dx: Math.cos(angle) * distance,
-          dy: Math.sin(angle) * distance,
-          color: CONFETTI_COLORS[i % CONFETTI_COLORS.length]!,
-        };
-      });
-      setConfetti((prev) => [...prev, ...burst]);
+      burst(x, y);
 
       setTimeout(() => {
         setPops((prev) => prev.filter((pop) => pop.id !== id));
       }, POP_LIFETIME_MS);
-      setTimeout(() => {
-        const burstIds = new Set(burst.map((c) => c.id));
-        setConfetti((prev) => prev.filter((c) => !burstIds.has(c.id)));
-      }, CONFETTI_LIFETIME_MS);
     },
-    [locale, resetIdleTimer],
+    [locale, resetIdleTimer, burst],
   );
 
   return (
@@ -123,9 +96,7 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
         touchAction: "manipulation",
       }}
     >
-      {/* Manchas decorativas suaves, sin distraer del objetivo táctil */}
-      <div aria-hidden="true" style={DECOR_BLOB_1} />
-      <div aria-hidden="true" style={DECOR_BLOB_2} />
+      <DecorBlobs />
 
       <button
         type="button"
@@ -176,27 +147,7 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
         )}
       </AnimatePresence>
 
-      <AnimatePresence>
-        {confetti.map((c) => (
-          <motion.span
-            key={c.id}
-            aria-hidden="true"
-            initial={{ opacity: 1, x: c.x - 5, y: c.y - 5, scale: 1 }}
-            animate={{ opacity: 0, x: c.x + c.dx, y: c.y + c.dy, scale: 0.3 }}
-            transition={{ duration: CONFETTI_LIFETIME_MS / 1000, ease: "easeOut" }}
-            style={{
-              position: "absolute",
-              left: 0,
-              top: 0,
-              width: 10,
-              height: 10,
-              borderRadius: "50%",
-              background: c.color,
-              pointerEvents: "none",
-            }}
-          />
-        ))}
-      </AnimatePresence>
+      {confettiField}
 
       <AnimatePresence>
         {pops.map((pop) => (
@@ -225,25 +176,3 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
     </div>
   );
 }
-
-const DECOR_BLOB_1: React.CSSProperties = {
-  position: "absolute",
-  top: "-10%",
-  right: "-15%",
-  width: "50vw",
-  height: "50vw",
-  borderRadius: "50%",
-  background: "rgba(255,255,255,0.18)",
-  pointerEvents: "none",
-};
-
-const DECOR_BLOB_2: React.CSSProperties = {
-  position: "absolute",
-  bottom: "-15%",
-  left: "-10%",
-  width: "40vw",
-  height: "40vw",
-  borderRadius: "50%",
-  background: "rgba(255,255,255,0.12)",
-  pointerEvents: "none",
-};

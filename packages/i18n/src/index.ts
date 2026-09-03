@@ -2,7 +2,7 @@ import esMX from "./locales/es-MX.json";
 import en from "./locales/en.json";
 import ptBR from "./locales/pt-BR.json";
 
-export { N1_VOICE_MANIFEST } from "./voiceManifests/es-MX";
+export { N1_VOICE_MANIFEST, N2_VOICE_MANIFEST, N3_VOICE_MANIFEST } from "./voiceManifests/es-MX";
 
 /**
  * Cadenas de la zona de padres y títulos de nivel (accesibles/parent-facing).
