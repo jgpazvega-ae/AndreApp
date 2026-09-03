@@ -6,17 +6,17 @@
 
 **Decisiones ya confirmadas por el propietario:**
 - Plataforma: **PWA** instalable (iOS-first, también Android/tablet).
-- Monetización: **Mercado Pago** (MercadoLibre), **por nivel** o **licencia anual**; la licencia se libera tras **validación automática del pago o aprobación manual**.
-- Audio: **ElevenLabs** (voces/sonidos).
-- Idiomas: **Español (MX)** — etiqueta única "Español" + 🇲🇽 —, **Inglés**, **Português (Brasil)** 🇧🇷.
-- Infraestructura: **Neubox** + **Render**.
+- Monetización: **link de PayPal** (nada de integración de pagos ni Mercado Pago), **por nivel/etapa** o **licencia anual**. La licencia se **libera manualmente al corroborar el pago** y se **revoca si el cliente pide reembolso**.
+- Audio: **ElevenLabs** (voces/sonidos) — se usa **una sola vez** para pregenerar los *assets*; la app no depende de ningún servicio en tiempo de ejecución.
+- Idiomas: **Español (MX)** — etiqueta única "Español" + 🇲🇽 —, **Inglés**, **Português (Brasil)** 🇧🇷. *(La multi-idioma "i18n" es una **librería gratuita**, no una suscripción.)*
+- Infraestructura: **solo lo que ya se tiene** — **Neubox** + **Render**. Sin servicios de pago adicionales.
 - El agente asume **autonomía total** en decisiones técnicas; un **agente pedagógico** da feedback continuo.
 
 ---
 
 ## 1. Visión
 
-Una PWA **offline-first, sin publicidad**, donde un niño de 0-5 aprende jugando a través de un currículo por niveles (ver `docs/CURRICULUM.md`), con **voz e íconos** (nada de texto para el niño), refuerzo positivo y cero castigo. Los padres compran acceso con **Mercado Pago** y gestionan todo desde una **zona de padres** protegida.
+Una PWA **offline-first, sin publicidad**, donde un niño de 0-5 aprende jugando a través de un currículo por niveles (ver `docs/CURRICULUM.md`), con **voz e íconos** (nada de texto para el niño), refuerzo positivo y cero castigo. Los padres pagan por un **link de PayPal**; tú **corroboras el pago y liberas la licencia** (un código que se activa en la app), y todo se gestiona desde una **zona de padres** protegida.
 
 **Qué la hace mejor que la referencia** (resumen; detalle pedagógico en el currículo):
 1. Currículo completo 0-5 (no solo números) y **adaptativo** (Zona de Desarrollo Próximo).
@@ -41,7 +41,7 @@ Reglas duras para 0-5 (ver detalle en el currículo, §2):
 | Sesiones saludables | Finales naturales, pausas activas y **límite de tiempo por defecto por edad**; la franja más pequeña, **uso acompañado** (ver §8). |
 | Modo sensorial | Preset agrupado (menos animación + audio suave + ritmo lento) para perfiles neurodivergentes. |
 | Zona de padres protegida | Candado para ajustes, compra y enlaces externos. |
-| Privacidad primero | Sin datos del niño; sin analítica invasiva; lo sensible, del lado de Mercado Pago. |
+| Privacidad primero | Sin datos del niño; sin analítica invasiva; el dinero lo maneja **PayPal** (no tocamos datos de pago). |
 
 ### Restricciones específicas de PWA en iOS (críticas)
 Confirmadas en investigación; condicionan la arquitectura:
@@ -70,39 +70,36 @@ El **catálogo de juegos = los 22 niveles** del currículo (`docs/CURRICULUM.md`
 
 ## 4. Arquitectura técnica
 
-Monorepo con frontend PWA, backend de licencias/pagos y paquetes compartidos.
+Monorepo con frontend PWA y un **backend mínimo de licencias** (sin cuentas, sin integración de pagos). El dinero se cobra fuera de la app con un **link de PayPal**.
 
 ```mermaid
 flowchart TB
     subgraph Cliente["📱 PWA (React + Vite, offline-first)"]
         UI["Juegos + UI kid-friendly"]
         Audio["Motor de audio (Howler) + voces ElevenLabs pregeneradas"]
-        SW["Service Worker (Workbox) + IndexedDB (progreso)"]
-        Lic["Licencia cacheada (token firmado + validación)"]
+        SW["Service Worker (Workbox) + IndexedDB (progreso local)"]
+        Lic["Código de licencia activado (cacheado + gracia offline)"]
     end
-    subgraph Render["☁️ Render — Backend (Node + Fastify + TS)"]
-        API["API REST"]
-        Auth["Auth de padres (JWT / magic link)"]
-        Pay["Servicio Mercado Pago (preferencias + webhook)"]
-        Admin["Panel admin (aprobación manual)"]
-        DB[("Postgres — usuarios, licencias, pagos")]
+    subgraph Render["☁️ Render — Backend mínimo (Node + Fastify + TS)"]
+        API["API de licencias (activar / validar)"]
+        Admin["Panel admin protegido (emitir / revocar)"]
+        DB[("SQLite — licencias")]
     end
-    subgraph MP["💳 Mercado Pago"]
-        Checkout["Checkout Pro"]
-        WH["Webhook (x-signature)"]
+    subgraph Pago["💳 Pago (fuera de la app)"]
+        PP["Link de PayPal"]
     end
     subgraph Neubox["🌐 Neubox"]
         Dominio["Dominio + DNS + Correo"]
     end
 
     UI --> Audio --> SW
-    Lic <-->|valida / renueva| API
-    Auth --> DB
-    Pay <-->|crea preferencia| Checkout
-    Checkout -->|paga el padre| WH
-    WH -->|notifica| Pay
-    Pay -->|libera licencia| DB
+    Lic <-->|activa / revalida| API
+    API --> DB
     Admin --> DB
+    UI -.abre.-> PP
+    PP -.el padre paga.-> Owner["👤 Propietario corrobora en PayPal"]
+    Owner -->|emite código| Admin
+    Owner -->|reembolso → revoca| Admin
     Dominio -.app / api.-> Cliente
     Dominio -.-> Render
 ```
@@ -113,56 +110,57 @@ flowchart TB
 - **Audio:** **Howler.js** (compatibilidad + desbloqueo iOS). Voces **ElevenLabs pregeneradas** por idioma como *assets* estáticos (no TTS en runtime → barato, offline y consistente).
 - **Estado/persistencia:** **Zustand** + **IndexedDB** (localForage) para progreso offline.
 - **i18n:** **react-i18next**, locales `es-MX`, `en`, `pt-BR`.
-- **Licencia en cliente:** token de entitlements **firmado** (JWT) cacheado, con caducidad + **revalidación** online periódica y **periodo de gracia** offline.
+- **Licencia en cliente:** el padre introduce un **código de licencia** en la zona de padres → la app lo **activa** contra el backend y lo cachea. En cada apertura (con red) **revalida**; si fue **revocado o caducó**, bloquea el contenido de pago (con **periodo de gracia offline** de N días para no fastidiar sin conexión).
 
-### 4.2 Backend (Render)
-- **Node + Fastify + TypeScript**, **Prisma + Postgres** (Render Managed Postgres).
-- **Auth de padres:** cuenta por correo (magic link o correo+contraseña) → JWT de sesión. El niño no tiene cuenta ni PII.
-- **Pagos:** **Mercado Pago Checkout Pro** — crea preferencia, redirige, recibe **webhook** con validación **`x-signature`**; sandbox para pruebas.
-- **Licencias:** tabla de *entitlements* (por nivel/etapa o anual all-access) ligada a la cuenta; emisión del token firmado que consume la PWA.
-- **Panel admin:** ver ventas, **aprobar/liberar licencias manualmente**, reembolsos, estados de pago.
-- **Cron (Render):** caducidad de licencias anuales, correos de recibo/renovación.
+### 4.2 Backend mínimo (Render)
+- **Node + Fastify + TypeScript**, **SQLite** (archivo en disco persistente de Render). *(No hace falta Postgres administrado ni cuentas de usuario: el modelo es por **código de licencia**, no por login.)*
+- **Sin cuentas / sin PII:** no hay registro ni contraseñas; la licencia es un **código** ligado a lo comprado, no a una identidad.
+- **API de licencias:** `POST /activar` (canjea un código y lo liga al dispositivo), `GET /validar` (estado vigente/revocado/caducado). Firma de respuestas para evitar manipulación.
+- **Panel admin protegido** (solo el propietario): **emitir** códigos al corroborar un pago de PayPal (elige producto: nivel/etapa o anual), **revocar** ante reembolso, y ver el estado de cada licencia.
+- **Sin integración de pagos:** el cobro ocurre en PayPal; el backend solo administra licencias. Nada de webhooks, PCI ni datos de tarjeta.
 
-### 4.3 Infraestructura (Neubox + Render)
-- **Neubox:** **dominio + DNS + correo** profesional (`hola@dominio`). *(Su hosting es cPanel/PHP y su VPS soporta Docker; no es ideal para un Node persistente, por eso el backend va en Render. Opcional a futuro: servir el frontend estático desde cPanel o consolidar en su VPS con Docker.)*
-- **Render:** **backend web service** + **Postgres** + **cron**. El **frontend estático** puede ir en Render Static Site/CDN.
-- **DNS:** `app.<dominio>` → PWA (CDN/Render Static), `api.<dominio>` → backend Render. TLS automático.
-- **Secretos** (Mercado Pago, JWT, ElevenLabs) **solo en variables de entorno de Render**, nunca en el repo.
+### 4.3 Infraestructura (Neubox + Render — lo que ya se tiene)
+- **Neubox:** **dominio + DNS + correo** profesional (`hola@dominio`). *(Su hosting es cPanel/PHP y su VPS soporta Docker; no es ideal para un Node persistente, por eso el backend va en Render.)*
+- **Render:** **backend mínimo de licencias** (web service + SQLite). El **frontend estático** puede ir en Render Static Site/CDN (o incluso en cPanel de Neubox).
+- **DNS:** `app.<dominio>` → PWA, `api.<dominio>` → backend Render. TLS automático.
+- **Secretos** (clave de firma de licencias, API key de ElevenLabs para generación) **solo en variables de entorno de Render**, nunca en el repo. El **link de PayPal** no es secreto.
+- *Nota:* el plan gratuito de Render "duerme" el servicio; el **periodo de gracia offline** y la validación tolerante hacen que un arranque en frío no afecte la experiencia.
 
 ---
 
-## 5. Flujo de pago y liberación de licencia
+## 5. Flujo de pago, liberación y revocación
 
-Soporta **liberación automática** (webhook) **y aprobación manual** (requisito del propietario).
+**Liberación 100% manual:** la licencia se activa **solo cuando el propietario corrobora el pago en PayPal**. Si hay **reembolso**, se **revoca**.
 
 ```mermaid
 sequenceDiagram
     participant P as Padre (PWA)
-    participant API as Backend (Render)
-    participant MP as Mercado Pago
-    participant Admin as Propietario (Panel)
+    participant PP as PayPal
+    participant Owner as Propietario
+    participant Admin as Panel admin (Render)
+    participant API as Backend / PWA
 
-    P->>API: Elegir nivel / licencia anual
-    API->>MP: Crear preferencia de pago
-    MP-->>P: Checkout Pro (redirección)
-    P->>MP: Paga
-    MP-->>API: Webhook (payment.updated) + x-signature
-    API->>MP: Consultar pago (verificar estado real)
-    alt Modo automático y pago aprobado
-        API->>API: Emitir/extender licencia + token firmado
-        API-->>P: Licencia activa (revalida al abrir)
-    else Modo revisión manual
-        API->>Admin: Pago "pendiente de aprobación"
-        Admin->>API: Aprobar y liberar
-        API-->>P: Licencia activa
-    end
+    P->>PP: Abre el link de PayPal y paga (elige nivel/anual)
+    P->>Owner: Avisa del pago (correo/WhatsApp) con su referencia
+    Owner->>PP: Corrobora que el pago existe y está completo
+    Owner->>Admin: Emite un código de licencia (producto correcto)
+    Owner-->>P: Envía el código
+    P->>API: Introduce el código en la zona de padres → activa
+    API-->>P: Contenido de pago desbloqueado (revalida al abrir)
+
+    Note over Owner,Admin: Si el cliente pide reembolso
+    Owner->>PP: Procesa el reembolso
+    Owner->>Admin: Revoca el código
+    API-->>P: En la próxima validación online, se bloquea de nuevo
 ```
 
 Detalles clave:
-- **Verificación doble:** nunca confiar solo en la redirección; validar `x-signature` **y** reconsultar el pago en la API de Mercado Pago antes de liberar.
-- **Idempotencia:** un `payment.id` procesado dos veces no duplica licencias.
-- **Interruptor por producto:** cada SKU puede configurarse como *auto* o *manual*.
-- **PCI:** no tocamos datos de tarjeta; los maneja Mercado Pago.
+- **Corroboración manual:** el propietario confirma el pago **en PayPal** antes de emitir. Nada se libera solo.
+- **Códigos de un solo uso:** cada código se liga al dispositivo al activarse; no se comparte entre muchos.
+- **Revocación efectiva:** al revocar, la app bloquea el contenido de pago en la siguiente validación online (respetando la gracia offline).
+- **Producto en el código:** el código codifica **qué** desbloquea (nivel/etapa o anual) y su **caducidad** (12 meses para la anual).
+- **Sin datos de pago en nuestros sistemas:** todo el dinero y las tarjetas viven en PayPal.
+- *(Opcional a futuro, si el volumen crece:* PayPal puede notificar automáticamente los pagos para pre-llenar el panel — **no** es necesario ahora y no cambia el modelo manual.*)*
 
 ---
 
@@ -190,7 +188,7 @@ Detalles clave:
 - **Sin PII del niño** (a lo más, un nombre/apodo local para personalizar la voz, guardado en el dispositivo).
 - **Tiempo de pantalla saludable** (OMS/AAP): **< ~18-24 m** solo uso acompañado; **2-5 años** hasta ~1 h/día con co-juego. **Límites por defecto por edad** en la zona de padres, con finales de sesión y pausas activas (ver currículo §8).
 - **Zona de padres** con candado ante compras/ajustes/enlaces externos.
-- Cumplimiento con la ley mexicana de datos (**LFPDPPP**) y buenas prácticas tipo **COPPA/GDPR-K** si se expande; **pagos y datos financieros** los procesa Mercado Pago.
+- Cumplimiento con la ley mexicana de datos (**LFPDPPP**) y buenas prácticas tipo **COPPA/GDPR-K** si se expande; **pagos y datos financieros** los procesa **PayPal** (nunca los tocamos).
 - Analítica **mínima y respetuosa** (o nula en el MVP).
 - Política de privacidad y términos publicados antes de cobrar.
 
@@ -202,10 +200,10 @@ Detalles clave:
 AndreApp/
 ├─ apps/
 │  ├─ web/                 # PWA (React + Vite): app/, juegos, motor de audio, i18n, SW
-│  └─ api/                 # Backend (Fastify + Prisma): auth, pagos MP, licencias, admin
+│  └─ api/                 # Backend mínimo (Fastify + SQLite): licencias, panel admin
 ├─ packages/
-│  ├─ curriculum/          # Datos de los 14 niveles (config declarativa de cada juego)
-│  ├─ shared/              # Tipos compartidos (licencias, entitlements, DTOs)
+│  ├─ curriculum/          # Datos de los 22 niveles (config declarativa de cada juego)
+│  ├─ shared/              # Tipos compartidos (licencias, DTOs)
 │  └─ i18n/                # Cadenas + índice de paquetes de voz por idioma
 ├─ scripts/
 │  └─ gen-voices/          # Generación de voces ElevenLabs (versionado)
@@ -224,12 +222,11 @@ Estrategia: **validar la diversión y la pedagogía antes de cobrar.** Primero u
 |---|---|---|
 | **0 · Fundaciones** | La PWA corre, instala y suena | Monorepo, PWA shell + manifest + SW offline, sistema de diseño kid-friendly, motor de audio con desbloqueo iOS, i18n base, store de progreso, pantalla de inicio con selector de mundos. |
 | **1 · MVP jugable (gratis)** | 4-5 juegos en es-MX | Niveles **N1-N5** (Etapas A y B), voces ElevenLabs es-MX, progreso local, instalable, zona de padres básica. **Sin pagos aún.** Meta: ponerla en manos de Andre y medir enganche. |
-| **2 · Cuentas y nube** | Padres + progreso sincronizado | Backend en Render, auth de padres, progreso en la nube, **panel de padres** con lectura pedagógica. |
-| **3 · Monetización** | Cobro y licencias | **Mercado Pago Checkout Pro**, licencias **por nivel** y **anual**, webhook + validación, **panel admin con aprobación manual**, tokens de licencia en cliente + revalidación. |
-| **4 · Currículo completo + idiomas** | Etapas C y D + en/pt-BR | Niveles **N6-N22** (incluye ejes 🧠 función ejecutiva y ❤️ socioemocional, subitización, conciencia fonológica oral), adaptividad (ZDP), trazado (canvas), fonética por idioma, paquetes de voz **en** y **pt-BR**. |
-| **5 · Pulido y lanzamiento** | Listo para usuarios | Accesibilidad, música/animaciones finas, onboarding de instalación iOS, analítica respetuosa, términos/privacidad, dominio Neubox + despliegue productivo. |
+| **2 · Currículo completo + idiomas** | Etapas C y D + en/pt-BR | Niveles **N6-N22** (incluye ejes 🧠 función ejecutiva y ❤️ socioemocional, subitización, conciencia fonológica oral), adaptividad (ZDP), trazado (canvas), fonética por idioma, paquetes de voz **en** y **pt-BR**. |
+| **3 · Monetización (backend mínimo)** | Licencias por link de PayPal | **Backend de licencias en Render** (Fastify + SQLite, sin cuentas), **panel admin** para que emitas/revoques códigos, campo "introduce tu código" en la zona de padres, **link(s) de PayPal** por nivel/etapa y por licencia anual. Liberación y revocación **100% manuales**, tal como pediste. |
+| **4 · Pulido y lanzamiento** | Listo para usuarios | Accesibilidad, música/animaciones finas, onboarding de instalación iOS, analítica respetuosa, términos/privacidad, dominio Neubox + despliegue productivo. |
 
-**Sugerencia de secuencia mínima para ver valor pronto:** Fase 0 + Fase 1 (jugable con Andre) → luego decidir con datos reales antes de invertir en backend/pagos.
+**Sugerencia de secuencia mínima para ver valor pronto:** Fase 0 + Fase 1 (jugable con Andre) → luego decidir con datos reales antes de invertir en el resto del currículo y en el backend de licencias.
 
 ---
 
@@ -246,22 +243,24 @@ Estrategia: **validar la diversión y la pedagogía antes de cobrar.** Primero u
 | Riesgo | Mitigación |
 |---|---|
 | Límites de PWA en iOS (audio, cuota, instalación) | Desbloqueo de audio por gesto, clips cortos, precarga selectiva, onboarding de instalación. |
-| Fraude/duplicidad de licencias | Validar `x-signature` + reconsulta a MP + idempotencia por `payment.id`. |
+| Compartir/filtrar un código de licencia | Código ligado al **dispositivo** al activarse (no reutilizable en otro); revocación inmediata si se detecta abuso. |
+| Demora en liberar la licencia (proceso manual) | El padre ve un aviso claro de "pago recibido, activando tu acceso" tras pagar; el propietario recibe la notificación de PayPal al correo para responder rápido. |
 | Neubox no corre Node persistente | Backend en Render; Neubox solo dominio/DNS/correo (VPS Docker opcional a futuro). |
 | Costos/licencia de voces ElevenLabs | Pregenerar (no runtime), revisar licencia comercial, cachear. |
 | Alcance grande | Fases; MVP gratis primero; currículo por niveles permite entregar por partes. |
-| Contenido no apto por edad | Validación del **agente pedagógico** en cada fase (ver currículo §11). |
+| Contenido no apto por edad | Validación del **agente pedagógico** en cada fase (ver currículo §13). |
 
 ---
 
 ## 13. Lo que necesitaré del propietario (para fases con infra/pago)
 
-*(No bloquea las Fases 0-1, que son 100% locales.)*
+*(No bloquea las Fases 0-2, que son 100% locales/sin cobro.)*
 - **Dominio** deseado (para configurarlo en Neubox) y acceso a DNS.
-- **Credenciales de Mercado Pago** (Access Token productivo y de prueba) — se cargan como **variables de entorno en Render**, nunca en el repo.
-- **API key de ElevenLabs** (para el script de generación de voces) — también por variable de entorno.
+- **Link(s) de PayPal** (o tu correo/`paypal.me` para generarlos) por producto: nivel/etapa y licencia anual.
+- **API key de ElevenLabs** (para el script de generación de voces) — se carga como variable de entorno en Render, nunca en el repo.
 - **Cuenta de Render** conectada al repo.
-- **Precios** por nivel/etapa y de la licencia anual, y qué SKUs son de **aprobación manual** vs **automática**.
+- **Precios** por nivel/etapa y de la licencia anual.
+- **Contraseña/acceso** que quieras usar para el **panel admin** de licencias (emitir/revocar códigos).
 - **Identidad de marca:** nombre y estilo del **personaje guía**, paleta y logo (o me das libertad para proponerlos).
 
 ---
@@ -269,7 +268,7 @@ Estrategia: **validar la diversión y la pedagogía antes de cobrar.** Primero u
 ## 14. Decisiones abiertas y feedback pedagógico
 
 - **Bandera de inglés:** 🇺🇸 por defecto (ajustable a 🇬🇧 o globo neutro).
-- **Auth de padres:** magic link (menos fricción) vs correo+contraseña — se define en Fase 2.
+- **Sin cuentas de padres:** por diseño, no hay login ni contraseñas de usuario (menos fricción y menos datos que proteger); el acceso de pago se resuelve con el **código de licencia**, no con una identidad.
 - **Motor de juego:** DOM/SVG + framer-motion por defecto; PixiJS/Phaser solo donde un mundo lo justifique.
 - **Feedback del agente pedagógico:** se integra aquí y en `docs/CURRICULUM.md` en cada iteración. *(Ronda 1 **incorporada**: ejes de función ejecutiva y socioemocional, conciencia fonológica oral, sentido numérico corregido, tiempo de pantalla saludable, elogio de proceso e inclusión reforzada — ver `docs/CURRICULUM.md` §13.)*
 
