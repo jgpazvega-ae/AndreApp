@@ -38,7 +38,9 @@ interface N1CausaEfectoProps {
  * N1 · Causa y efecto (docs/CURRICULUM.md ficha N1).
  * Tocar cualquier parte de la pantalla produce una animación + sonido +
  * la voz nombra lo que apareció. Sin estado de fallo: cualquier toque es
- * "correcto". Si no toca en ~5s, la mascota se asoma invitando a intentar.
+ * "correcto". Si no toca en ~2s, la mascota se asoma invitando a intentar
+ * (más rápido que el resto de los niveles: aquí la pantalla entera está
+ * vacía hasta el primer toque, no solo un detalle del tablero).
  */
 export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
   const [pops, setPops] = useState<Pop[]>([]);
@@ -47,7 +49,11 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
     locale,
     welcomeFile: "welcome.mp3",
   });
-  const { idle, resetIdle } = useIdleHint();
+  // N1 es el primer nivel que ve un niño y toda la pantalla está vacía hasta
+  // el primer toque: esperar los 5s "genéricos" de useIdleHint (pensados para
+  // niveles que YA muestran su tablero) se siente como una app que no
+  // reacciona. Aquí la mascota se asoma mucho antes.
+  const { idle, resetIdle } = useIdleHint(2000);
 
   const handleTap = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
