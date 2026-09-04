@@ -69,7 +69,7 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     titleKey: "level.n6.title",
     icon: "🧩",
     free: false,
-    status: "coming-soon",
+    status: "playable",
   },
   {
     id: "n7",

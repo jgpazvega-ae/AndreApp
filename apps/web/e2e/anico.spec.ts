@@ -27,7 +27,7 @@ async function openHome(page: Page) {
   await expect(page.getByText("Elige un mundo")).toBeVisible();
 }
 
-/** Los 5 niveles jugables de la Fase 1, con una interacción representativa de cada mecánica. */
+/** Los niveles jugables de la Fase 1, con una interacción representativa de cada mecánica. */
 const PLAYABLE_LEVELS = [
   { name: "Causa y efecto", interact: (page: Page) => page.mouse.click(195, 400) },
   {
@@ -47,6 +47,18 @@ const PLAYABLE_LEVELS = [
   {
     name: "Vocabulario y sonidos",
     interact: (page: Page) => page.locator('button[aria-label="Animal"]').first().click(),
+  },
+  {
+    name: "Rompecabezas",
+    interact: async (page: Page) => {
+      // La ronda arranca con 2 figuras en orden aleatorio: tocar la primera
+      // pieza y luego probar ambos huecos garantiza un acierto sin tener
+      // que leer del DOM qué forma le tocó a cada uno.
+      await page.locator('button[aria-label="Pieza"]').first().click();
+      const slots = page.locator('button[aria-label="Espacio del rompecabezas"]');
+      await slots.nth(0).click();
+      await slots.nth(1).click();
+    },
   },
 ];
 
@@ -74,7 +86,7 @@ test.describe("pantalla de inicio", () => {
       await expect(page.getByRole("button", { name: level.name })).toBeEnabled();
     }
     // Un nivel aún no construido queda bloqueado, no abre una pantalla vacía.
-    await expect(page.getByRole("button", { name: "Rompecabezas" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Emociones" })).toBeDisabled();
   });
 });
 
@@ -102,6 +114,39 @@ test.describe("niveles", () => {
     await openHome(page);
     await page.getByRole("button", { name: "Causa y efecto" }).click();
     await expect(page.locator('img[src*="friend-"]')).toHaveCount(1);
+  });
+
+  /**
+   * Coloca cada pieza probando los huecos en orden: uno ya lleno no hace
+   * nada (se ignora), uno equivocado se sacude sin efecto, así que repetir
+   * esto siempre termina colocando la pieza sin tener que leer del DOM qué
+   * forma le tocó a cada hueco.
+   */
+  async function solveN6Round(page: Page, pieceCount: number) {
+    for (let i = 0; i < pieceCount; i++) {
+      await page.locator('button[aria-label="Pieza"]').first().click();
+      const slots = page.locator('button[aria-label="Espacio del rompecabezas"]');
+      const slotCount = await slots.count();
+      for (let s = 0; s < slotCount; s++) {
+        await slots.nth(s).click();
+        await page.waitForTimeout(50);
+      }
+    }
+  }
+
+  test("N6: completar un rompecabezas hace crecer el siguiente en una pieza", async ({ page }) => {
+    await openHome(page);
+    await page.getByRole("button", { name: "Rompecabezas" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(400);
+
+    // La primera ronda tiene 2 piezas (docs/CURRICULUM.md ficha N6).
+    await expect(page.locator('button[aria-label="Espacio del rompecabezas"]')).toHaveCount(2);
+
+    await solveN6Round(page, 2);
+    await page.waitForTimeout(2000); // deja pasar la celebración y el cambio de ronda
+
+    await expect(page.locator('button[aria-label="Espacio del rompecabezas"]')).toHaveCount(3);
   });
 });
 

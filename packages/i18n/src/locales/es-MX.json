@@ -34,6 +34,8 @@
   "a11y.cardMatched": "Ya emparejado",
   "a11y.colorZone": "Zona de color",
   "a11y.animal": "Animal",
+  "a11y.puzzlePiece": "Pieza",
+  "a11y.puzzleSlot": "Espacio del rompecabezas",
 
   "error.title": "Algo se descompuso",
   "error.body": "Vamos a regresar al inicio para seguir jugando.",

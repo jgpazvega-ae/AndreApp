@@ -37,3 +37,6 @@ export const N5_VOICE_MANIFEST: VoiceManifestEntry[] = [
   { key: "n5.exclaim.cat", file: "n5-exclaim-cat.mp3", reviewed: false },
   { key: "n5.exclaim.duck", file: "n5-exclaim-duck.mp3", reviewed: false },
 ];
+
+/** N6 reutiliza los n2-praise-*.mp3 al completar cada rompecabezas. */
+export const N6_VOICE_MANIFEST: VoiceManifestEntry[] = [{ key: "n6.welcome", file: "n6-welcome.mp3", reviewed: false }];
