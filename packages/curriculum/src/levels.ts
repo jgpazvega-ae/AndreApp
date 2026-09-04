@@ -91,7 +91,7 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     titleKey: "level.n8.title",
     icon: "🛑",
     free: false,
-    status: "coming-soon",
+    status: "playable",
   },
 
   // Etapa C — Fundamentos (de pago)

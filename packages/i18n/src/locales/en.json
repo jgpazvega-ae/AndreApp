@@ -37,6 +37,8 @@
   "a11y.puzzlePiece": "Piece",
   "a11y.puzzleSlot": "Puzzle slot",
   "a11y.emotion": "Emotion",
+  "a11y.dancer": "Dancer",
+  "a11y.dancerFrozen": "Dancer, tap me now!",
 
   "error.title": "Something broke",
   "error.body": "Let's go back home so you can keep playing.",

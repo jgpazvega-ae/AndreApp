@@ -37,6 +37,8 @@
   "a11y.puzzlePiece": "Peça",
   "a11y.puzzleSlot": "Espaço do quebra-cabeça",
   "a11y.emotion": "Emoção",
+  "a11y.dancer": "Dançarino",
+  "a11y.dancerFrozen": "Dançarino, toque agora!",
 
   "error.title": "Algo quebrou",
   "error.body": "Vamos voltar ao início para continuar brincando.",

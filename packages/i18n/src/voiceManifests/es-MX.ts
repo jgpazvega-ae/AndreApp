@@ -51,3 +51,6 @@ export const N7_VOICE_MANIFEST: VoiceManifestEntry[] = [
   { key: "n7.exclaim.angry", file: "n7-exclaim-angry.mp3", reviewed: false },
   { key: "n7.exclaim.scared", file: "n7-exclaim-scared.mp3", reviewed: false },
 ];
+
+/** N8 reutiliza los n2-praise-*.mp3 al completar la racha de 3. */
+export const N8_VOICE_MANIFEST: VoiceManifestEntry[] = [{ key: "n8.welcome", file: "n8-welcome.mp3", reviewed: false }];

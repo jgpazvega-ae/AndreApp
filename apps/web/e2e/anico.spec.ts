@@ -74,6 +74,13 @@ const PLAYABLE_LEVELS = [
       }
     },
   },
+  {
+    name: "Para y sigue",
+    // Tocar mientras baila no hace nada malo (solo se escucha, sin romper nada):
+    // basta un toque cualquiera para probar que la pantalla responde. El nombre
+    // accesible cambia según la fase, de ahí el regex en vez de texto exacto.
+    interact: (page: Page) => page.getByRole("button", { name: /Bailarín/ }).click({ force: true }),
+  },
 ];
 
 test.describe("pantalla de inicio", () => {
@@ -100,7 +107,7 @@ test.describe("pantalla de inicio", () => {
       await expect(page.getByRole("button", { name: level.name })).toBeEnabled();
     }
     // Un nivel aún no construido queda bloqueado, no abre una pantalla vacía.
-    await expect(page.getByRole("button", { name: "Para y sigue" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Subitizar 1-3" })).toBeDisabled();
   });
 });
 
@@ -161,6 +168,26 @@ test.describe("niveles", () => {
     await page.waitForTimeout(2000); // deja pasar la celebración y el cambio de ronda
 
     await expect(page.locator('button[aria-label="Espacio del rompecabezas"]')).toHaveCount(3);
+  });
+
+  test("N8: 3 congelamientos seguidos disparan la celebración de racha", async ({ page }) => {
+    await openHome(page);
+    await page.getByRole("button", { name: "Para y sigue" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+
+    // La celebración de racha reutiliza los elogios de N2; que suene uno es
+    // la señal de que las 3 rachas realmente se contaron.
+    const streakCelebration = page.waitForResponse((res) => /n2-praise-\d\.mp3/.test(res.url()), { timeout: 20000 });
+
+    // El nombre accesible cambia al congelarse: en vez de esperar a ciegas un
+    // tiempo fijo (frágil si el timer del navegador se retrasa en headless),
+    // se espera a que el propio DOM anuncie el turno — igual que lo haría
+    // quien depende de un lector de pantalla.
+    for (let i = 0; i < 3; i++) {
+      await page.getByRole("button", { name: "Bailarín, ¡tócame ahora!" }).click({ force: true, timeout: 10000 });
+    }
+
+    await streakCelebration;
   });
 });
 

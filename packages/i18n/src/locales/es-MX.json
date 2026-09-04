@@ -37,6 +37,8 @@
   "a11y.puzzlePiece": "Pieza",
   "a11y.puzzleSlot": "Espacio del rompecabezas",
   "a11y.emotion": "Emoción",
+  "a11y.dancer": "Bailarín",
+  "a11y.dancerFrozen": "Bailarín, ¡tócame ahora!",
 
   "error.title": "Algo se descompuso",
   "error.body": "Vamos a regresar al inicio para seguir jugando.",
