@@ -61,11 +61,19 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
   // Posiciones de los huecos en pantalla, para saber sobre cuál se soltó una
   // pieza arrastrada (no hay layout API en React puro: se leen del DOM).
   const slotRefs = useRef<Map<ShapeType, HTMLButtonElement | null>>(new Map());
+  // El tamaño del rompecabezas (2-4 piezas) no es múltiplo del cierre de
+  // ronda compartido (cada 5 aciertos): tarde o temprano coinciden (p. ej.
+  // el 2do rompecabezas, con piezas acumuladas 2+3=5). En ese toque exacto,
+  // celebrate() ya avisa que cerró la ronda y aquí se evita el elogio local
+  // duplicado con el de LevelCompleteOverlay.
+  const lastPieceClosedSharedRoundRef = useRef(false);
 
   // Rompecabezas completo: celebrar y empezar el siguiente, con una pieza más.
   useEffect(() => {
     if (placed.size === 0 || placed.size < shapes.length) return;
-    const praise = setTimeout(() => playVoiceClip(locale, pickRandom(ROUND_COMPLETE_FILES)), 200);
+    const praise = lastPieceClosedSharedRoundRef.current
+      ? null
+      : setTimeout(() => playVoiceClip(locale, pickRandom(ROUND_COMPLETE_FILES)), 200);
     const next = setTimeout(() => {
       const nextRoundIndex = roundIndex + 1;
       const nextShapes = newRound(nextRoundIndex);
@@ -77,7 +85,7 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
       setSelected(null);
     }, ROUND_COMPLETE_DELAY_MS);
     return () => {
-      clearTimeout(praise);
+      if (praise) clearTimeout(praise);
       clearTimeout(next);
     };
   }, [placed, shapes, roundIndex, locale]);
@@ -96,7 +104,7 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
       if (placed.has(slotShape) || !carriedShape) return;
 
       if (carriedShape === slotShape) {
-        celebrate(point);
+        lastPieceClosedSharedRoundRef.current = celebrate(point);
         setPlaced((prev) => new Set(prev).add(slotShape));
         setSelected(null);
       } else {

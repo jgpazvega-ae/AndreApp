@@ -56,9 +56,10 @@ export function useGameSession(
   { locale, welcomeFile, roundSize = DEFAULT_ROUND_SIZE }: GameSessionOptions,
 ) {
   const [celebrateSignal, setCelebrateSignal] = useState(0);
-  // Solo se lee dentro de su propio updater funcional (ver celebrate): no
-  // necesita re-renderizar nada por sí solo, de ahí que no se desestructure el getter.
-  const [, setStreak] = useState(0);
+  // Nunca dispara un re-render por sí solo (setRoundComplete/setCelebrateSignal
+  // ya lo hacen): vive en un ref para que `celebrate` pueda leer y decidir el
+  // resultado en la misma llamada, sin esperar al siguiente render.
+  const streakRef = useRef(0);
   const [roundComplete, setRoundComplete] = useState(false);
   const recordPlay = useProgressStore((state) => state.recordPlay);
   const recordRoundComplete = useProgressStore((state) => state.recordRoundComplete);
@@ -88,24 +89,32 @@ export function useGameSession(
    * Celebra un acierto. Recibe el evento del toque para lanzar el confeti
    * justo donde el niño tocó (la causa y el efecto deben coincidir en el
    * espacio para que el vínculo sea evidente a esta edad).
+   *
+   * Devuelve `true` cuando ESTE acierto fue el que cerró la ronda (para que
+   * un nivel con su propio elogio de "mini-ronda" local — p. ej. un par en
+   * N3, un rompecabezas en N6 — pueda omitirlo justo en el toque en el que
+   * coincide con el cierre de ronda compartido: si no, se oyen dos voces de
+   * elogio distintas al mismo tiempo). La mayoría de los niveles no
+   * necesitan este valor y simplemente lo ignoran.
    */
   const celebrate = useCallback(
-    (event?: { clientX: number; clientY: number }) => {
+    (event?: { clientX: number; clientY: number }): boolean => {
       // Toque simple = pop; acierto = pop + arpegio ("¡lo lograste!"), para
       // que el logro suene claramente distinto de un toque cualquiera.
       playChime();
       playSparkle();
       if (event) burst(event.clientX, event.clientY);
       setCelebrateSignal((n) => n + 1);
-      setStreak((s) => {
-        const next = s + 1;
-        if (next >= roundSize) {
-          recordRoundComplete(levelId);
-          setRoundComplete(true);
-          return 0;
-        }
-        return next;
-      });
+
+      const next = streakRef.current + 1;
+      if (next >= roundSize) {
+        streakRef.current = 0;
+        recordRoundComplete(levelId);
+        setRoundComplete(true);
+        return true;
+      }
+      streakRef.current = next;
+      return false;
     },
     [burst, roundSize, levelId, recordRoundComplete],
   );

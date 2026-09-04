@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useMemo, useState } from "react";
+import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
@@ -84,6 +84,11 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
   const { acknowledgeTap, celebrate, encourage, celebrateSignal, confettiField, roundComplete, continueRound } =
     useGameSession("n3", { locale, welcomeFile: "n3-welcome.mp3" });
   const { idle, resetIdle } = useIdleHint();
+  // Cada ronda de N3 son siempre 3 pares, así que cada 5 rondas (15 aciertos)
+  // el cierre de "3 pares" coincide con el cierre de ronda compartido de
+  // useGameSession (cada 5 aciertos): en ese toque exacto, celebrate() ya
+  // avisa que cerró la ronda y aquí se evita el elogio local duplicado.
+  const lastMatchClosedSharedRoundRef = useRef(false);
 
   const allMatched = matchedIds.size === cards.length;
 
@@ -99,17 +104,21 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
     return null;
   }, [idle, selected, busy, allMatched, cards, matchedIds]);
 
-  // Ronda completa: celebrar y empezar una nueva.
+  // Ronda completa: celebrar y empezar una nueva. Sin elogio propio si este
+  // cierre coincidió con el de la ronda compartida (LevelCompleteOverlay ya
+  // lo da, ver lastMatchClosedSharedRoundRef).
   useEffect(() => {
     if (!allMatched) return;
-    const praise = setTimeout(() => playVoiceClip(locale, pickRandom(ROUND_COMPLETE_FILES)), 200);
+    const praise = lastMatchClosedSharedRoundRef.current
+      ? null
+      : setTimeout(() => playVoiceClip(locale, pickRandom(ROUND_COMPLETE_FILES)), 200);
     const next = setTimeout(() => {
       setCards(newRound());
       setMatchedIds(new Set());
       setPoppingIds(new Set());
     }, ROUND_COMPLETE_DELAY_MS);
     return () => {
-      clearTimeout(praise);
+      if (praise) clearTimeout(praise);
       clearTimeout(next);
     };
   }, [allMatched, locale]);
@@ -130,7 +139,7 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
         // Acierto: celebración inmediata y visible; el par "salta" y luego
         // se marca como emparejado (mosaico verde + palomita).
         setBusy(true);
-        celebrate(event);
+        lastMatchClosedSharedRoundRef.current = celebrate(event);
         playVoiceClip(locale, OBJECT_ASSET[card.type].voiceFile);
         setPoppingIds(new Set([selected.id, card.id]));
         setTimeout(() => {
