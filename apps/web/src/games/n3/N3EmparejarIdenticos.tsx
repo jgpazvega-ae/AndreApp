@@ -81,10 +81,10 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
   const [poppingIds, setPoppingIds] = useState<Set<number>>(new Set());
   const [shakeIds, setShakeIds] = useState<Set<number>>(new Set());
   const [busy, setBusy] = useState(false);
-  const { acknowledgeTap, celebrate, celebrateSignal, confettiField } = useGameSession("n3", {
-    locale,
-    welcomeFile: "n3-welcome.mp3",
-  });
+  const { acknowledgeTap, celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession(
+    "n3",
+    { locale, welcomeFile: "n3-welcome.mp3" },
+  );
   const { idle, resetIdle } = useIdleHint();
 
   const allMatched = matchedIds.size === cards.length;
@@ -163,6 +163,9 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}
       confetti={confettiField}
+      locale={locale}
+      roundComplete={roundComplete}
+      onPlayAgain={continueRound}
       // Sin esto, el tablero queda en flujo normal de bloque: se pega justo
       // debajo del encabezado y todo el resto de la pantalla queda vacío.
       // flex + centrado hace que el tablero use el espacio disponible.

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { CURRICULUM_LEVELS, getLevelsByStage, type Stage } from "@andreapp/curriculum";
 import { APP_NAME } from "@andreapp/shared";
 import { BigButton } from "../components/BigButton";
+import { useProgressStore } from "../store/progressStore";
 import { asset } from "../utils/asset";
 
 const STAGES: Stage[] = ["A", "B", "C", "D"];
@@ -37,6 +38,7 @@ interface HomeScreenProps {
 
 export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
   const { t } = useTranslation();
+  const levelsProgress = useProgressStore((state) => state.levels);
   let tileIndex = 0;
 
   return (
@@ -202,6 +204,7 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
                       locked={!isPlayable}
                       disabled={!isPlayable}
                       delayIndex={idx}
+                      roundsCompleted={levelsProgress[level.id]?.roundsCompleted ?? 0}
                       onTap={() => onPlay(level.id)}
                     />
                   );

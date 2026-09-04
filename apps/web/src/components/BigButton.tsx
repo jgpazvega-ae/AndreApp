@@ -11,6 +11,9 @@ interface BigButtonProps {
   disabled?: boolean;
   /** Índice para escalonar la animación de entrada (stagger). */
   delayIndex?: number;
+  /** Rondas completadas (LevelProgress.roundsCompleted): visible en el mapa
+   * como una insignia, para que el progreso se sienta real sin abrir el nivel. */
+  roundsCompleted?: number;
 }
 
 /**
@@ -26,6 +29,7 @@ export function BigButton({
   locked = false,
   disabled = false,
   delayIndex = 0,
+  roundsCompleted = 0,
 }: BigButtonProps) {
   const background = locked
     ? "var(--color-locked-bg)"
@@ -90,6 +94,31 @@ export function BigButton({
       >
         {label}
       </span>
+
+      {/* Insignia de progreso: rondas completadas, visible sin entrar al nivel
+          (ver useGameSession.roundSize). Nunca evaluativa, solo cuenta. */}
+      {roundsCompleted > 0 && (
+        <span
+          aria-hidden="true"
+          style={{
+            position: "absolute",
+            top: 6,
+            right: 6,
+            display: "flex",
+            alignItems: "center",
+            gap: 2,
+            padding: "2px 7px",
+            borderRadius: "var(--radius-pill)",
+            background: "rgba(255,255,255,0.9)",
+            color: "var(--color-text)",
+            fontSize: "0.7rem",
+            fontWeight: 800,
+            boxShadow: "0 2px 4px rgba(0,0,0,0.15)",
+          }}
+        >
+          ⭐{roundsCompleted}
+        </span>
+      )}
     </motion.button>
   );
 }

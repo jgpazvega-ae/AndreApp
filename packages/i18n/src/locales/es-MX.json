@@ -7,6 +7,10 @@
   "common.comingSoon": "Muy pronto",
   "common.locked": "Nivel de paga",
 
+  "roundComplete.title": "¡Lo lograste!",
+  "roundComplete.playAgain": "Otra vez",
+  "roundComplete.goHome": "Mapa",
+
   "home.title": "Elige un mundo",
   "home.stage.A": "Descubrimiento",
   "home.stage.B": "Exploración",

@@ -6,10 +6,21 @@ import { useProgressStore } from "../store/progressStore";
 /** Espera antes de la voz de bienvenida: da tiempo a que la pantalla entre y el niño la mire. */
 const WELCOME_DELAY_MS = 500;
 
+/**
+ * Cuántos aciertos (celebrate) forman una "ronda" antes de mostrar la
+ * pantalla de logro (ver LevelCompleteOverlay). Sin esto cada nivel era un
+ * ejercicio infinito, sin principio ni fin — el niño nunca sentía que
+ * "terminó" algo. 5 es corto para su atención (unos 15-30s de juego real)
+ * sin sentirse apurado ni evaluado: siempre se completa, nunca se falla.
+ */
+const DEFAULT_ROUND_SIZE = 5;
+
 interface GameSessionOptions {
   locale: string;
   /** Clip de voz que da la consigna al entrar, p. ej. "n3-welcome.mp3". */
   welcomeFile: string;
+  /** Ver DEFAULT_ROUND_SIZE. Ajustable por si un nivel necesita otro ritmo. */
+  roundSize?: number;
 }
 
 /**
@@ -23,9 +34,17 @@ interface GameSessionOptions {
  * docs/CURRICULUM.md §2 — el refuerzo es siempre el mismo, lo que cambia
  * es el reto.
  */
-export function useGameSession(levelId: string, { locale, welcomeFile }: GameSessionOptions) {
+export function useGameSession(
+  levelId: string,
+  { locale, welcomeFile, roundSize = DEFAULT_ROUND_SIZE }: GameSessionOptions,
+) {
   const [celebrateSignal, setCelebrateSignal] = useState(0);
+  // Solo se lee dentro de su propio updater funcional (ver celebrate): no
+  // necesita re-renderizar nada por sí solo, de ahí que no se desestructure el getter.
+  const [, setStreak] = useState(0);
+  const [roundComplete, setRoundComplete] = useState(false);
   const recordPlay = useProgressStore((state) => state.recordPlay);
+  const recordRoundComplete = useProgressStore((state) => state.recordRoundComplete);
   const { burst, confettiField } = useConfetti();
 
   useEffect(() => {
@@ -59,9 +78,22 @@ export function useGameSession(levelId: string, { locale, welcomeFile }: GameSes
       playSparkle();
       if (event) burst(event.clientX, event.clientY);
       setCelebrateSignal((n) => n + 1);
+      setStreak((s) => {
+        const next = s + 1;
+        if (next >= roundSize) {
+          recordRoundComplete(levelId);
+          setRoundComplete(true);
+          return 0;
+        }
+        return next;
+      });
     },
-    [burst],
+    [burst, roundSize, levelId, recordRoundComplete],
   );
 
-  return { acknowledgeTap, celebrate, celebrateSignal, confettiField };
+  /** Cierra la pantalla de logro y sigue jugando: el juego de fondo no se
+   * reinicia, solo estaba en pausa (ver GameShell/LevelCompleteOverlay). */
+  const continueRound = useCallback(() => setRoundComplete(false), []);
+
+  return { acknowledgeTap, celebrate, celebrateSignal, confettiField, roundComplete, continueRound };
 }

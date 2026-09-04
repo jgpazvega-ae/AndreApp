@@ -55,7 +55,7 @@ export function N7Emociones({ locale, onExit }: N7EmocionesProps) {
   const [target, setTarget] = useState<EmotionType>(() => pickRandom(ALL_EMOTIONS));
   const [busy, setBusy] = useState(false);
   const [shakeType, setShakeType] = useState<EmotionType | null>(null);
-  const { celebrate, celebrateSignal, confettiField } = useGameSession("n7", {
+  const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n7", {
     locale,
     welcomeFile: EMOTION_ASSET[target].questionFile,
   });
@@ -92,6 +92,9 @@ export function N7Emociones({ locale, onExit }: N7EmocionesProps) {
       celebrateSignal={celebrateSignal}
       confetti={confettiField}
       style={{ display: "flex", flexDirection: "column" }}
+      locale={locale}
+      roundComplete={roundComplete}
+      onPlayAgain={continueRound}
     >
       <div
         style={{

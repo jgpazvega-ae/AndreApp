@@ -43,7 +43,10 @@ interface N1CausaEfectoProps {
 export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
   const [pops, setPops] = useState<Pop[]>([]);
   const nextId = useRef(0);
-  const { celebrate, celebrateSignal, confettiField } = useGameSession("n1", { locale, welcomeFile: "welcome.mp3" });
+  const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n1", {
+    locale,
+    welcomeFile: "welcome.mp3",
+  });
   const { idle, resetIdle } = useIdleHint();
 
   const handleTap = useCallback(
@@ -73,6 +76,9 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
       celebrateSignal={celebrateSignal}
       confetti={confettiField}
       onPointerDown={handleTap}
+      locale={locale}
+      roundComplete={roundComplete}
+      onPlayAgain={continueRound}
     >
       <AnimatePresence>
         {idle && pops.length === 0 && (

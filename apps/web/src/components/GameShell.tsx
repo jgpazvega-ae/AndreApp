@@ -2,6 +2,7 @@ import type { CSSProperties, PointerEvent, ReactNode } from "react";
 import { useTranslation } from "react-i18next";
 import { DecorBlobs } from "./DecorBlobs";
 import { GameBuddy } from "./GameBuddy";
+import { LevelCompleteOverlay } from "./LevelCompleteOverlay";
 
 interface GameShellProps {
   /** Id del nivel (p. ej. "n3"): decide qué perrito acompaña esta pantalla. */
@@ -19,6 +20,15 @@ interface GameShellProps {
   onPointerDown?: (event: PointerEvent<HTMLDivElement>) => void;
   /** Ajustes de layout del contenedor (p. ej. columna flex). */
   style?: CSSProperties;
+  /**
+   * `roundComplete` de useGameSession: muestra la pantalla de logro (3
+   * estrellas) y pausa el nivel de fondo sin reiniciarlo. Locale se necesita
+   * para la voz de elogio del overlay. Omitir ambos si un nivel no usa
+   * rondas (ninguno actualmente, pero mantiene el prop opcional).
+   */
+  locale?: string;
+  roundComplete?: boolean;
+  onPlayAgain?: () => void;
   children: ReactNode;
 }
 
@@ -40,6 +50,9 @@ export function GameShell({
   decor = true,
   onPointerDown,
   style,
+  locale,
+  roundComplete = false,
+  onPlayAgain,
   children,
 }: GameShellProps) {
   const { t } = useTranslation();
@@ -92,6 +105,10 @@ export function GameShell({
       {confetti}
 
       {children}
+
+      {locale && onPlayAgain && (
+        <LevelCompleteOverlay visible={roundComplete} locale={locale} onPlayAgain={onPlayAgain} onGoHome={onExit} />
+      )}
     </div>
   );
 }

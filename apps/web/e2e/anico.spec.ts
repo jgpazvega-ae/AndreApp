@@ -221,6 +221,41 @@ test.describe("niveles", () => {
 
     await streakCelebration;
   });
+
+  test("al completar una ronda aparece la pantalla de logro y no interrumpe el juego", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await page.getByRole("button", { name: "Toca al objetivo" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(400);
+
+    // useGameSession cierra una ronda cada 5 aciertos (ver DEFAULT_ROUND_SIZE):
+    // el 5to toque debe mostrar la pantalla de logro con sus 3 estrellas.
+    for (let i = 0; i < 5; i++) {
+      await page.getByRole("button", { name: "Tócame" }).click({ force: true });
+      await page.waitForTimeout(200);
+    }
+    await expect(page.getByText("¡Lo lograste!")).toBeVisible({ timeout: 3000 });
+
+    // "Otra vez" solo cierra el overlay: el nivel sigue donde estaba, sin
+    // reiniciarse (el objetivo tocable sigue presente).
+    await page.getByRole("button", { name: "Otra vez" }).click();
+    await expect(page.getByText("¡Lo lograste!")).toBeHidden();
+    await expect(page.getByRole("button", { name: "Tócame" })).toBeVisible();
+
+    // Una segunda ronda completa y "Mapa" regresa al inicio — con la
+    // insignia de rondas completadas visible en el tile del nivel.
+    for (let i = 0; i < 5; i++) {
+      await page.getByRole("button", { name: "Tócame" }).click({ force: true });
+      await page.waitForTimeout(200);
+    }
+    await expect(page.getByText("¡Lo lograste!")).toBeVisible({ timeout: 3000 });
+    await page.getByRole("button", { name: "Mapa" }).click();
+    await expect(page.getByText("Elige un mundo")).toBeVisible();
+    await expect(page.getByRole("button", { name: "Toca al objetivo" }).getByText("⭐2")).toBeVisible();
+
+    expect(problems).toEqual([]);
+  });
 });
 
 test.describe("zona de padres", () => {

@@ -63,7 +63,7 @@ export function N5VocabularioYSonidos({ locale, onExit }: N5VocabularioYSonidosP
   const pendingTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
   useEffect(() => () => pendingTimers.current.forEach(clearTimeout), []);
   // La consigna de bienvenida ES la primera pregunta, por eso sale del target inicial.
-  const { celebrate, celebrateSignal, confettiField } = useGameSession("n5", {
+  const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n5", {
     locale,
     welcomeFile: ANIMAL_ASSET[target].questionFile,
   });
@@ -105,6 +105,9 @@ export function N5VocabularioYSonidos({ locale, onExit }: N5VocabularioYSonidosP
       celebrateSignal={celebrateSignal}
       confetti={confettiField}
       style={{ display: "flex", flexDirection: "column" }}
+      locale={locale}
+      roundComplete={roundComplete}
+      onPlayAgain={continueRound}
     >
       <div
         style={{

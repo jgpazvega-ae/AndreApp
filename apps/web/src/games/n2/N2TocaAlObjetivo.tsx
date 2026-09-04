@@ -58,7 +58,10 @@ export function N2TocaAlObjetivo({ locale, onExit }: N2TocaAlObjetivoProps) {
   const { t } = useTranslation();
   const [position, setPosition] = useState<Position>(() => randomPosition());
   const [catchCount, setCatchCount] = useState(0);
-  const { celebrate, celebrateSignal, confettiField } = useGameSession("n2", { locale, welcomeFile: "n2-welcome.mp3" });
+  const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n2", {
+    locale,
+    welcomeFile: "n2-welcome.mp3",
+  });
   const { idle, resetIdle } = useIdleHint();
 
   const phase = phaseFor(catchCount);
@@ -90,6 +93,9 @@ export function N2TocaAlObjetivo({ locale, onExit }: N2TocaAlObjetivoProps) {
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}
       confetti={confettiField}
+      locale={locale}
+      roundComplete={roundComplete}
+      onPlayAgain={continueRound}
     >
       <motion.div
         initial={false}

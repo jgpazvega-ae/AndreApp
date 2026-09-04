@@ -23,6 +23,8 @@ interface ProgressState {
   setSensoryMode: (mode: SensoryMode) => void;
   recordPlay: (levelId: string) => void;
   setMastered: (levelId: string, mastered: boolean) => void;
+  /** Se llama cuando useGameSession cierra una ronda (ver LevelCompleteOverlay). */
+  recordRoundComplete: (levelId: string) => void;
 }
 
 /**
@@ -48,6 +50,7 @@ export const useProgressStore = create<ProgressState>()(
             timesPlayed: (existing?.timesPlayed ?? 0) + 1,
             mastered: existing?.mastered ?? false,
             lastPlayedAt: new Date().toISOString(),
+            roundsCompleted: existing?.roundsCompleted ?? 0,
           };
           return { levels: { ...state.levels, [levelId]: entry } };
         }),
@@ -60,6 +63,20 @@ export const useProgressStore = create<ProgressState>()(
             timesPlayed: existing?.timesPlayed ?? 0,
             mastered,
             lastPlayedAt: existing?.lastPlayedAt ?? null,
+            roundsCompleted: existing?.roundsCompleted ?? 0,
+          };
+          return { levels: { ...state.levels, [levelId]: entry } };
+        }),
+
+      recordRoundComplete: (levelId) =>
+        set((state) => {
+          const existing = state.levels[levelId];
+          const entry: LevelProgress = {
+            levelId,
+            timesPlayed: existing?.timesPlayed ?? 0,
+            mastered: existing?.mastered ?? false,
+            lastPlayedAt: existing?.lastPlayedAt ?? null,
+            roundsCompleted: (existing?.roundsCompleted ?? 0) + 1,
           };
           return { levels: { ...state.levels, [levelId]: entry } };
         }),

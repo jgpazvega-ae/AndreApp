@@ -57,7 +57,10 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
   const [sortedCount, setSortedCount] = useState(0);
   const [busy, setBusy] = useState(false);
   const [shaking, setShaking] = useState(false);
-  const { celebrate, celebrateSignal, confettiField } = useGameSession("n4", { locale, welcomeFile: "n4-welcome.mp3" });
+  const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n4", {
+    locale,
+    welcomeFile: "n4-welcome.mp3",
+  });
   const zoneColorsRef = useRef(zoneColors);
   zoneColorsRef.current = zoneColors;
   // Posiciones de las zonas en pantalla, para saber sobre cuál se soltó la bolita arrastrada.
@@ -118,6 +121,9 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
       confetti={confettiField}
       decor={false}
       style={{ display: "flex", flexDirection: "column" }}
+      locale={locale}
+      roundComplete={roundComplete}
+      onPlayAgain={continueRound}
     >
       <div style={{ flex: "0 0 42%", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <motion.div

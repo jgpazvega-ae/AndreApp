@@ -23,4 +23,10 @@ export interface LevelProgress {
   timesPlayed: number;
   mastered: boolean;
   lastPlayedAt: string | null;
+  /**
+   * Rondas completadas (ver useGameSession.roundSize): a diferencia de
+   * "mastered", esto nunca evalúa desempeño, solo cuenta cierres de sesión
+   * — el niño necesita un final visible en vez de un ejercicio infinito.
+   */
+  roundsCompleted: number;
 }

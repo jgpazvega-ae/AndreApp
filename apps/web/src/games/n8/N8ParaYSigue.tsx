@@ -47,10 +47,10 @@ export function N8ParaYSigue({ locale, onExit }: N8ParaYSigueProps) {
   const [phase, setPhase] = useState<Phase>("dancing");
   const [streak, setStreak] = useState(0);
   const [caught, setCaught] = useState(false);
-  const { acknowledgeTap, celebrate, celebrateSignal, confettiField } = useGameSession("n8", {
-    locale,
-    welcomeFile: "n8-welcome.mp3",
-  });
+  const { acknowledgeTap, celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession(
+    "n8",
+    { locale, welcomeFile: "n8-welcome.mp3" },
+  );
 
   // Alterna las fases: bailando por un tiempo al azar, luego congelada por
   // una ventana fija que, si nadie toca, vuelve a bailar sin penalizar.
@@ -97,6 +97,9 @@ export function N8ParaYSigue({ locale, onExit }: N8ParaYSigueProps) {
       celebrateSignal={celebrateSignal}
       confetti={confettiField}
       style={{ display: "flex", flexDirection: "column" }}
+      locale={locale}
+      roundComplete={roundComplete}
+      onPlayAgain={continueRound}
     >
       <div
         style={{

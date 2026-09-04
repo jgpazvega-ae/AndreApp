@@ -7,6 +7,10 @@
   "common.comingSoon": "Em breve",
   "common.locked": "Nível premium",
 
+  "roundComplete.title": "Você conseguiu!",
+  "roundComplete.playAgain": "De novo",
+  "roundComplete.goHome": "Mapa",
+
   "home.title": "Escolha um mundo",
   "home.stage.A": "Descoberta",
   "home.stage.B": "Exploração",
