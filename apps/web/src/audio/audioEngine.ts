@@ -51,20 +51,24 @@ export function unlockAudio(): void {
 function getHowl(src: string): Howl {
   const cached = howlCache.get(src);
   if (cached) return cached;
-  const howl = new Howl({ src: [src], html5: false, preload: true });
+  // El handler de error se registra UNA vez, al crear el Howl: hacerlo en cada
+  // reproducción acumulaba listeners sobre el mismo objeto cacheado.
+  const howl = new Howl({
+    src: [src],
+    html5: false,
+    preload: true,
+    onloaderror: () => {
+      console.warn(`[audio] No se pudo cargar el clip de voz: ${src}`);
+    },
+  });
   howlCache.set(src, howl);
   return howl;
 }
 
-/** Reproduce un clip de voz pregenerado. No lanza si el archivo falta (assets aún por generar). */
+/** Reproduce un clip de voz pregenerado. No lanza si el archivo falta (p. ej. idiomas sin voces aún). */
 export function playVoiceClip(locale: string, file: string): void {
   if (!unlocked) return;
-  const src = asset(`audio/${locale}/${file}`);
-  const howl = getHowl(src);
-  howl.once("loaderror", () => {
-    console.warn(`[audio] No se pudo cargar el clip de voz: ${src}`);
-  });
-  howl.play();
+  getHowl(asset(`audio/${locale}/${file}`)).play();
 }
 
 /**

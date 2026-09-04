@@ -1,25 +1,25 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { playChime, playVoiceClip } from "../../audio/audioEngine";
-import { DecorBlobs } from "../../components/DecorBlobs";
-import { GameBuddy } from "../../components/GameBuddy";
-import { useConfetti } from "../../effects/useConfetti";
-import { useProgressStore } from "../../store/progressStore";
+import { useCallback, useRef, useState } from "react";
+import { playVoiceClip } from "../../audio/audioEngine";
+import { GameShell } from "../../components/GameShell";
 import { asset } from "../../utils/asset";
+import { pickRandom } from "../../utils/random";
+import { useGameSession } from "../useGameSession";
+import { useIdleHint } from "../useIdleHint";
 
 interface DelightObject {
   image: string;
   voiceFile: string;
 }
 
-const OBJECTS: DelightObject[] = [
+const OBJECTS: [DelightObject, ...DelightObject[]] = [
   { image: asset("illustrations/object-star.png"), voiceFile: "object-star.mp3" },
   { image: asset("illustrations/object-bell.png"), voiceFile: "object-bell.mp3" },
   { image: asset("illustrations/object-balloon.png"), voiceFile: "object-balloon.mp3" },
   { image: asset("illustrations/object-flower.png"), voiceFile: "object-flower.mp3" },
 ];
 
-const IDLE_HINT_DELAY_MS = 5000;
+const BACKGROUND = "radial-gradient(circle at 20% 15%, #FFD68A 0%, #FFB03B 45%, #F58C1F 100%)";
 const POP_LIFETIME_MS = 1200;
 
 interface Pop {
@@ -42,94 +42,40 @@ interface N1CausaEfectoProps {
  */
 export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
   const [pops, setPops] = useState<Pop[]>([]);
-  const [showIdleHint, setShowIdleHint] = useState(false);
-  const [celebrations, setCelebrations] = useState(0);
   const nextId = useRef(0);
-  const idleTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const recordPlay = useProgressStore((state) => state.recordPlay);
-  const { burst, confettiField } = useConfetti();
-
-  const resetIdleTimer = useCallback(() => {
-    setShowIdleHint(false);
-    if (idleTimer.current) clearTimeout(idleTimer.current);
-    idleTimer.current = setTimeout(() => setShowIdleHint(true), IDLE_HINT_DELAY_MS);
-  }, []);
-
-  useEffect(() => {
-    recordPlay("n1");
-    const welcomeTimer = setTimeout(() => playVoiceClip(locale, "welcome.mp3"), 500);
-    resetIdleTimer();
-    return () => {
-      clearTimeout(welcomeTimer);
-      if (idleTimer.current) clearTimeout(idleTimer.current);
-    };
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { celebrate, celebrateSignal, confettiField } = useGameSession("n1", { locale, welcomeFile: "welcome.mp3" });
+  const { idle, resetIdle } = useIdleHint();
 
   const handleTap = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
-      resetIdleTimer();
-      const object = OBJECTS[Math.floor(Math.random() * OBJECTS.length)]!;
+      resetIdle();
+      const object = pickRandom(OBJECTS);
       const id = nextId.current++;
-      const x = event.clientX;
-      const y = event.clientY;
+      const { clientX: x, clientY: y } = event;
 
       setPops((prev) => [...prev, { id, x, y, image: object.image }]);
-      playChime();
+      celebrate(event);
+      // La voz nombra lo que apareció: el vínculo palabra/objeto es el aporte de N1.
       playVoiceClip(locale, object.voiceFile);
-      burst(x, y);
-      setCelebrations((c) => c + 1);
 
       setTimeout(() => {
         setPops((prev) => prev.filter((pop) => pop.id !== id));
       }, POP_LIFETIME_MS);
     },
-    [locale, resetIdleTimer, burst],
+    [locale, resetIdle, celebrate],
   );
 
   return (
-    <div
+    <GameShell
+      levelId="n1"
+      onExit={onExit}
+      background={BACKGROUND}
+      celebrateSignal={celebrateSignal}
+      confetti={confettiField}
       onPointerDown={handleTap}
-      style={{
-        position: "relative",
-        flex: 1,
-        minHeight: "100vh",
-        overflow: "hidden",
-        background: "radial-gradient(circle at 20% 15%, #FFD68A 0%, #FFB03B 45%, #F58C1F 100%)",
-        touchAction: "manipulation",
-      }}
     >
-      <DecorBlobs />
-
-      <button
-        type="button"
-        aria-label="Regresar"
-        onClick={(e) => {
-          e.stopPropagation();
-          onExit();
-        }}
-        style={{
-          position: "absolute",
-          top: "max(env(safe-area-inset-top), 16px)",
-          left: 16,
-          zIndex: 10,
-          width: 48,
-          height: 48,
-          borderRadius: "var(--radius-pill)",
-          background: "rgba(255,255,255,0.85)",
-          fontSize: "1.4rem",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        ⬅️
-      </button>
-
-      <GameBuddy levelId="n1" celebrateSignal={celebrations} />
-
       <AnimatePresence>
-        {showIdleHint && pops.length === 0 && (
+        {idle && pops.length === 0 && (
           <motion.img
             key="idle-hint"
             src={asset("illustrations/mascot.png")}
@@ -151,8 +97,6 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
           />
         )}
       </AnimatePresence>
-
-      {confettiField}
 
       <AnimatePresence>
         {pops.map((pop) => (
@@ -178,6 +122,6 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
           />
         ))}
       </AnimatePresence>
-    </div>
+    </GameShell>
   );
 }

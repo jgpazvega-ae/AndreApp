@@ -1,9 +1,10 @@
 import { motion } from "framer-motion";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { playChime, playVoiceClip } from "../../audio/audioEngine";
-import { GameBuddy } from "../../components/GameBuddy";
-import { useConfetti } from "../../effects/useConfetti";
-import { useProgressStore } from "../../store/progressStore";
+import { useCallback, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
+import { playVoiceClip } from "../../audio/audioEngine";
+import { GameShell } from "../../components/GameShell";
+import { pickRandom, shuffle } from "../../utils/random";
+import { useGameSession } from "../useGameSession";
 
 interface ColorDef {
   id: string;
@@ -16,30 +17,23 @@ const PALETTE: ColorDef[] = [
   { id: "teal", hex: "#3DBBA0" },
 ];
 
+const BACKGROUND = "linear-gradient(160deg, #E3FBF4 0%, #8FE0CB 100%)";
 const ROUND_SIZE = 5;
 const SHAKE_MS = 400;
 const NEXT_ITEM_DELAY_MS = 500;
 const ROUND_COMPLETE_DELAY_MS = 1600;
 
 /** Reutiliza los elogios de proceso de N2; N4 es perceptual, no nombra el color (docs/CURRICULUM.md ficha N4). */
-const ROUND_COMPLETE_FILES = ["n2-praise-1.mp3", "n2-praise-2.mp3", "n2-praise-3.mp3", "n2-praise-4.mp3"];
-
-function shuffle<T>(items: T[]): T[] {
-  const copy = [...items];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j]!, copy[i]!];
-  }
-  return copy;
-}
+const ROUND_COMPLETE_FILES: [string, ...string[]] = [
+  "n2-praise-1.mp3",
+  "n2-praise-2.mp3",
+  "n2-praise-3.mp3",
+  "n2-praise-4.mp3",
+];
 
 function pickRoundColors(): [ColorDef, ColorDef] {
   const [a, b] = shuffle(PALETTE);
   return [a!, b!];
-}
-
-function pickOne<T>([a, b]: [T, T]): T {
-  return Math.random() < 0.5 ? a : b;
 }
 
 interface N4ClasificarPorAtributoProps {
@@ -56,110 +50,67 @@ interface N4ClasificarPorAtributoProps {
  * sonido negativo; nunca cambia de intento hasta acertar.
  */
 export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtributoProps) {
+  const { t } = useTranslation();
   const [zoneColors, setZoneColors] = useState<[ColorDef, ColorDef]>(() => pickRoundColors());
-  const [itemColor, setItemColor] = useState<ColorDef>(() => pickOne(zoneColors));
+  const [itemColor, setItemColor] = useState<ColorDef>(() => pickRandom(zoneColors));
   const [sortedCount, setSortedCount] = useState(0);
   const [busy, setBusy] = useState(false);
   const [shaking, setShaking] = useState(false);
-  const [celebrations, setCelebrations] = useState(0);
-  const recordPlay = useProgressStore((state) => state.recordPlay);
-  const { burst, confettiField } = useConfetti();
+  const { celebrate, celebrateSignal, confettiField } = useGameSession("n4", { locale, welcomeFile: "n4-welcome.mp3" });
   const zoneColorsRef = useRef(zoneColors);
   zoneColorsRef.current = zoneColors;
-
-  useEffect(() => {
-    recordPlay("n4");
-    const t = setTimeout(() => playVoiceClip(locale, "n4-welcome.mp3"), 500);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
-
-  const nextItem = useCallback((colors: [ColorDef, ColorDef]) => {
-    setItemColor(pickOne(colors));
-  }, []);
 
   const handleTapZone = useCallback(
     (zoneColor: ColorDef, event: React.PointerEvent<HTMLButtonElement>) => {
       if (busy) return;
 
-      if (zoneColor.id === itemColor.id) {
-        setBusy(true);
-        playChime();
-        burst(event.clientX, event.clientY);
-        setCelebrations((c) => c + 1);
-        const newCount = sortedCount + 1;
-
-        if (newCount >= ROUND_SIZE) {
-          setTimeout(() => playVoiceClip(locale, ROUND_COMPLETE_FILES[Math.floor(Math.random() * ROUND_COMPLETE_FILES.length)]!), 150);
-          setTimeout(() => {
-            const colors = pickRoundColors();
-            setZoneColors(colors);
-            setSortedCount(0);
-            nextItem(colors);
-            setBusy(false);
-          }, ROUND_COMPLETE_DELAY_MS);
-        } else {
-          setSortedCount(newCount);
-          setTimeout(() => {
-            nextItem(zoneColorsRef.current);
-            setBusy(false);
-          }, NEXT_ITEM_DELAY_MS);
-        }
-      } else {
+      if (zoneColor.id !== itemColor.id) {
+        // Solo se sacude: el intento sigue en pie hasta acertar.
         setShaking(true);
         setTimeout(() => setShaking(false), SHAKE_MS);
+        return;
+      }
+
+      setBusy(true);
+      celebrate(event);
+      const newCount = sortedCount + 1;
+
+      if (newCount >= ROUND_SIZE) {
+        setTimeout(() => playVoiceClip(locale, pickRandom(ROUND_COMPLETE_FILES)), 150);
+        setTimeout(() => {
+          const colors = pickRoundColors();
+          setZoneColors(colors);
+          setSortedCount(0);
+          setItemColor(pickRandom(colors));
+          setBusy(false);
+        }, ROUND_COMPLETE_DELAY_MS);
+      } else {
+        setSortedCount(newCount);
+        setTimeout(() => {
+          setItemColor(pickRandom(zoneColorsRef.current));
+          setBusy(false);
+        }, NEXT_ITEM_DELAY_MS);
       }
     },
-    [busy, itemColor, sortedCount, locale, burst, nextItem],
+    [busy, itemColor, sortedCount, locale, celebrate],
   );
 
   return (
-    <div
-      style={{
-        position: "relative",
-        flex: 1,
-        minHeight: "100vh",
-        overflow: "hidden",
-        background: "linear-gradient(160deg, #E3FBF4 0%, #8FE0CB 100%)",
-        touchAction: "manipulation",
-        display: "flex",
-        flexDirection: "column",
-      }}
+    <GameShell
+      levelId="n4"
+      onExit={onExit}
+      background={BACKGROUND}
+      celebrateSignal={celebrateSignal}
+      confetti={confettiField}
+      decor={false}
+      style={{ display: "flex", flexDirection: "column" }}
     >
-      <button
-        type="button"
-        aria-label="Regresar"
-        onClick={onExit}
-        style={{
-          position: "absolute",
-          top: "max(env(safe-area-inset-top), 16px)",
-          left: 16,
-          zIndex: 10,
-          width: 48,
-          height: 48,
-          borderRadius: "var(--radius-pill)",
-          background: "rgba(255,255,255,0.85)",
-          fontSize: "1.4rem",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        ⬅️
-      </button>
-
-      <GameBuddy levelId="n4" celebrateSignal={celebrations} />
-
-      {confettiField}
-
       <div style={{ flex: "0 0 42%", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <motion.div
           key={itemColor.id + sortedCount}
           initial={{ scale: 0.6, opacity: 0 }}
           animate={
-            shaking
-              ? { x: [0, -10, 10, -10, 10, 0], scale: 1, opacity: 1 }
-              : { scale: [1, 1.06, 1], opacity: 1 }
+            shaking ? { x: [0, -10, 10, -10, 10, 0], scale: 1, opacity: 1 } : { scale: [1, 1.06, 1], opacity: 1 }
           }
           transition={
             shaking
@@ -182,7 +133,7 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
           <button
             key={zone.id}
             type="button"
-            aria-label="Zona de color"
+            aria-label={t("a11y.colorZone")}
             onPointerDown={(e) => handleTapZone(zone, e)}
             style={{
               flex: 1,
@@ -193,6 +144,6 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
           />
         ))}
       </div>
-    </div>
+    </GameShell>
   );
 }

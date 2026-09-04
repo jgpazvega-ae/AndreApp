@@ -56,16 +56,32 @@ export function BigButton({
         justifyContent: "center",
         gap: "4px",
         padding: "var(--space-md) var(--space-sm)",
-        boxShadow: locked ? "inset 0 2px 4px rgba(58,46,34,0.08)" : "0 10px 0 -2px rgba(0,0,0,0.08), var(--shadow-soft)",
+        boxShadow: locked
+          ? "inset 0 2px 4px rgba(58,46,34,0.08)"
+          : "0 10px 0 -2px rgba(0,0,0,0.08), var(--shadow-soft)",
         border: locked ? "2px dashed rgba(169,153,138,0.4)" : "2px solid rgba(255,255,255,0.35)",
         opacity: disabled && !locked ? 0.6 : 1,
         overflow: "hidden",
       }}
     >
-      <span style={{ fontSize: "2.6rem", lineHeight: 1, display: "flex", alignItems: "center", justifyContent: "center", height: "2.8rem" }} aria-hidden="true">
+      <span
+        style={{
+          fontSize: "2.6rem",
+          lineHeight: 1,
+          display: "flex",
+          alignItems: "center",
+          justifyContent: "center",
+          height: "2.8rem",
+        }}
+        aria-hidden="true"
+      >
         {icon}
       </span>
-      <span style={{ fontSize: "0.82rem", fontWeight: 800, textShadow: locked ? "none" : "0 1px 3px rgba(0,0,0,0.18)" }}>{label}</span>
+      <span
+        style={{ fontSize: "0.82rem", fontWeight: 800, textShadow: locked ? "none" : "0 1px 3px rgba(0,0,0,0.18)" }}
+      >
+        {label}
+      </span>
     </motion.button>
   );
 }

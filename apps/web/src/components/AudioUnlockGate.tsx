@@ -1,5 +1,6 @@
 import { motion } from "framer-motion";
 import type { ReactNode } from "react";
+import { useTranslation } from "react-i18next";
 import { APP_NAME } from "@andreapp/shared";
 import { unlockAudio } from "../audio/audioEngine";
 import { useAudioUnlock } from "../audio/useAudioUnlock";
@@ -16,6 +17,7 @@ interface AudioUnlockGateProps {
  * redundante en imagen (nunca solo texto) para un niño que aún no lee.
  */
 export function AudioUnlockGate({ children }: AudioUnlockGateProps) {
+  const { t } = useTranslation();
   const unlocked = useAudioUnlock();
 
   if (unlocked) return <>{children}</>;
@@ -23,7 +25,7 @@ export function AudioUnlockGate({ children }: AudioUnlockGateProps) {
   return (
     <motion.button
       type="button"
-      aria-label="Toca para empezar"
+      aria-label={t("a11y.startCue")}
       onClick={unlockAudio}
       initial={{ opacity: 0 }}
       animate={{ opacity: 1 }}
@@ -83,7 +85,12 @@ export function AudioUnlockGate({ children }: AudioUnlockGateProps) {
         src={asset("illustrations/mascot.png")}
         alt=""
         aria-hidden="true"
-        style={{ position: "relative", zIndex: 2, width: "min(58vw, 280px)", filter: "drop-shadow(0 18px 24px rgba(120,60,10,0.28))" }}
+        style={{
+          position: "relative",
+          zIndex: 2,
+          width: "min(58vw, 280px)",
+          filter: "drop-shadow(0 18px 24px rgba(120,60,10,0.28))",
+        }}
         animate={{ y: [0, -10, 0], rotate: [-2, 2, -2] }}
         transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
       />
@@ -100,11 +107,15 @@ export function AudioUnlockGate({ children }: AudioUnlockGateProps) {
         animate={{ scale: [1, 1.04, 1] }}
         transition={{ duration: 1.6, repeat: Infinity, ease: "easeInOut" }}
       >
-        <span style={{ fontSize: "1.8rem", fontWeight: 800, color: "#fff", textShadow: "0 3px 10px rgba(120,60,10,0.4)" }}>
+        <span
+          style={{ fontSize: "1.8rem", fontWeight: 800, color: "#fff", textShadow: "0 3px 10px rgba(120,60,10,0.4)" }}
+        >
           {APP_NAME}
         </span>
-        <span style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff", textShadow: "0 2px 8px rgba(120,60,10,0.4)" }}>
-          👉 Toca para empezar
+        <span
+          style={{ fontSize: "1.1rem", fontWeight: 700, color: "#fff", textShadow: "0 2px 8px rgba(120,60,10,0.4)" }}
+        >
+          👉 {t("a11y.startCue")}
         </span>
       </motion.div>
     </motion.button>

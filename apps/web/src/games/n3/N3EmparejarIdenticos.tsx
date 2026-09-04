@@ -1,11 +1,11 @@
 import { motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
-import { playChime, playVoiceClip } from "../../audio/audioEngine";
-import { DecorBlobs } from "../../components/DecorBlobs";
-import { GameBuddy } from "../../components/GameBuddy";
-import { useConfetti } from "../../effects/useConfetti";
-import { useProgressStore } from "../../store/progressStore";
+import { useTranslation } from "react-i18next";
+import { playVoiceClip } from "../../audio/audioEngine";
+import { GameShell } from "../../components/GameShell";
 import { asset } from "../../utils/asset";
+import { pickRandom, shuffle } from "../../utils/random";
+import { useGameSession } from "../useGameSession";
 
 type ObjectType = "star" | "bell" | "balloon" | "flower";
 
@@ -18,8 +18,14 @@ const OBJECT_ASSET: Record<ObjectType, { image: string; voiceFile: string }> = {
 const ALL_TYPES: ObjectType[] = ["star", "bell", "balloon", "flower"];
 
 /** Reutiliza los elogios de proceso de N2 para celebrar la ronda completa. */
-const ROUND_COMPLETE_FILES = ["n2-praise-1.mp3", "n2-praise-2.mp3", "n2-praise-3.mp3", "n2-praise-4.mp3"];
+const ROUND_COMPLETE_FILES: [string, ...string[]] = [
+  "n2-praise-1.mp3",
+  "n2-praise-2.mp3",
+  "n2-praise-3.mp3",
+  "n2-praise-4.mp3",
+];
 
+const BACKGROUND = "linear-gradient(160deg, #FFF3DC 0%, #FFD98A 100%)";
 const MISMATCH_SHAKE_MS = 500;
 const MATCH_RESOLVE_MS = 450;
 const ROUND_COMPLETE_DELAY_MS = 1800;
@@ -27,15 +33,6 @@ const ROUND_COMPLETE_DELAY_MS = 1800;
 interface Card {
   id: number;
   type: ObjectType;
-}
-
-function shuffle<T>(items: T[]): T[] {
-  const copy = [...items];
-  for (let i = copy.length - 1; i > 0; i--) {
-    const j = Math.floor(Math.random() * (i + 1));
-    [copy[i], copy[j]] = [copy[j]!, copy[i]!];
-  }
-  return copy;
 }
 
 function newRound(): Card[] {
@@ -60,34 +57,27 @@ interface N3EmparejarIdenticosProps {
  * deselecciona (sin sonido negativo: docs/CURRICULUM.md §2).
  */
 export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosProps) {
+  const { t } = useTranslation();
   const [cards, setCards] = useState<Card[]>(() => newRound());
   const [selected, setSelected] = useState<Card | null>(null);
   const [matchedIds, setMatchedIds] = useState<Set<number>>(new Set());
   const [shakeIds, setShakeIds] = useState<Set<number>>(new Set());
   const [busy, setBusy] = useState(false);
-  const [celebrations, setCelebrations] = useState(0);
-  const recordPlay = useProgressStore((state) => state.recordPlay);
-  const { burst, confettiField } = useConfetti();
-
-  useEffect(() => {
-    recordPlay("n3");
-    const t = setTimeout(() => playVoiceClip(locale, "n3-welcome.mp3"), 500);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  const { acknowledgeTap, celebrate, celebrateSignal, confettiField } = useGameSession("n3", {
+    locale,
+    welcomeFile: "n3-welcome.mp3",
+  });
 
   // Ronda completa: celebrar y empezar una nueva.
   useEffect(() => {
     if (matchedIds.size === 0 || matchedIds.size < cards.length) return;
-    const celebrate = setTimeout(() => {
-      playVoiceClip(locale, ROUND_COMPLETE_FILES[Math.floor(Math.random() * ROUND_COMPLETE_FILES.length)]!);
-    }, 200);
+    const praise = setTimeout(() => playVoiceClip(locale, pickRandom(ROUND_COMPLETE_FILES)), 200);
     const next = setTimeout(() => {
       setCards(newRound());
       setMatchedIds(new Set());
     }, ROUND_COMPLETE_DELAY_MS);
     return () => {
-      clearTimeout(celebrate);
+      clearTimeout(praise);
       clearTimeout(next);
     };
   }, [matchedIds, cards.length, locale]);
@@ -95,24 +85,26 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
   const handleTapCard = useCallback(
     (card: Card, event: React.PointerEvent<HTMLButtonElement>) => {
       if (busy || matchedIds.has(card.id) || card.id === selected?.id) return;
-      playChime();
-      burst(event.clientX, event.clientY);
 
+      // Primera carta: aún no hay acierto que celebrar, solo se acusa el toque.
       if (!selected) {
+        acknowledgeTap();
         setSelected(card);
         return;
       }
 
       if (selected.type === card.type) {
         setBusy(true);
+        celebrate(event);
         playVoiceClip(locale, OBJECT_ASSET[card.type].voiceFile);
-        setCelebrations((c) => c + 1);
         setTimeout(() => {
           setMatchedIds((prev) => new Set(prev).add(selected.id).add(card.id));
           setSelected(null);
           setBusy(false);
         }, MATCH_RESOLVE_MS);
       } else {
+        // Sin confeti ni sonido negativo: el error no se castiga, solo se deshace.
+        acknowledgeTap();
         setBusy(true);
         setShakeIds(new Set([selected.id, card.id]));
         setTimeout(() => {
@@ -122,48 +114,17 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
         }, MISMATCH_SHAKE_MS);
       }
     },
-    [busy, matchedIds, selected, locale, burst],
+    [busy, matchedIds, selected, locale, acknowledgeTap, celebrate],
   );
 
   return (
-    <div
-      style={{
-        position: "relative",
-        flex: 1,
-        minHeight: "100vh",
-        overflow: "hidden",
-        background: "linear-gradient(160deg, #FFF3DC 0%, #FFD98A 100%)",
-        touchAction: "manipulation",
-      }}
+    <GameShell
+      levelId="n3"
+      onExit={onExit}
+      background={BACKGROUND}
+      celebrateSignal={celebrateSignal}
+      confetti={confettiField}
     >
-      <DecorBlobs />
-
-      <button
-        type="button"
-        aria-label="Regresar"
-        onClick={onExit}
-        style={{
-          position: "absolute",
-          top: "max(env(safe-area-inset-top), 16px)",
-          left: 16,
-          zIndex: 10,
-          width: 48,
-          height: 48,
-          borderRadius: "var(--radius-pill)",
-          background: "rgba(255,255,255,0.85)",
-          fontSize: "1.4rem",
-          display: "flex",
-          alignItems: "center",
-          justifyContent: "center",
-        }}
-      >
-        ⬅️
-      </button>
-
-      <GameBuddy levelId="n3" celebrateSignal={celebrations} />
-
-      {confettiField}
-
       <div
         style={{
           position: "relative",
@@ -184,7 +145,7 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
             <motion.button
               key={card.id}
               type="button"
-              aria-label={isMatched ? "Ya emparejado" : "Tarjeta"}
+              aria-label={isMatched ? t("a11y.cardMatched") : t("a11y.card")}
               disabled={isMatched}
               onPointerDown={(e) => handleTapCard(card, e)}
               animate={
@@ -215,6 +176,6 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
           );
         })}
       </div>
-    </div>
+    </GameShell>
   );
 }
