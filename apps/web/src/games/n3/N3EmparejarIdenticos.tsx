@@ -163,12 +163,18 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}
       confetti={confettiField}
+      // Sin esto, el tablero queda en flujo normal de bloque: se pega justo
+      // debajo del encabezado y todo el resto de la pantalla queda vacío.
+      // flex + centrado hace que el tablero use el espacio disponible.
+      style={{ display: "flex", flexDirection: "column" }}
     >
       <div
         style={{
           position: "relative",
           zIndex: 1,
+          flex: 1,
           display: "grid",
+          alignContent: "center",
           gridTemplateColumns: "repeat(3, 1fr)",
           gap: "var(--space-md)",
           padding: "calc(max(env(safe-area-inset-top), 16px) + 72px) var(--space-lg) var(--space-lg)",
