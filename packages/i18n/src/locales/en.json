@@ -38,6 +38,8 @@
   "a11y.cardMatched": "Already matched",
   "a11y.colorZone": "Color zone",
   "a11y.animal": "Animal",
+  "a11y.quantityOf_one": "{{count}} object",
+  "a11y.quantityOf_other": "{{count}} objects",
   "a11y.puzzlePiece": "Piece",
   "a11y.puzzleSlot": "Puzzle slot",
   "a11y.emotion": "Emotion",

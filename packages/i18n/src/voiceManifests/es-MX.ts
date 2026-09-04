@@ -54,3 +54,12 @@ export const N7_VOICE_MANIFEST: VoiceManifestEntry[] = [
 
 /** N8 reutiliza los n2-praise-*.mp3 al completar la racha de 3. */
 export const N8_VOICE_MANIFEST: VoiceManifestEntry[] = [{ key: "n8.welcome", file: "n8-welcome.mp3", reviewed: false }];
+
+export const N9_VOICE_MANIFEST: VoiceManifestEntry[] = [
+  { key: "n9.question.1", file: "n9-question-1.mp3", reviewed: false },
+  { key: "n9.question.2", file: "n9-question-2.mp3", reviewed: false },
+  { key: "n9.question.3", file: "n9-question-3.mp3", reviewed: false },
+  { key: "n9.exclaim.1", file: "n9-exclaim-1.mp3", reviewed: false },
+  { key: "n9.exclaim.2", file: "n9-exclaim-2.mp3", reviewed: false },
+  { key: "n9.exclaim.3", file: "n9-exclaim-3.mp3", reviewed: false },
+];

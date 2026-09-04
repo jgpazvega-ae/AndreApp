@@ -81,6 +81,16 @@ const PLAYABLE_LEVELS = [
     // accesible cambia según la fase, de ahí el regex en vez de texto exacto.
     interact: (page: Page) => page.getByRole("button", { name: /Bailarín/ }).click({ force: true }),
   },
+  {
+    name: "Subitizar 1-3",
+    // Los grupos se anuncian por su cantidad ("1 objeto" / "2 objetos"), así que
+    // se puede tocar uno cualquiera para comprobar que la pantalla responde.
+    interact: (page: Page) =>
+      page
+        .getByRole("button", { name: /objetos?$/ })
+        .first()
+        .click({ force: true }),
+  },
 ];
 
 test.describe("pantalla de inicio", () => {
@@ -110,7 +120,7 @@ test.describe("pantalla de inicio", () => {
 
   test("un nivel aún no construido no abre una pantalla vacía, pero sí responde al toque", async ({ page }) => {
     await openHome(page);
-    const comingSoon = page.getByRole("button", { name: "Subitizar 1-3" });
+    const comingSoon = page.getByRole("button", { name: "Contar 1-5" });
     // aria-disabled (no el atributo nativo "disabled"): a propósito, para que
     // el tile pueda reaccionar al toque sin permitir la navegación real —
     // un <button disabled> nativo no reacciona a nada, y eso se sentía roto.
@@ -237,6 +247,38 @@ test.describe("niveles", () => {
     }
 
     await streakCelebration;
+  });
+
+  test("N9: tocar el grupo con la cantidad pedida acierta (y el equivocado no castiga)", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+
+    // La consigna se da SOLO por voz (el niño no lee), así que la prueba se
+    // entera igual que el niño: escuchando cuál clip pidió el nivel. Hay que
+    // armar la espera ANTES de entrar, porque suena al montar la pantalla.
+    const questionClip = page.waitForResponse((res) => /n9-question-\d\.mp3/.test(res.url()), { timeout: 15000 });
+    await page.getByRole("button", { name: "Subitizar 1-3" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+
+    const askedFor = (await questionClip).url().match(/n9-question-(\d)\.mp3/)?.[1];
+    expect(askedFor).toBeTruthy();
+
+    // Las 3 opciones (1, 2 y 3 objetos) están siempre visibles: es comprensión
+    // receptiva, no memoria — y el niño debe poder contarlas si duda.
+    await expect(page.getByRole("button", { name: /objetos?$/ })).toHaveCount(3);
+
+    // Tocar una cantidad distinta a la pedida: solo se sacude, sigue en el nivel.
+    const wrong = askedFor === "1" ? "2 objetos" : "1 objeto";
+    await page.getByRole("button", { name: wrong }).click({ force: true });
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+
+    // Tocar la correcta dispara la voz que nombra la cantidad ("¡Dos!").
+    const exclaim = page.waitForResponse((res) => res.url().includes(`n9-exclaim-${askedFor}.mp3`), { timeout: 10000 });
+    const correctName = askedFor === "1" ? "1 objeto" : `${askedFor} objetos`;
+    await page.getByRole("button", { name: correctName }).click({ force: true });
+    await exclaim;
+
+    expect(problems).toEqual([]);
   });
 
   test("al completar una ronda aparece la pantalla de logro y no interrumpe el juego", async ({ page }) => {

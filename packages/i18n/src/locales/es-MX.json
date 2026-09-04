@@ -38,6 +38,8 @@
   "a11y.cardMatched": "Ya emparejado",
   "a11y.colorZone": "Zona de color",
   "a11y.animal": "Animal",
+  "a11y.quantityOf_one": "{{count}} objeto",
+  "a11y.quantityOf_other": "{{count}} objetos",
   "a11y.puzzlePiece": "Pieza",
   "a11y.puzzleSlot": "Espacio del rompecabezas",
   "a11y.emotion": "Emoción",
