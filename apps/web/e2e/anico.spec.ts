@@ -170,6 +170,38 @@ test.describe("niveles", () => {
     await expect(page.locator('button[aria-label="Espacio del rompecabezas"]')).toHaveCount(3);
   });
 
+  test("N3: emparejar un par lo marca como emparejado (verde + palomita)", async ({ page }) => {
+    await openHome(page);
+    await page.getByRole("button", { name: "Emparejar idénticos" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(600);
+
+    // Lee el tipo de objeto de cada carta por su imagen y localiza un par
+    // (dos cartas del mismo tipo) para tocarlas y verificar que se marcan.
+    const cardType = (i: number) =>
+      page
+        .locator('button[aria-label="Tarjeta"], button[aria-label="Ya emparejado"]')
+        .nth(i)
+        .locator("img")
+        .getAttribute("src");
+    const count = await page.locator('button[aria-label="Tarjeta"]').count();
+    expect(count).toBe(6);
+
+    const types: (string | null)[] = [];
+    for (let i = 0; i < count; i++) types.push((await cardType(i))?.match(/object-(\w+)/)?.[1] ?? null);
+    const first = types.findIndex((t) => t !== null);
+    const second = types.findIndex((t, i) => i > first && t === types[first]);
+    expect(second).toBeGreaterThan(-1);
+
+    const cards = page.locator('button[aria-label="Tarjeta"]');
+    await cards.nth(first).click();
+    await cards.nth(second).click();
+
+    // Tras emparejar, esas dos cartas quedan como "Ya emparejado": la señal
+    // clara de logro que antes no se percibía (el bug que reportó el usuario).
+    await expect(page.locator('button[aria-label="Ya emparejado"]')).toHaveCount(2, { timeout: 3000 });
+  });
+
   test("N8: 3 congelamientos seguidos disparan la celebración de racha", async ({ page }) => {
     await openHome(page);
     await page.getByRole("button", { name: "Para y sigue" }).click();
