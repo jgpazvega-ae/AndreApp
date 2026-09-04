@@ -14,6 +14,13 @@ interface BigButtonProps {
   /** Rondas completadas (LevelProgress.roundsCompleted): visible en el mapa
    * como una insignia, para que el progreso se sienta real sin abrir el nivel. */
   roundsCompleted?: number;
+  /**
+   * Se llama en vez de `onTap` cuando `disabled` es true. Un `<button disabled>`
+   * nativo no reacciona a NADA — ni siquiera a un toque — lo que en un tile
+   * "muy pronto" se lee exactamente igual que "está roto". Este callback deja
+   * responder (un mensajito, un sonido) sin permitir la navegación real.
+   */
+  onLockedTap?: () => void;
 }
 
 /**
@@ -30,6 +37,7 @@ export function BigButton({
   disabled = false,
   delayIndex = 0,
   roundsCompleted = 0,
+  onLockedTap,
 }: BigButtonProps) {
   const background = locked
     ? "var(--color-locked-bg)"
@@ -40,12 +48,12 @@ export function BigButton({
     <motion.button
       type="button"
       aria-label={label}
-      disabled={disabled}
-      onClick={onTap}
+      aria-disabled={disabled}
+      onClick={disabled ? onLockedTap : onTap}
       initial={{ opacity: 0, y: 18, scale: 0.85 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.35, delay: delayIndex * 0.045, ease: [0.22, 1, 0.36, 1] }}
-      whileTap={disabled ? undefined : { scale: 0.9, rotate: -2 }}
+      whileTap={{ scale: disabled ? 0.96 : 0.9, rotate: disabled ? 0 : -2 }}
       whileHover={disabled ? undefined : { scale: 1.04 }}
       style={{
         position: "relative",

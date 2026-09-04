@@ -1,11 +1,15 @@
-import { motion } from "framer-motion";
+import { AnimatePresence, motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CURRICULUM_LEVELS, getLevelsByStage, type Stage } from "@andreapp/curriculum";
 import { APP_NAME } from "@andreapp/shared";
+import { playChime } from "../audio/audioEngine";
 import { BigButton } from "../components/BigButton";
 import { useProgressStore } from "../store/progressStore";
 import { asset } from "../utils/asset";
+
+/** Cuánto queda visible el avisito de "muy pronto" tras tocar un nivel aún no construido. */
+const COMING_SOON_TOAST_MS = 1800;
 
 const STAGES: Stage[] = ["A", "B", "C", "D"];
 
@@ -40,6 +44,24 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
   const { t } = useTranslation();
   const levelsProgress = useProgressStore((state) => state.levels);
   let tileIndex = 0;
+
+  // Tocar un nivel "muy pronto" no debe sentirse como un botón roto: en vez de
+  // no hacer nada (un <button disabled> nativo ni siquiera reacciona al
+  // toque), suena y muestra un avisito breve — sin fingir que el nivel existe.
+  const [showComingSoon, setShowComingSoon] = useState(false);
+  const comingSoonTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const handleLockedTap = () => {
+    playChime();
+    setShowComingSoon(true);
+    if (comingSoonTimer.current) clearTimeout(comingSoonTimer.current);
+    comingSoonTimer.current = setTimeout(() => setShowComingSoon(false), COMING_SOON_TOAST_MS);
+  };
+  useEffect(
+    () => () => {
+      if (comingSoonTimer.current) clearTimeout(comingSoonTimer.current);
+    },
+    [],
+  );
 
   return (
     <div
@@ -206,6 +228,7 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
                       delayIndex={idx}
                       roundsCompleted={levelsProgress[level.id]?.roundsCompleted ?? 0}
                       onTap={() => onPlay(level.id)}
+                      onLockedTap={handleLockedTap}
                     />
                   );
                 })}
@@ -225,6 +248,41 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
       >
         {CURRICULUM_LEVELS.filter((l) => l.status === "playable").length} / {CURRICULUM_LEVELS.length} niveles listos
       </footer>
+
+      <AnimatePresence>
+        {showComingSoon && (
+          <motion.div
+            key="coming-soon-toast"
+            role="status"
+            initial={{ opacity: 0, y: 16, scale: 0.92 }}
+            animate={{ opacity: 1, y: 0, scale: 1 }}
+            exit={{ opacity: 0, y: 10, scale: 0.92 }}
+            transition={{ type: "spring", stiffness: 340, damping: 22 }}
+            style={{
+              position: "fixed",
+              left: "50%",
+              bottom: "max(env(safe-area-inset-bottom), 20px)",
+              transform: "translateX(-50%)",
+              zIndex: 30,
+              background: "var(--color-text)",
+              color: "#fff",
+              padding: "10px 18px",
+              borderRadius: "var(--radius-pill)",
+              display: "flex",
+              alignItems: "center",
+              gap: 8,
+              fontWeight: 700,
+              fontSize: "0.9rem",
+              boxShadow: "var(--shadow-soft)",
+              pointerEvents: "none",
+              whiteSpace: "nowrap",
+            }}
+          >
+            <span aria-hidden="true">🚧</span>
+            {t("common.comingSoon")}
+          </motion.div>
+        )}
+      </AnimatePresence>
     </div>
   );
 }
@@ -272,36 +330,80 @@ function FriendAvatar({ file, delayIndex }: { file: string; delayIndex: number }
 
 const PARENT_ZONE_HOLD_MS = 3000;
 
+/**
+ * Se entra manteniendo pulsado 3s: una barrera que un niño pequeño no cruza
+ * por accidente. Dos bugs reales corregidos aquí:
+ *
+ * 1. Sin retroalimentación visual, mantener pulsado 3 segundos enteros sin
+ *    que pase NADA en pantalla se lee como "no funciona" — un padre suelta
+ *    antes de tiempo pensando que está roto. El anillo que se llena es la
+ *    señal de "sigue, ya casi".
+ * 2. `onPointerLeave` cancelaba el conteo con solo mover el dedo un par de
+ *    píxeles dentro del propio botón (muy común en un botón chico de 44px
+ *    en pantalla táctil real) — el mouse simulado de las pruebas e2e no
+ *    tiembla, por eso ahí nunca se notó. `setPointerCapture` hace que el
+ *    botón siga recibiendo el `pointerup` pase lo que pase con el dedo, así
+ *    que ya no hace falta (ni conviene) cancelar por "salir" del botón.
+ */
 function ParentZoneUnlockButton({ onOpen }: { onOpen: () => void }) {
   const { t } = useTranslation();
-  let timer: ReturnType<typeof setTimeout> | null = null;
+  const [pressed, setPressed] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  const start = () => {
-    timer = setTimeout(onOpen, PARENT_ZONE_HOLD_MS);
+  const start = (event: React.PointerEvent<HTMLButtonElement>) => {
+    event.currentTarget.setPointerCapture(event.pointerId);
+    setPressed(true);
+    timerRef.current = setTimeout(() => {
+      setPressed(false);
+      onOpen();
+    }, PARENT_ZONE_HOLD_MS);
   };
   const cancel = () => {
-    if (timer) clearTimeout(timer);
+    setPressed(false);
+    if (timerRef.current) {
+      clearTimeout(timerRef.current);
+      timerRef.current = null;
+    }
   };
 
   return (
-    <button
-      type="button"
-      aria-label={t("parentZone.title")}
-      title={t("parentZone.unlockHint")}
-      onPointerDown={start}
-      onPointerUp={cancel}
-      onPointerLeave={cancel}
-      style={{
-        width: 44,
-        height: 44,
-        borderRadius: "var(--radius-pill)",
-        background: "rgba(255,255,255,0.85)",
-        backdropFilter: "blur(4px)",
-        boxShadow: "var(--shadow-soft)",
-        fontSize: "1.1rem",
-      }}
-    >
-      ⚙️
-    </button>
+    <div style={{ position: "relative", width: 44, height: 44 }}>
+      <svg width={44} height={44} style={{ position: "absolute", inset: 0, pointerEvents: "none" }} aria-hidden="true">
+        <motion.circle
+          cx={22}
+          cy={22}
+          r={19}
+          fill="none"
+          stroke="var(--color-accent)"
+          strokeWidth={3}
+          strokeLinecap="round"
+          transform="rotate(-90 22 22)"
+          initial={false}
+          animate={{ pathLength: pressed ? 1 : 0, opacity: pressed ? 1 : 0 }}
+          transition={pressed ? { duration: PARENT_ZONE_HOLD_MS / 1000, ease: "linear" } : { duration: 0.15 }}
+        />
+      </svg>
+      <motion.button
+        type="button"
+        aria-label={t("parentZone.title")}
+        title={t("parentZone.unlockHint")}
+        onPointerDown={start}
+        onPointerUp={cancel}
+        onPointerCancel={cancel}
+        animate={{ scale: pressed ? 0.88 : 1 }}
+        style={{
+          width: 44,
+          height: 44,
+          borderRadius: "var(--radius-pill)",
+          background: "rgba(255,255,255,0.85)",
+          backdropFilter: "blur(4px)",
+          boxShadow: "var(--shadow-soft)",
+          fontSize: "1.1rem",
+          touchAction: "none",
+        }}
+      >
+        ⚙️
+      </motion.button>
+    </div>
   );
 }

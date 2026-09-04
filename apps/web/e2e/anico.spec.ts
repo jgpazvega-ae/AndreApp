@@ -106,8 +106,25 @@ test.describe("pantalla de inicio", () => {
     for (const level of PLAYABLE_LEVELS) {
       await expect(page.getByRole("button", { name: level.name })).toBeEnabled();
     }
-    // Un nivel aún no construido queda bloqueado, no abre una pantalla vacía.
-    await expect(page.getByRole("button", { name: "Subitizar 1-3" })).toBeDisabled();
+  });
+
+  test("un nivel aún no construido no abre una pantalla vacía, pero sí responde al toque", async ({ page }) => {
+    await openHome(page);
+    const comingSoon = page.getByRole("button", { name: "Subitizar 1-3" });
+    // aria-disabled (no el atributo nativo "disabled"): a propósito, para que
+    // el tile pueda reaccionar al toque sin permitir la navegación real —
+    // un <button disabled> nativo no reacciona a nada, y eso se sentía roto.
+    await expect(comingSoon).toHaveAttribute("aria-disabled", "true");
+
+    // force: Playwright trata aria-disabled como "no accionable" y de otro
+    // modo nunca hace clic — pero eso es una heurística del framework, no
+    // el comportamiento real del navegador (aria-disabled es semántica para
+    // lectores de pantalla, no bloquea eventos de puntero de verdad).
+    await comingSoon.click({ force: true });
+    // Nunca navega a una pantalla vacía: se queda en el mapa...
+    await expect(page.getByText("Elige un mundo")).toBeVisible();
+    // ...pero sí avisa que el toque se sintió.
+    await expect(page.getByText("Muy pronto")).toBeVisible();
   });
 });
 
