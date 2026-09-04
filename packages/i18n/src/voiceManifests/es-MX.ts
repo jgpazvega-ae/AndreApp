@@ -40,3 +40,14 @@ export const N5_VOICE_MANIFEST: VoiceManifestEntry[] = [
 
 /** N6 reutiliza los n2-praise-*.mp3 al completar cada rompecabezas. */
 export const N6_VOICE_MANIFEST: VoiceManifestEntry[] = [{ key: "n6.welcome", file: "n6-welcome.mp3", reviewed: false }];
+
+export const N7_VOICE_MANIFEST: VoiceManifestEntry[] = [
+  { key: "n7.question.happy", file: "n7-question-happy.mp3", reviewed: false },
+  { key: "n7.question.sad", file: "n7-question-sad.mp3", reviewed: false },
+  { key: "n7.question.angry", file: "n7-question-angry.mp3", reviewed: false },
+  { key: "n7.question.scared", file: "n7-question-scared.mp3", reviewed: false },
+  { key: "n7.exclaim.happy", file: "n7-exclaim-happy.mp3", reviewed: false },
+  { key: "n7.exclaim.sad", file: "n7-exclaim-sad.mp3", reviewed: false },
+  { key: "n7.exclaim.angry", file: "n7-exclaim-angry.mp3", reviewed: false },
+  { key: "n7.exclaim.scared", file: "n7-exclaim-scared.mp3", reviewed: false },
+];

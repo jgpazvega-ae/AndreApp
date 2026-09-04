@@ -60,6 +60,20 @@ const PLAYABLE_LEVELS = [
       await slots.nth(1).click();
     },
   },
+  {
+    name: "Emociones",
+    interact: async (page: Page) => {
+      // Las 4 emociones están siempre visibles; tocarlas todas garantiza
+      // acertar la consigna actual sin tener que leerla del DOM (se da por
+      // voz). Tocar la ya acertada de nuevo, o las incorrectas, no hace nada malo.
+      const emotions = page.locator('button[aria-label="Emoción"]');
+      const count = await emotions.count();
+      for (let i = 0; i < count; i++) {
+        await emotions.nth(i).click();
+        await page.waitForTimeout(50);
+      }
+    },
+  },
 ];
 
 test.describe("pantalla de inicio", () => {
@@ -86,7 +100,7 @@ test.describe("pantalla de inicio", () => {
       await expect(page.getByRole("button", { name: level.name })).toBeEnabled();
     }
     // Un nivel aún no construido queda bloqueado, no abre una pantalla vacía.
-    await expect(page.getByRole("button", { name: "Emociones" })).toBeDisabled();
+    await expect(page.getByRole("button", { name: "Para y sigue" })).toBeDisabled();
   });
 });
 

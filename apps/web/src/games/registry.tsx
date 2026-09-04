@@ -5,6 +5,7 @@ import { N3EmparejarIdenticos } from "./n3/N3EmparejarIdenticos";
 import { N4ClasificarPorAtributo } from "./n4/N4ClasificarPorAtributo";
 import { N5VocabularioYSonidos } from "./n5/N5VocabularioYSonidos";
 import { N6Rompecabezas } from "./n6/N6Rompecabezas";
+import { N7Emociones } from "./n7/N7Emociones";
 
 export interface GameProps {
   locale: string;
@@ -19,4 +20,5 @@ export const GAME_REGISTRY: Record<string, ComponentType<GameProps>> = {
   n4: N4ClasificarPorAtributo,
   n5: N5VocabularioYSonidos,
   n6: N6Rompecabezas,
+  n7: N7Emociones,
 };
