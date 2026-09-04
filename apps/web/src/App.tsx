@@ -1,4 +1,4 @@
-import { MotionConfig } from "framer-motion";
+import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import { AudioUnlockGate } from "./components/AudioUnlockGate";
 import { ErrorBoundary } from "./components/ErrorBoundary";
@@ -31,16 +31,29 @@ export function App() {
     <MotionConfig reducedMotion={sensoryMode === "calm" ? "always" : "user"}>
       <ErrorBoundary onReset={goHome}>
         <AudioUnlockGate>
-          {screen.name === "home" && (
-            <HomeScreen
-              onPlay={(levelId) => setScreen({ name: "game", levelId })}
-              onOpenParentZone={() => setScreen({ name: "parentZone" })}
-            />
-          )}
+          {/* Cada pantalla "aparece" con un rebote en vez de un corte seco: es lo que
+              hace que navegar se sienta como una app viva y no como cambiar de página. */}
+          <AnimatePresence mode="wait">
+            <motion.div
+              key={screen.name === "game" ? `game-${screen.levelId}` : screen.name}
+              initial={{ opacity: 0, scale: 0.94, y: 10 }}
+              animate={{ opacity: 1, scale: 1, y: 0 }}
+              exit={{ opacity: 0, scale: 0.97 }}
+              transition={{ duration: 0.3, ease: [0.22, 1, 0.36, 1] }}
+              style={{ display: "flex", flexDirection: "column", flex: 1 }}
+            >
+              {screen.name === "home" && (
+                <HomeScreen
+                  onPlay={(levelId) => setScreen({ name: "game", levelId })}
+                  onOpenParentZone={() => setScreen({ name: "parentZone" })}
+                />
+              )}
 
-          {screen.name === "game" && <GameScreen levelId={screen.levelId} locale={locale} onExit={goHome} />}
+              {screen.name === "game" && <GameScreen levelId={screen.levelId} locale={locale} onExit={goHome} />}
 
-          {screen.name === "parentZone" && <ParentZoneScreen onClose={goHome} />}
+              {screen.name === "parentZone" && <ParentZoneScreen onClose={goHome} />}
+            </motion.div>
+          </AnimatePresence>
         </AudioUnlockGate>
       </ErrorBoundary>
     </MotionConfig>

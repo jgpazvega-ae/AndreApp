@@ -20,6 +20,16 @@ const STAGE_GRADIENT: Record<Stage, [string, string]> = {
 
 const STAGE_BADGE: Record<Stage, string> = { A: "🌟", B: "🧭", C: "🧠", D: "🎓" };
 
+/** Chispas flotantes del hero: mismo lenguaje visual que AudioUnlockGate, para que
+ * la primera pantalla que el niño ve después de desbloquear el audio se sienta
+ * como continuación de la misma escena mágica, no como un cambio de app. */
+const HERO_SPARKLES = [
+  { left: "10%", top: "10%", size: "1.3rem" },
+  { left: "84%", top: "16%", size: "1rem" },
+  { left: "18%", top: "58%", size: "0.9rem" },
+  { left: "88%", top: "52%", size: "1.2rem" },
+];
+
 interface HomeScreenProps {
   onPlay: (levelId: string) => void;
   onOpenParentZone: () => void;
@@ -83,22 +93,48 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
           <ParentZoneUnlockButton onOpen={onOpenParentZone} />
         </header>
 
-        <motion.img
-          src={asset("illustrations/mascot.png")}
-          alt=""
-          aria-hidden="true"
+        {HERO_SPARKLES.map((pos, i) => (
+          <motion.span
+            key={i}
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: pos.left,
+              top: pos.top,
+              fontSize: pos.size,
+              zIndex: 1,
+              pointerEvents: "none",
+            }}
+            animate={{ y: [0, -12, 0], opacity: [0.4, 1, 0.4] }}
+            transition={{ duration: 2.6 + i * 0.3, repeat: Infinity, ease: "easeInOut", delay: i * 0.4 }}
+          >
+            ✨
+          </motion.span>
+        ))}
+
+        {/* Entrada (una vez) e idle (en bucle) son dos motion separados a propósito:
+            mezclarlos en un solo `animate` hace que la entrada "espere" al primer
+            keyframe del bucle en vez de aparecer rápido. */}
+        <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
           transition={{ duration: 0.5, ease: "easeOut" }}
-          style={{
-            position: "relative",
-            zIndex: 1,
-            display: "block",
-            margin: "0 auto",
-            width: "min(38vw, 168px)",
-            filter: "drop-shadow(0 12px 16px rgba(120,60,10,0.22))",
-          }}
-        />
+          style={{ position: "relative", zIndex: 1 }}
+        >
+          <motion.img
+            src={asset("illustrations/mascot.png")}
+            alt=""
+            aria-hidden="true"
+            animate={{ y: [0, -8, 0] }}
+            transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
+            style={{
+              display: "block",
+              margin: "0 auto",
+              width: "min(38vw, 168px)",
+              filter: "drop-shadow(0 12px 16px rgba(120,60,10,0.22))",
+            }}
+          />
+        </motion.div>
 
         <div
           style={{

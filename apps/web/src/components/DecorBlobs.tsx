@@ -1,9 +1,27 @@
-/** Manchas decorativas suaves de fondo, sin distraer del objetivo táctil. Usar dentro de un contenedor `position: relative`. */
+import { motion } from "framer-motion";
+
+/**
+ * Manchas decorativas de fondo, a la deriva: un fondo estático se siente
+ * "congelado" frente a apps como la de referencia, donde siempre hay algo
+ * moviéndose de fondo aunque el niño no toque nada. El movimiento es lento
+ * y de bajo contraste — decora sin competir con el objetivo táctil, y
+ * `MotionConfig` (App.tsx) lo apaga solo en modo calma / reduced-motion.
+ */
 export function DecorBlobs() {
   return (
     <>
-      <div aria-hidden="true" style={BLOB_1} />
-      <div aria-hidden="true" style={BLOB_2} />
+      <motion.div
+        aria-hidden="true"
+        style={BLOB_1}
+        animate={{ x: [0, 18, -6, 0], y: [0, -14, 6, 0], scale: [1, 1.06, 0.98, 1] }}
+        transition={{ duration: 22, repeat: Infinity, ease: "easeInOut" }}
+      />
+      <motion.div
+        aria-hidden="true"
+        style={BLOB_2}
+        animate={{ x: [0, -14, 10, 0], y: [0, 10, -8, 0], scale: [1, 0.95, 1.05, 1] }}
+        transition={{ duration: 26, repeat: Infinity, ease: "easeInOut", delay: 1.5 }}
+      />
     </>
   );
 }

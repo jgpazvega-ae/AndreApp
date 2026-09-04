@@ -48,7 +48,7 @@ export function GameBuddy({ levelId, celebrateSignal }: GameBuddyProps) {
       animate={
         cheering
           ? { y: [0, -22, 0], rotate: [0, -10, 10, 0], scale: [1, 1.15, 1] }
-          : { y: [0, -6, 0], rotate: [0, -2, 2, 0] }
+          : { y: [0, -6, 0], rotate: [0, -2, 2, 0], scale: [1, 1.05, 1] }
       }
       transition={
         cheering ? { duration: 0.7, ease: "easeInOut" } : { duration: 2.6, repeat: Infinity, ease: "easeInOut" }

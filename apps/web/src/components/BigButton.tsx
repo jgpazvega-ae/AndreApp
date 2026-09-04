@@ -64,7 +64,11 @@ export function BigButton({
         overflow: "hidden",
       }}
     >
-      <span
+      {/* El ícono respira solo, sin que nadie lo toque: es lo que hace que el
+          mapa de niveles se sienta vivo en vez de una cuadrícula de botones
+          quietos. Cada tile arranca en un punto distinto de su ciclo
+          (delayIndex) para que no respiren todos al unísono. */}
+      <motion.span
         style={{
           fontSize: "2.6rem",
           lineHeight: 1,
@@ -74,9 +78,13 @@ export function BigButton({
           height: "2.8rem",
         }}
         aria-hidden="true"
+        animate={locked ? undefined : { scale: [1, 1.1, 1], rotate: [0, -4, 4, 0] }}
+        transition={
+          locked ? undefined : { duration: 2.4, repeat: Infinity, ease: "easeInOut", delay: delayIndex * 0.25 }
+        }
       >
         {icon}
-      </span>
+      </motion.span>
       <span
         style={{ fontSize: "0.82rem", fontWeight: 800, textShadow: locked ? "none" : "0 1px 3px rgba(0,0,0,0.18)" }}
       >
