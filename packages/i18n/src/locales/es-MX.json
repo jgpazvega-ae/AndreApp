@@ -37,6 +37,7 @@
   "a11y.card": "Tarjeta",
   "a11y.cardMatched": "Ya emparejado",
   "a11y.colorZone": "Zona de color",
+  "a11y.replayQuestion": "Escuchar de nuevo",
   "a11y.animal": "Animal",
   "a11y.quantityOf_one": "{{count}} objeto",
   "a11y.quantityOf_other": "{{count}} objetos",

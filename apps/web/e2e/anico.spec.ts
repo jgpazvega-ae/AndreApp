@@ -235,6 +235,73 @@ test.describe("niveles", () => {
     await expect(page.locator('button[aria-label="Ya emparejado"]')).toHaveCount(2, { timeout: 3000 });
   });
 
+  test("N4: tras varios aciertos aparece la fase nombrada (bolita oculta, se pregunta el color)", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await page.getByRole("button", { name: "Clasificar por 1 atributo" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(500);
+
+    const zones = page.locator('button[aria-label="Zona de color"]');
+    const otraVez = page.getByRole("button", { name: "Otra vez" });
+    async function playOneTrial() {
+      await zones.first().click();
+      await page.waitForTimeout(200);
+      if (await otraVez.isVisible().catch(() => false)) {
+        await otraVez.click();
+        await page.waitForTimeout(300);
+        return;
+      }
+      if ((await zones.count()) >= 2) {
+        await zones.nth(1).click();
+        await page.waitForTimeout(200);
+        if (await otraVez.isVisible().catch(() => false)) {
+          await otraVez.click();
+          await page.waitForTimeout(300);
+        }
+      }
+      await page.waitForTimeout(400);
+    }
+
+    // Los primeros 5 aciertos son siempre en fase perceptual (la bolita
+    // coloreada sigue visible): la fase nombrada solo puede aparecer después.
+    for (let i = 0; i < 5; i++) {
+      await expect(page.locator('button[aria-label="Escuchar de nuevo"]')).toHaveCount(0);
+      await playOneTrial();
+    }
+
+    // A partir de aquí la mitad de los intentos son nombrados al azar
+    // (docs/CURRICULUM.md §6): sondear hasta ver uno es más robusto que
+    // depender de una tirada concreta.
+    let sawNamed = false;
+    for (let i = 0; i < 20 && !sawNamed; i++) {
+      if ((await page.locator('button[aria-label="Escuchar de nuevo"]').count()) > 0) {
+        sawNamed = true;
+        break;
+      }
+      await playOneTrial();
+    }
+    expect(sawNamed).toBe(true);
+
+    // En fase nombrada no hay bolita arrastrable (delataría la respuesta):
+    // solo el altavoz decorativo/repetible y las 2 zonas de color.
+    await expect(page.locator('button[aria-label="Escuchar de nuevo"]')).toHaveCount(1);
+    await expect(zones).toHaveCount(2);
+
+    // Tocar la zona correcta confirma el nombre del color hablado.
+    const exclaim = page.waitForResponse((res) => /n4-exclaim-(orange|indigo|teal)\.mp3/.test(res.url()), {
+      timeout: 10000,
+    });
+    await zones.first().click();
+    await page.waitForTimeout(200);
+    if (!(await otraVez.isVisible().catch(() => false)) && (await zones.count()) >= 2) {
+      await zones.nth(1).click();
+    }
+    await exclaim;
+
+    expect(problems).toEqual([]);
+  });
+
   test("N8: 3 congelamientos seguidos disparan la celebración de racha", async ({ page }) => {
     await openHome(page);
     await page.getByRole("button", { name: "Para y sigue" }).click();
