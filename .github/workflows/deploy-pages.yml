@@ -1,0 +1,52 @@
+name: Deploy to GitHub Pages
+
+# Publica la PWA (apps/web) en GitHub Pages como canal de prueba temprano,
+# mientras Neubox/Render (PLAN.md §4.3) no están configurados. Requiere
+# habilitar una sola vez: Settings → Pages → Build and deployment →
+# Source: "GitHub Actions" (no automatizable vía API sin permisos de
+# administración del repositorio).
+on:
+  push:
+    branches:
+      - main
+      - claude/kids-games-app-analysis-cmxv5r
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pages: write
+  id-token: write
+
+concurrency:
+  group: pages
+  # No se cancela un despliegue a medias: dejaría Pages sirviendo un estado
+  # inconsistente. Los despliegues se encolan.
+  cancel-in-progress: false
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run build
+        env:
+          # Repo Pages de proyecto: se sirve bajo /AndreApp/, no en la raíz.
+          VITE_BASE_PATH: /AndreApp/
+      - uses: actions/upload-pages-artifact@v3
+        with:
+          path: apps/web/dist
+
+  deploy:
+    needs: build
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4

@@ -1,0 +1,33 @@
+{
+  "name": "andreapp",
+  "private": true,
+  "version": "0.1.0",
+  "description": "PWA educativa e interactiva para niños de 0 a 5 años",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
+  "scripts": {
+    "dev": "npm run dev --workspace=apps/web",
+    "build": "npm run build --workspace=apps/web",
+    "preview": "npm run preview --workspace=apps/web",
+    "typecheck": "npm run typecheck --workspaces --if-present && tsc -p apps/web/tsconfig.test.json",
+    "lint": "eslint .",
+    "format": "prettier --write .",
+    "format:check": "prettier --check .",
+    "test": "npm run test --workspace=apps/web",
+    "test:e2e": "npm run test:e2e --workspace=apps/web",
+    "check": "npm run lint && npm run typecheck && npm run test"
+  },
+  "engines": {
+    "node": ">=20"
+  },
+  "devDependencies": {
+    "@eslint/js": "^9.39.5",
+    "eslint": "^9.39.5",
+    "eslint-plugin-react-hooks": "^5.2.0",
+    "globals": "^15.15.0",
+    "prettier": "^3.9.6",
+    "typescript-eslint": "^8.69.0"
+  }
+}

@@ -1,0 +1,46 @@
+/*
+ * Sistema de diseño base — kid-friendly (docs/CURRICULUM.md §2, §9).
+ * Botones grandes, colores cálidos de alto contraste, sin depender solo
+ * del color (formas/íconos redundantes), tipografía amigable y legible
+ * también para la zona de padres.
+ */
+:root {
+  /* Paleta cálida (coincide con el ícono/manifest de la PWA) */
+  --color-bg: #fff7ed;
+  --color-bg-elevated: #ffffff;
+  --color-primary: #ffb03b;
+  --color-primary-dark: #e0912a;
+  --color-accent: #4f46e5;
+  --color-accent-dark: #3c34b8;
+  --color-success: #22c55e;
+  --color-text: #3a2e22;
+  --color-text-muted: #7a6a58;
+  --color-locked-bg: #ede4d8;
+  --color-locked-text: #a9998a;
+
+  /* Tipografía: redondeada y muy legible */
+  --font-family: "Baloo 2", "Nunito", system-ui, -apple-system, sans-serif;
+
+  /* Espaciado y objetivos táctiles (≥64px, PLAN.md §2) */
+  --touch-target-min: 64px;
+  --space-xs: 8px;
+  --space-sm: 12px;
+  --space-md: 20px;
+  --space-lg: 32px;
+  --space-xl: 48px;
+
+  --radius-md: 20px;
+  --radius-lg: 32px;
+  --radius-pill: 999px;
+
+  --shadow-soft: 0 8px 24px rgba(58, 46, 34, 0.12);
+
+  /* Modo sensorial suave (docs/CURRICULUM.md §9): duración de animación reducible */
+  --motion-duration: 0.4s;
+  --motion-duration-fast: 0.2s;
+}
+
+[data-sensory-mode="calm"] {
+  --motion-duration: 0.15s;
+  --motion-duration-fast: 0.1s;
+}
