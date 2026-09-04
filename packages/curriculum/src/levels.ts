@@ -111,9 +111,9 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     stage: "C",
     domain: "number",
     titleKey: "level.n10.title",
-    icon: "1️⃣",
+    icon: "🚗",
     free: false,
-    status: "coming-soon",
+    status: "playable",
   },
   {
     id: "n11",

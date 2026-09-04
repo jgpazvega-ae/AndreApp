@@ -91,6 +91,12 @@ const PLAYABLE_LEVELS = [
         .first()
         .click({ force: true }),
   },
+  {
+    name: "Contar 1-5",
+    // La primera parada tiene un solo objeto: tocarlo basta para probar que
+    // la pantalla responde (el recorrido completo tiene su propia prueba).
+    interact: (page: Page) => page.getByRole("button", { name: "Objeto" }).first().click({ force: true }),
+  },
 ];
 
 test.describe("pantalla de inicio", () => {
@@ -120,7 +126,7 @@ test.describe("pantalla de inicio", () => {
 
   test("un nivel aún no construido no abre una pantalla vacía, pero sí responde al toque", async ({ page }) => {
     await openHome(page);
-    const comingSoon = page.getByRole("button", { name: "Contar 1-5" });
+    const comingSoon = page.getByRole("button", { name: "Contar 6-10" });
     // aria-disabled (no el atributo nativo "disabled"): a propósito, para que
     // el tile pueda reaccionar al toque sin permitir la navegación real —
     // un <button disabled> nativo no reacciona a nada, y eso se sentía roto.
@@ -277,6 +283,32 @@ test.describe("niveles", () => {
     const correctName = askedFor === "1" ? "1 objeto" : `${askedFor} objetos`;
     await page.getByRole("button", { name: correctName }).click({ force: true });
     await exclaim;
+
+    expect(problems).toEqual([]);
+  });
+
+  test("N10: recorre las 5 paradas contando cada objeto y llega a la meta", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await page.getByRole("button", { name: "Contar 1-5" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(500);
+
+    // Cada parada k tiene k objetos, y ninguno desaparece al tocarlo (queda
+    // marcado, por si el niño quiere recontar) — así que basta con tocar
+    // "el siguiente sin marcar" k veces para vaciar la parada.
+    for (let checkpoint = 1; checkpoint <= 5; checkpoint++) {
+      await expect(page.getByRole("button", { name: "Objeto" })).toHaveCount(checkpoint);
+      for (let i = 0; i < checkpoint; i++) {
+        await page.getByRole("button", { name: "Objeto" }).first().click({ force: true });
+        await page.waitForTimeout(150);
+      }
+      await page.waitForTimeout(1300); // deja avanzar el carro a la siguiente parada
+    }
+
+    // Al llegar a la meta (5ta celebración), la pantalla de logro compartida
+    // cierra la ronda exactamente ahí — sin necesidad de lógica propia extra.
+    await expect(page.getByText("¡Lo lograste!")).toBeVisible({ timeout: 3000 });
 
     expect(problems).toEqual([]);
   });

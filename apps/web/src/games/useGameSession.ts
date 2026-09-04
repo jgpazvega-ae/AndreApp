@@ -1,7 +1,8 @@
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { playChime, playSparkle, playVoiceClip } from "../audio/audioEngine";
 import { useConfetti } from "../effects/useConfetti";
 import { useProgressStore } from "../store/progressStore";
+import { pickRandom } from "../utils/random";
 
 /** Espera antes de la voz de bienvenida: da tiempo a que la pantalla entre y el niño la mire. */
 const WELCOME_DELAY_MS = 500;
@@ -14,6 +15,22 @@ const WELCOME_DELAY_MS = 500;
  * sin sentirse apurado ni evaluado: siempre se completa, nunca se falla.
  */
 const DEFAULT_ROUND_SIZE = 5;
+
+/**
+ * Voz cálida al equivocarse — nunca de decepción, nunca "no". Antes, un
+ * error solo se sacudía en silencio (o sonaba igual que un toque
+ * cualquiera): ahora el niño escucha que se le anima a seguir intentando,
+ * la misma idea de "elogio de proceso" (docs/CURRICULUM.md §7) aplicada
+ * también al intento fallido, no solo al acierto.
+ */
+const ENCOURAGE_FILES: [string, ...string[]] = [
+  "encourage-1.mp3",
+  "encourage-2.mp3",
+  "encourage-3.mp3",
+  "encourage-4.mp3",
+];
+/** Evita que toques equivocados muy seguidos atropellen la voz anterior. */
+const ENCOURAGE_COOLDOWN_MS = 1200;
 
 interface GameSessionOptions {
   locale: string;
@@ -46,6 +63,7 @@ export function useGameSession(
   const recordPlay = useProgressStore((state) => state.recordPlay);
   const recordRoundComplete = useProgressStore((state) => state.recordRoundComplete);
   const { burst, confettiField } = useConfetti();
+  const lastEncourageAt = useRef(0);
 
   useEffect(() => {
     recordPlay(levelId);
@@ -56,10 +74,11 @@ export function useGameSession(
   }, []);
 
   /**
-   * Acusa recibo de un toque que no es un acierto (una selección
-   * intermedia, o una respuesta equivocada). Suena igual que siempre: el
-   * niño necesita saber que la app lo escuchó, y docs/CURRICULUM.md §2
-   * prohíbe el sonido de error — el "no" se comunica visualmente.
+   * Acusa recibo de un toque NEUTRAL que no es un acierto ni un error real
+   * (p. ej. seleccionar la primera carta de un par, o tocar mientras el
+   * personaje "baila" en N8): el niño necesita saber que la app lo
+   * escuchó. Para un error real (una respuesta equivocada), usar
+   * `encourage()` en su lugar — ese sí lleva voz.
    */
   const acknowledgeTap = useCallback(() => {
     playChime();
@@ -95,5 +114,18 @@ export function useGameSession(
    * reinicia, solo estaba en pausa (ver GameShell/LevelCompleteOverlay). */
   const continueRound = useCallback(() => setRoundComplete(false), []);
 
-  return { acknowledgeTap, celebrate, celebrateSignal, confettiField, roundComplete, continueRound };
+  /**
+   * Responde a una respuesta equivocada con calidez: una voz que anima a
+   * seguir intentando (nunca un "no", nunca un sonido negativo). Se llama
+   * en el momento del error real (p. ej. dos cartas que no combinan), no
+   * en un toque neutral intermedio (para eso sigue existiendo acknowledgeTap).
+   */
+  const encourage = useCallback(() => {
+    const now = Date.now();
+    if (now - lastEncourageAt.current < ENCOURAGE_COOLDOWN_MS) return;
+    lastEncourageAt.current = now;
+    playVoiceClip(locale, pickRandom(ENCOURAGE_FILES));
+  }, [locale]);
+
+  return { acknowledgeTap, celebrate, encourage, celebrateSignal, confettiField, roundComplete, continueRound };
 }

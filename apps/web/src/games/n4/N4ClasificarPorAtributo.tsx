@@ -57,7 +57,7 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
   const [sortedCount, setSortedCount] = useState(0);
   const [busy, setBusy] = useState(false);
   const [shaking, setShaking] = useState(false);
-  const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n4", {
+  const { celebrate, encourage, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n4", {
     locale,
     welcomeFile: "n4-welcome.mp3",
   });
@@ -71,7 +71,8 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
       if (busy) return;
 
       if (zoneColor.id !== itemColor.id) {
-        // Solo se sacude: el intento sigue en pie hasta acertar.
+        // Se sacude Y se anima a seguir intentando: el intento sigue en pie.
+        encourage();
         setShaking(true);
         setTimeout(() => setShaking(false), SHAKE_MS);
         return;
@@ -98,7 +99,7 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
         }, NEXT_ITEM_DELAY_MS);
       }
     },
-    [busy, itemColor, sortedCount, locale, celebrate],
+    [busy, itemColor, sortedCount, locale, celebrate, encourage],
   );
 
   /** Arrastre real de la bolita: al soltar, se busca la zona bajo el dedo y se

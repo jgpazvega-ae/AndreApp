@@ -40,6 +40,8 @@
   "a11y.animal": "Animal",
   "a11y.quantityOf_one": "{{count}} object",
   "a11y.quantityOf_other": "{{count}} objects",
+  "a11y.trackObject": "Object",
+  "a11y.trackObjectCounted": "Already counted",
   "a11y.puzzlePiece": "Piece",
   "a11y.puzzleSlot": "Puzzle slot",
   "a11y.emotion": "Emotion",

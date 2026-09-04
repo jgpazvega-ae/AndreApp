@@ -84,7 +84,7 @@ export function N9Subitizar({ locale, onExit }: N9SubitizarProps) {
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   // La consigna de bienvenida ES la primera pregunta, igual que en N5/N7.
-  const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n9", {
+  const { celebrate, encourage, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n9", {
     locale,
     welcomeFile: QUESTION_FILE[target],
   });
@@ -96,7 +96,8 @@ export function N9Subitizar({ locale, onExit }: N9SubitizarProps) {
       resetIdle();
 
       if (qty !== target) {
-        // Solo se sacude: el error no se castiga y la consigna sigue en pie.
+        // Se sacude Y se anima a seguir intentando: la consigna sigue en pie.
+        encourage();
         setShakeQty(qty);
         timers.current.push(setTimeout(() => setShakeQty(null), SHAKE_MS));
         return;
@@ -116,7 +117,7 @@ export function N9Subitizar({ locale, onExit }: N9SubitizarProps) {
         }, NEXT_QUESTION_DELAY_MS),
       );
     },
-    [busy, target, locale, celebrate, resetIdle],
+    [busy, target, locale, celebrate, encourage, resetIdle],
   );
 
   return (

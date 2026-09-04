@@ -56,10 +56,8 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
   const [placed, setPlaced] = useState<Set<ShapeType>>(new Set());
   const [selected, setSelected] = useState<ShapeType | null>(null);
   const [shakeSlot, setShakeSlot] = useState<ShapeType | null>(null);
-  const { acknowledgeTap, celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession(
-    "n6",
-    { locale, welcomeFile: "n6-welcome.mp3" },
-  );
+  const { acknowledgeTap, celebrate, encourage, celebrateSignal, confettiField, roundComplete, continueRound } =
+    useGameSession("n6", { locale, welcomeFile: "n6-welcome.mp3" });
   // Posiciones de los huecos en pantalla, para saber sobre cuál se soltó una
   // pieza arrastrada (no hay layout API en React puro: se leen del DOM).
   const slotRefs = useRef<Map<ShapeType, HTMLButtonElement | null>>(new Map());
@@ -102,12 +100,14 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
         setPlaced((prev) => new Set(prev).add(slotShape));
         setSelected(null);
       } else {
-        // No entra: se sacude el hueco, sin sonido negativo, y la pieza sigue seleccionada.
+        // No entra: se sacude el hueco y se anima a seguir intentando; la
+        // pieza sigue seleccionada.
+        encourage();
         setShakeSlot(slotShape);
         setTimeout(() => setShakeSlot(null), SHAKE_MS);
       }
     },
-    [placed, celebrate],
+    [placed, celebrate, encourage],
   );
 
   const handleTapSlot = useCallback(

@@ -55,7 +55,7 @@ export function N7Emociones({ locale, onExit }: N7EmocionesProps) {
   const [target, setTarget] = useState<EmotionType>(() => pickRandom(ALL_EMOTIONS));
   const [busy, setBusy] = useState(false);
   const [shakeType, setShakeType] = useState<EmotionType | null>(null);
-  const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n7", {
+  const { celebrate, encourage, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n7", {
     locale,
     welcomeFile: EMOTION_ASSET[target].questionFile,
   });
@@ -65,6 +65,8 @@ export function N7Emociones({ locale, onExit }: N7EmocionesProps) {
       if (busy) return;
 
       if (type !== target) {
+        // Se sacude Y se anima a seguir intentando: la consigna sigue en pie.
+        encourage();
         setShakeType(type);
         setTimeout(() => setShakeType(null), SHAKE_MS);
         return;
@@ -81,7 +83,7 @@ export function N7Emociones({ locale, onExit }: N7EmocionesProps) {
         setBusy(false);
       }, NEXT_QUESTION_DELAY_MS);
     },
-    [busy, target, locale, celebrate],
+    [busy, target, locale, celebrate, encourage],
   );
 
   return (

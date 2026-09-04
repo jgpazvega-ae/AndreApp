@@ -81,10 +81,8 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
   const [poppingIds, setPoppingIds] = useState<Set<number>>(new Set());
   const [shakeIds, setShakeIds] = useState<Set<number>>(new Set());
   const [busy, setBusy] = useState(false);
-  const { acknowledgeTap, celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession(
-    "n3",
-    { locale, welcomeFile: "n3-welcome.mp3" },
-  );
+  const { acknowledgeTap, celebrate, encourage, celebrateSignal, confettiField, roundComplete, continueRound } =
+    useGameSession("n3", { locale, welcomeFile: "n3-welcome.mp3" });
   const { idle, resetIdle } = useIdleHint();
 
   const allMatched = matchedIds.size === cards.length;
@@ -142,8 +140,9 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
           setBusy(false);
         }, MATCH_RESOLVE_MS);
       } else {
-        // Sin confeti ni sonido negativo: el error no se castiga, solo se deshace.
-        acknowledgeTap();
+        // Sin confeti: el error no se castiga, solo se deshace — pero sí se
+        // escucha una voz que anima a seguir intentando.
+        encourage();
         setBusy(true);
         setShakeIds(new Set([selected.id, card.id]));
         setTimeout(() => {
@@ -153,7 +152,7 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
         }, MISMATCH_SHAKE_MS);
       }
     },
-    [busy, matchedIds, selected, locale, acknowledgeTap, celebrate, resetIdle],
+    [busy, matchedIds, selected, locale, acknowledgeTap, celebrate, encourage, resetIdle],
   );
 
   return (
