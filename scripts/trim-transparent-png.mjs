@@ -42,7 +42,11 @@ function paeth(a, b, c) {
 function decodePng(buf) {
   if (buf.readUInt32BE(0) !== 0x89504e47) throw new Error("No es un PNG válido");
   let offset = 8;
-  let width = 0, height = 0, bitDepth = 0, colorType = 0, interlace = 0;
+  let width = 0,
+    height = 0,
+    bitDepth = 0,
+    colorType = 0,
+    interlace = 0;
   const idatParts = [];
 
   while (offset < buf.length) {
@@ -62,7 +66,9 @@ function decodePng(buf) {
   }
 
   if (bitDepth !== 8 || colorType !== 6 || interlace !== 0) {
-    throw new Error(`Formato no soportado por este trimmer: bitDepth=${bitDepth} colorType=${colorType} interlace=${interlace} (se espera RGBA8 sin interlace)`);
+    throw new Error(
+      `Formato no soportado por este trimmer: bitDepth=${bitDepth} colorType=${colorType} interlace=${interlace} (se espera RGBA8 sin interlace)`,
+    );
   }
 
   const raw = inflateSync(Buffer.concat(idatParts));
@@ -80,12 +86,23 @@ function decodePng(buf) {
       const c = x >= bpp && y > 0 ? pixels[(y - 1) * stride + x - bpp] : 0;
       let recon;
       switch (filterType) {
-        case 0: recon = filt; break;
-        case 1: recon = filt + a; break;
-        case 2: recon = filt + b; break;
-        case 3: recon = filt + Math.floor((a + b) / 2); break;
-        case 4: recon = filt + paeth(a, b, c); break;
-        default: throw new Error(`Tipo de filtro PNG desconocido: ${filterType}`);
+        case 0:
+          recon = filt;
+          break;
+        case 1:
+          recon = filt + a;
+          break;
+        case 2:
+          recon = filt + b;
+          break;
+        case 3:
+          recon = filt + Math.floor((a + b) / 2);
+          break;
+        case 4:
+          recon = filt + paeth(a, b, c);
+          break;
+        default:
+          throw new Error(`Tipo de filtro PNG desconocido: ${filterType}`);
       }
       pixels[y * stride + x] = recon & 0xff;
     }
@@ -118,7 +135,10 @@ function trim(inputPath, outputPath, { padding = 24, alphaThreshold = 10 } = {})
   const { width, height, pixels } = decodePng(readFileSync(inputPath));
   const stride = width * 4;
 
-  let minX = width, minY = height, maxX = -1, maxY = -1;
+  let minX = width,
+    minY = height,
+    maxX = -1,
+    maxY = -1;
   for (let y = 0; y < height; y++) {
     for (let x = 0; x < width; x++) {
       const alpha = pixels[y * stride + x * 4 + 3];

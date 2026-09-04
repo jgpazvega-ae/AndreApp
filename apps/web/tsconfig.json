@@ -6,5 +6,8 @@
     "composite": true,
     "types": ["vite/client"]
   },
-  "include": ["src"]
+  // Las pruebas quedan fuera del build de la app (usan APIs de Node y de
+  // Vitest que no existen en el navegador); las revisa tsconfig.test.json.
+  "include": ["src"],
+  "exclude": ["src/**/*.test.ts", "src/**/*.test.tsx", "src/__tests__", "e2e"]
 }

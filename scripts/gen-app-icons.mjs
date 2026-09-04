@@ -43,7 +43,11 @@ function paeth(a, b, c) {
 function decodePng(buf) {
   if (buf.readUInt32BE(0) !== 0x89504e47) throw new Error("No es un PNG válido");
   let offset = 8;
-  let width = 0, height = 0, bitDepth = 0, colorType = 0, interlace = 0;
+  let width = 0,
+    height = 0,
+    bitDepth = 0,
+    colorType = 0,
+    interlace = 0;
   const idatParts = [];
   while (offset < buf.length) {
     const len = buf.readUInt32BE(offset);
@@ -77,12 +81,23 @@ function decodePng(buf) {
       const c = x >= bpp && y > 0 ? pixels[(y - 1) * stride + x - bpp] : 0;
       let recon;
       switch (filterType) {
-        case 0: recon = filt; break;
-        case 1: recon = filt + a; break;
-        case 2: recon = filt + b; break;
-        case 3: recon = filt + Math.floor((a + b) / 2); break;
-        case 4: recon = filt + paeth(a, b, c); break;
-        default: throw new Error(`Filtro PNG desconocido: ${filterType}`);
+        case 0:
+          recon = filt;
+          break;
+        case 1:
+          recon = filt + a;
+          break;
+        case 2:
+          recon = filt + b;
+          break;
+        case 3:
+          recon = filt + Math.floor((a + b) / 2);
+          break;
+        case 4:
+          recon = filt + paeth(a, b, c);
+          break;
+        default:
+          throw new Error(`Filtro PNG desconocido: ${filterType}`);
       }
       pixels[y * stride + x] = recon & 0xff;
     }

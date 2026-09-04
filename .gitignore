@@ -1,7 +1,13 @@
 node_modules/
 dist/
 dist-ssr/
+dev-dist/
 *.tsbuildinfo
+
+# Salidas de las pruebas de extremo a extremo
+test-results/
+playwright-report/
+.playwright/
 .DS_Store
 *.local
 .env
