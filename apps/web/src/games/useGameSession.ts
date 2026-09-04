@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useState } from "react";
-import { playChime, playVoiceClip } from "../audio/audioEngine";
+import { playChime, playSparkle, playVoiceClip } from "../audio/audioEngine";
 import { useConfetti } from "../effects/useConfetti";
 import { useProgressStore } from "../store/progressStore";
 
@@ -53,7 +53,10 @@ export function useGameSession(levelId: string, { locale, welcomeFile }: GameSes
    */
   const celebrate = useCallback(
     (event?: { clientX: number; clientY: number }) => {
+      // Toque simple = pop; acierto = pop + arpegio ("¡lo lograste!"), para
+      // que el logro suene claramente distinto de un toque cualquiera.
       playChime();
+      playSparkle();
       if (event) burst(event.clientX, event.clientY);
       setCelebrateSignal((n) => n + 1);
     },

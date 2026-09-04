@@ -94,3 +94,32 @@ export function playChime(): void {
   osc.start(now);
   osc.stop(now + 0.32);
 }
+
+/**
+ * Arpegio mayor ascendente (Do–Mi–Sol–Do) sintetizado: el sonido de
+ * "¡lo lograste!" para un acierto, más rico que el pop del toque. Las
+ * notas son de un acorde mayor, así que nunca suena disonante — igual que
+ * el remate de las apps de la referencia. No pisa las voces: es breve y
+ * suave, y se dispara junto al confeti al celebrar (ver useGameSession).
+ */
+export function playSparkle(): void {
+  if (!unlocked) return;
+  const ctx = Howler.ctx as AudioContext | undefined;
+  if (!ctx) return;
+
+  const now = ctx.currentTime;
+  const notes = [523.25, 659.25, 783.99, 1046.5]; // C5, E5, G5, C6
+  for (let i = 0; i < notes.length; i++) {
+    const t = now + i * 0.055;
+    const osc = ctx.createOscillator();
+    const gain = ctx.createGain();
+    osc.type = "triangle";
+    osc.frequency.setValueAtTime(notes[i]!, t);
+    gain.gain.setValueAtTime(0.0001, t);
+    gain.gain.exponentialRampToValueAtTime(0.16, t + 0.02);
+    gain.gain.exponentialRampToValueAtTime(0.0001, t + 0.45);
+    osc.connect(gain).connect(ctx.destination);
+    osc.start(t);
+    osc.stop(t + 0.5);
+  }
+}
