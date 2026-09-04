@@ -1,7 +1,7 @@
 import { motion } from "framer-motion";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { playVoiceClip } from "../../audio/audioEngine";
+import { playSound, playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
 import { asset } from "../../utils/asset";
 import { pickRandom, pickRandomExcept, shuffle } from "../../utils/random";
@@ -9,28 +9,36 @@ import { useGameSession } from "../useGameSession";
 
 type AnimalType = "dog" | "cat" | "duck";
 
-const ANIMAL_ASSET: Record<AnimalType, { image: string; questionFile: string; exclaimFile: string }> = {
+const ANIMAL_ASSET: Record<
+  AnimalType,
+  { image: string; questionFile: string; exclaimFile: string; soundFile: string }
+> = {
   dog: {
     image: asset("illustrations/animal-dog.png"),
     questionFile: "n5-question-dog.mp3",
     exclaimFile: "n5-exclaim-dog.mp3",
+    soundFile: "animal-dog.mp3",
   },
   cat: {
     image: asset("illustrations/animal-cat.png"),
     questionFile: "n5-question-cat.mp3",
     exclaimFile: "n5-exclaim-cat.mp3",
+    soundFile: "animal-cat.mp3",
   },
   duck: {
     image: asset("illustrations/animal-duck.png"),
     questionFile: "n5-question-duck.mp3",
     exclaimFile: "n5-exclaim-duck.mp3",
+    soundFile: "animal-duck.mp3",
   },
 };
 const ALL_ANIMALS: [AnimalType, ...AnimalType[]] = ["dog", "cat", "duck"];
 
 const BACKGROUND = "linear-gradient(160deg, #E8F7FF 0%, #A8E6CF 100%)";
 const SHAKE_MS = 400;
-const NEXT_QUESTION_DELAY_MS = 1500;
+/** Tras el sonido real del animal, se dice su nombre: primero "guau guau", luego "¡perro!". */
+const NAME_AFTER_SOUND_MS = 1000;
+const NEXT_QUESTION_DELAY_MS = 2600;
 
 interface N5VocabularioYSonidosProps {
   locale: string;
@@ -50,6 +58,10 @@ export function N5VocabularioYSonidos({ locale, onExit }: N5VocabularioYSonidosP
   const [target, setTarget] = useState<AnimalType>(() => pickRandom(ALL_ANIMALS));
   const [busy, setBusy] = useState(false);
   const [shakeType, setShakeType] = useState<AnimalType | null>(null);
+  // Timers en vuelo (sonido→nombre→siguiente): se limpian al desmontar para
+  // que una voz retrasada no suene tras salir del nivel.
+  const pendingTimers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => pendingTimers.current.forEach(clearTimeout), []);
   // La consigna de bienvenida ES la primera pregunta, por eso sale del target inicial.
   const { celebrate, celebrateSignal, confettiField } = useGameSession("n5", {
     locale,
@@ -67,16 +79,20 @@ export function N5VocabularioYSonidos({ locale, onExit }: N5VocabularioYSonidosP
         return;
       }
 
+      // Acierto: primero el sonido REAL del animal (lo que el niño reconoce y
+      // asocia), y un instante después su nombre — "guau guau"… "¡perro!".
       setBusy(true);
       celebrate(event);
-      playVoiceClip(locale, ANIMAL_ASSET[type].exclaimFile);
-      setTimeout(() => {
+      playSound(ANIMAL_ASSET[type].soundFile);
+      const nameTimer = setTimeout(() => playVoiceClip(locale, ANIMAL_ASSET[type].exclaimFile), NAME_AFTER_SOUND_MS);
+      const nextTimer = setTimeout(() => {
         const next = pickRandomExcept(ALL_ANIMALS, target);
         setOrder(shuffle(ALL_ANIMALS));
         setTarget(next);
         playVoiceClip(locale, ANIMAL_ASSET[next].questionFile);
         setBusy(false);
       }, NEXT_QUESTION_DELAY_MS);
+      pendingTimers.current.push(nameTimer, nextTimer);
     },
     [busy, target, locale, celebrate],
   );

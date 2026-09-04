@@ -72,6 +72,16 @@ export function playVoiceClip(locale: string, file: string): void {
 }
 
 /**
+ * Reproduce un efecto de sonido compartido entre idiomas (p. ej. el sonido
+ * real de un animal). Vive en `audio/shared/` porque un ladrido o un maullido
+ * es igual en cualquier idioma — no hay que duplicarlo por locale.
+ */
+export function playSound(file: string): void {
+  if (!unlocked) return;
+  getHowl(asset(`audio/shared/${file}`)).play();
+}
+
+/**
  * "Pop" de retroalimentación sintetizado con Web Audio (sin asset externo):
  * un tono corto y alegre para el toque, independiente de las voces.
  */
