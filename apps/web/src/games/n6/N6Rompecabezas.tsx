@@ -1,8 +1,9 @@
-import { motion } from "framer-motion";
-import { useCallback, useEffect, useState } from "react";
+import { motion, type PanInfo } from "framer-motion";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
+import { findDropTarget } from "../../utils/dropTarget";
 import { pickRandom, shuffle } from "../../utils/random";
 import { useGameSession } from "../useGameSession";
 import { ShapeIcon, type ShapeType } from "./ShapeIcon";
@@ -12,6 +13,10 @@ const ALL_SHAPES: [ShapeType, ...ShapeType[]] = ["circle", "square", "triangle",
 const BACKGROUND = "linear-gradient(160deg, #FFF0E0 0%, #FFD6A8 100%)";
 const SHAKE_MS = 400;
 const ROUND_COMPLETE_DELAY_MS = 1600;
+/** Radio de captura extra alrededor de cada hueco: el arrastre real necesita
+ * un imán más generoso que el tocar-tocar porque soltar con el dedo es
+ * menos preciso (docs/CURRICULUM.md §2). */
+const DRAG_MAGNET_PX = 44;
 
 /** Reutiliza los elogios de proceso de N2 para celebrar el rompecabezas completo. */
 const ROUND_COMPLETE_FILES: [string, ...string[]] = [
@@ -55,6 +60,9 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
     locale,
     welcomeFile: "n6-welcome.mp3",
   });
+  // Posiciones de los huecos en pantalla, para saber sobre cuál se soltó una
+  // pieza arrastrada (no hay layout API en React puro: se leen del DOM).
+  const slotRefs = useRef<Map<ShapeType, HTMLButtonElement | null>>(new Map());
 
   // Rompecabezas completo: celebrar y empezar el siguiente, con una pieza más.
   useEffect(() => {
@@ -84,21 +92,39 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
     [acknowledgeTap],
   );
 
-  const handleTapSlot = useCallback(
-    (shape: ShapeType, event: React.PointerEvent<HTMLButtonElement>) => {
-      if (placed.has(shape) || !selected) return;
+  /** `point` acepta tanto un toque real (clientX/Y) como el punto de suelta de un arrastre. */
+  const handleDropOnSlot = useCallback(
+    (slotShape: ShapeType, carriedShape: ShapeType | null, point: { clientX: number; clientY: number }) => {
+      if (placed.has(slotShape) || !carriedShape) return;
 
-      if (selected === shape) {
-        celebrate(event);
-        setPlaced((prev) => new Set(prev).add(shape));
+      if (carriedShape === slotShape) {
+        celebrate(point);
+        setPlaced((prev) => new Set(prev).add(slotShape));
         setSelected(null);
       } else {
         // No entra: se sacude el hueco, sin sonido negativo, y la pieza sigue seleccionada.
-        setShakeSlot(shape);
+        setShakeSlot(slotShape);
         setTimeout(() => setShakeSlot(null), SHAKE_MS);
       }
     },
-    [selected, placed, celebrate],
+    [placed, celebrate],
+  );
+
+  const handleTapSlot = useCallback(
+    (shape: ShapeType, event: React.PointerEvent<HTMLButtonElement>) => handleDropOnSlot(shape, selected, event),
+    [selected, handleDropOnSlot],
+  );
+
+  /** Arrastre real de una pieza: al soltar, se busca el hueco bajo el dedo (con imán) y se
+   * resuelve exactamente igual que un toque — mismo acierto, mismo error, mismo festejo. */
+  const handlePieceDragEnd = useCallback(
+    (shape: ShapeType, _event: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
+      const target = findDropTarget(info.point, slotRefs.current, DRAG_MAGNET_PX);
+      if (target) {
+        handleDropOnSlot(target, shape, { clientX: info.point.x, clientY: info.point.y });
+      }
+    },
+    [handleDropOnSlot],
   );
 
   return (
@@ -122,6 +148,9 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
         {slotOrder.map((shape) => (
           <motion.button
             key={shape}
+            ref={(el) => {
+              slotRefs.current.set(shape, el);
+            }}
             type="button"
             aria-label={t("a11y.puzzleSlot")}
             onPointerDown={(e) => handleTapSlot(shape, e)}
@@ -152,7 +181,13 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
               type="button"
               aria-label={t("a11y.puzzlePiece")}
               onPointerDown={() => handleTapPiece(shape)}
+              drag
+              dragSnapToOrigin
+              dragElastic={0.15}
+              dragMomentum={false}
+              onDragEnd={(e, info) => handlePieceDragEnd(shape, e, info)}
               whileTap={{ scale: 0.9 }}
+              whileDrag={{ scale: 1.2, zIndex: 30 }}
               animate={
                 selected === shape
                   ? {
@@ -173,6 +208,7 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
                 background: "none",
                 border: "none",
                 padding: 0,
+                touchAction: "none",
               }}
             >
               <ShapeIcon type={shape} variant="piece" />

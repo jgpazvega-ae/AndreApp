@@ -1,8 +1,9 @@
-import { motion } from "framer-motion";
+import { motion, type PanInfo } from "framer-motion";
 import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
+import { findDropTarget } from "../../utils/dropTarget";
 import { pickRandom, shuffle } from "../../utils/random";
 import { useGameSession } from "../useGameSession";
 
@@ -59,9 +60,11 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
   const { celebrate, celebrateSignal, confettiField } = useGameSession("n4", { locale, welcomeFile: "n4-welcome.mp3" });
   const zoneColorsRef = useRef(zoneColors);
   zoneColorsRef.current = zoneColors;
+  // Posiciones de las zonas en pantalla, para saber sobre cuál se soltó la bolita arrastrada.
+  const zoneRefs = useRef<Map<string, HTMLButtonElement | null>>(new Map());
 
   const handleTapZone = useCallback(
-    (zoneColor: ColorDef, event: React.PointerEvent<HTMLButtonElement>) => {
+    (zoneColor: ColorDef, point: { clientX: number; clientY: number }) => {
       if (busy) return;
 
       if (zoneColor.id !== itemColor.id) {
@@ -72,7 +75,7 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
       }
 
       setBusy(true);
-      celebrate(event);
+      celebrate(point);
       const newCount = sortedCount + 1;
 
       if (newCount >= ROUND_SIZE) {
@@ -95,6 +98,17 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
     [busy, itemColor, sortedCount, locale, celebrate],
   );
 
+  /** Arrastre real de la bolita: al soltar, se busca la zona bajo el dedo y se
+   * resuelve exactamente igual que un toque directo sobre la zona. */
+  const handleItemDragEnd = useCallback(
+    (_event: PointerEvent | MouseEvent | TouchEvent, info: PanInfo) => {
+      const target = findDropTarget(info.point, zoneRefs.current);
+      const zone = zoneColorsRef.current.find((z) => z.id === target);
+      if (zone) handleTapZone(zone, { clientX: info.point.x, clientY: info.point.y });
+    },
+    [handleTapZone],
+  );
+
   return (
     <GameShell
       levelId="n4"
@@ -108,22 +122,31 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
       <div style={{ flex: "0 0 42%", display: "flex", alignItems: "center", justifyContent: "center" }}>
         <motion.div
           key={itemColor.id + sortedCount}
+          drag
+          dragSnapToOrigin
+          dragElastic={0.15}
+          dragMomentum={false}
+          onDragEnd={handleItemDragEnd}
           initial={{ scale: 0.6, opacity: 0 }}
           animate={
             shaking ? { x: [0, -10, 10, -10, 10, 0], scale: 1, opacity: 1 } : { scale: [1, 1.06, 1], opacity: 1 }
           }
+          whileDrag={{ scale: 1.15 }}
           transition={
             shaking
               ? { duration: SHAKE_MS / 1000 }
               : { scale: { duration: 1.6, repeat: Infinity, ease: "easeInOut" }, opacity: { duration: 0.3 } }
           }
           style={{
+            position: "relative",
+            zIndex: 5,
             width: 110,
             height: 110,
             borderRadius: "50%",
             background: itemColor.hex,
             boxShadow: "0 12px 20px rgba(0,0,0,0.18)",
             border: "4px solid rgba(255,255,255,0.6)",
+            touchAction: "none",
           }}
         />
       </div>
@@ -132,6 +155,9 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
         {zoneColors.map((zone) => (
           <button
             key={zone.id}
+            ref={(el) => {
+              zoneRefs.current.set(zone.id, el);
+            }}
             type="button"
             aria-label={t("a11y.colorZone")}
             onPointerDown={(e) => handleTapZone(zone, e)}
