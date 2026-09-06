@@ -117,6 +117,13 @@ const PLAYABLE_LEVELS = [
     // la pantalla responde (el recorrido completo tiene su propia prueba).
     interact: (page: Page) => page.getByRole("button", { name: "Objeto" }).first().click({ force: true }),
   },
+  {
+    name: "Contar 6-10",
+    world: "La Estación",
+    // Mismo motor que N10 (ContarPista): tocar el primer objeto de la
+    // primera parada basta para probar que la pantalla responde.
+    interact: (page: Page) => page.getByRole("button", { name: "Objeto" }).first().click({ force: true }),
+  },
 ];
 
 test.describe("pantalla de inicio", () => {
@@ -173,7 +180,7 @@ test.describe("pantalla de inicio", () => {
   test("un nivel aún no construido no abre una pantalla vacía, pero sí responde al toque", async ({ page }) => {
     await openHome(page);
     await openWorld(page, "La Estación");
-    const comingSoon = page.getByRole("button", { name: "Contar 6-10" });
+    const comingSoon = page.getByRole("button", { name: "Números 11-20" });
     // aria-disabled (no el atributo nativo "disabled"): a propósito, para que
     // el tile pueda reaccionar al toque sin permitir la navegación real —
     // un <button disabled> nativo no reacciona a nada, y eso se sentía roto.
@@ -427,6 +434,42 @@ test.describe("niveles", () => {
     await expect(page.getByText("¡Lo lograste!")).toBeVisible({ timeout: 3000 });
 
     expect(problems).toEqual([]);
+  });
+
+  test("N10: cuenta en orden (uno, luego dos), no repite el total de la parada en cada toque", async ({ page }) => {
+    await openHome(page);
+    await openLevel(page, "La Estación", "Contar 1-5");
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(500);
+
+    // La 1ra parada tiene 1 solo objeto (no distingue el bug: 1 es el total
+    // Y el conteo acumulado a la vez), así que se avanza a la 2da a propósito.
+    // Esto también carga "n10-count-1.mp3" en la caché de Howler, así que no
+    // sirve para distinguir el bug por red en la 2da parada (una segunda
+    // reproducción de un archivo ya cargado no genera una nueva petición).
+    await page.getByRole("button", { name: "Objeto" }).first().click({ force: true });
+    await page.waitForTimeout(1300);
+    await expect(page.getByRole("button", { name: "Objeto" })).toHaveCount(2);
+
+    // El bug original decía el total fijo de la parada ("dos") en CADA toque,
+    // incluido el primero. "n10-count-2.mp3" nunca se pidió antes en esta
+    // prueba, así que su ausencia tras el primer toque sí detecta el bug sin
+    // depender de la caché de Howler.
+    let sawCountTwoEarly = false;
+    const watchEarly = (res: { url: () => string }) => {
+      if (/n10-count-2\.mp3/.test(res.url())) sawCountTwoEarly = true;
+    };
+    page.on("response", watchEarly);
+    await page.getByRole("button", { name: "Objeto" }).first().click({ force: true });
+    await page.waitForTimeout(400);
+    page.off("response", watchEarly);
+    expect(sawCountTwoEarly).toBe(false);
+
+    // El segundo toque sí debe decir "dos": esta es la primera vez que se
+    // pide ese archivo, así que la petición de red es una señal confiable.
+    const secondCount = page.waitForResponse((res) => /n10-count-2\.mp3/.test(res.url()), { timeout: 5000 });
+    await page.getByRole("button", { name: "Objeto" }).first().click({ force: true });
+    await secondCount;
   });
 
   test("al completar una ronda aparece la pantalla de logro y no interrumpe el juego", async ({ page }) => {

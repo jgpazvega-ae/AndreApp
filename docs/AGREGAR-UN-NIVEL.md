@@ -1,6 +1,6 @@
 # Cómo agregar un nivel
 
-Quedan 17 de los 22 niveles del [mapa curricular](CURRICULUM.md). Esta guía
+Quedan 11 de los 22 niveles del [mapa curricular](CURRICULUM.md). Esta guía
 existe para que construirlos sea repetir un procedimiento, no reinventar la
 pantalla cada vez — y para que el niño encuentre siempre la salida, la
 celebración y el compañero en el mismo lugar.
@@ -20,7 +20,6 @@ export function N6Rompecabezas({ locale, onExit }: { locale: string; onExit: () 
 
   return (
     <GameShell
-      levelId="n6"
       onExit={onExit}
       background="linear-gradient(160deg, #E8F7FF 0%, #A8E6CF 100%)"
       celebrateSignal={celebrateSignal}
@@ -33,7 +32,8 @@ export function N6Rompecabezas({ locale, onExit }: { locale: string; onExit: () 
 ```
 
 `GameShell` pone el fondo, la decoración, el botón de regresar (traducido),
-el confeti y el perrito compañero. `useGameSession` registra la sesión en el
+el confeti y el perrito compañero (el compañero elegido por el niño en
+HomeScreen, no uno por nivel). `useGameSession` registra la sesión en el
 progreso, da la consigna hablada al entrar y expone:
 
 | Función            | Cuándo usarla                                                              |

@@ -63,3 +63,23 @@ export const N9_VOICE_MANIFEST: VoiceManifestEntry[] = [
   { key: "n9.exclaim.2", file: "n9-exclaim-2.mp3", reviewed: false },
   { key: "n9.exclaim.3", file: "n9-exclaim-3.mp3", reviewed: false },
 ];
+
+export const N10_VOICE_MANIFEST: VoiceManifestEntry[] = [
+  { key: "n10.welcome", file: "n10-welcome.mp3", reviewed: false },
+  { key: "n10.count.1", file: "n10-count-1.mp3", reviewed: false },
+  { key: "n10.count.2", file: "n10-count-2.mp3", reviewed: false },
+  { key: "n10.count.3", file: "n10-count-3.mp3", reviewed: false },
+  { key: "n10.count.4", file: "n10-count-4.mp3", reviewed: false },
+  { key: "n10.count.5", file: "n10-count-5.mp3", reviewed: false },
+  { key: "n10.finish", file: "n10-finish.mp3", reviewed: false },
+];
+
+/** N11 reutiliza n10-finish.mp3 al llegar a la meta: el mensaje es el mismo sin importar el rango contado. */
+export const N11_VOICE_MANIFEST: VoiceManifestEntry[] = [
+  { key: "n11.welcome", file: "n11-welcome.mp3", reviewed: false },
+  { key: "n11.count.6", file: "n11-count-6.mp3", reviewed: false },
+  { key: "n11.count.7", file: "n11-count-7.mp3", reviewed: false },
+  { key: "n11.count.8", file: "n11-count-8.mp3", reviewed: false },
+  { key: "n11.count.9", file: "n11-count-9.mp3", reviewed: false },
+  { key: "n11.count.10", file: "n11-count-10.mp3", reviewed: false },
+];
