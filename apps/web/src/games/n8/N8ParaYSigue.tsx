@@ -91,7 +91,6 @@ export function N8ParaYSigue({ locale, onExit }: N8ParaYSigueProps) {
 
   return (
     <GameShell
-      levelId="n8"
       onExit={onExit}
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}

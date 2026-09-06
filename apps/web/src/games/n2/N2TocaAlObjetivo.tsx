@@ -88,7 +88,6 @@ export function N2TocaAlObjetivo({ locale, onExit }: N2TocaAlObjetivoProps) {
 
   return (
     <GameShell
-      levelId="n2"
       onExit={onExit}
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}

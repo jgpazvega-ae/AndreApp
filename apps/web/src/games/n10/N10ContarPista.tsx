@@ -114,7 +114,6 @@ export function N10ContarPista({ locale, onExit }: N10ContarPistaProps) {
 
   return (
     <GameShell
-      levelId="n10"
       onExit={onExit}
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}

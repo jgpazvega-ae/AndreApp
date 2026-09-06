@@ -76,7 +76,6 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
 
   return (
     <GameShell
-      levelId="n1"
       onExit={onExit}
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}

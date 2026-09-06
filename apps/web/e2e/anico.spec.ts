@@ -106,13 +106,25 @@ test.describe("pantalla de inicio", () => {
     expect(problems).toEqual([]);
   });
 
-  test("los 3 perritos saludan y responden al toque", async ({ page }) => {
+  test("los 3 perritos se pueden elegir como compañero y queda guardado", async ({ page }) => {
     const problems = failOnPageProblems(page);
     await openHome(page);
 
-    const friends = page.getByRole("button", { name: "Amigo" });
-    await expect(friends).toHaveCount(3);
-    await friends.first().click();
+    const buddies = page.getByRole("button", { name: /^Elegir a .* como amigo$/ });
+    await expect(buddies).toHaveCount(3);
+
+    // Elegir a Dante lo marca como el compañero actual (aria-pressed), y a
+    // diferencia de antes (un salto decorativo sin efecto), la elección
+    // persiste: sigue elegido tras recargar la pantalla de inicio.
+    const dante = page.getByRole("button", { name: "Elegir a Dante como amigo" });
+    await dante.click();
+    await expect(dante).toHaveAttribute("aria-pressed", "true");
+
+    await openHome(page);
+    await expect(page.getByRole("button", { name: "Elegir a Dante como amigo" })).toHaveAttribute(
+      "aria-pressed",
+      "true",
+    );
 
     expect(problems).toEqual([]);
   });
@@ -164,10 +176,11 @@ test.describe("niveles", () => {
     });
   }
 
-  test("cada nivel muestra a su compañero perruno", async ({ page }) => {
+  test("el compañero elegido acompaña al niño en el nivel", async ({ page }) => {
     await openHome(page);
+    await page.getByRole("button", { name: "Elegir a Kira como amigo" }).click();
     await page.getByRole("button", { name: "Causa y efecto" }).click();
-    await expect(page.locator('img[src*="friend-"]')).toHaveCount(1);
+    await expect(page.locator('img[src*="buddy-kira"]')).toHaveCount(1);
   });
 
   /**

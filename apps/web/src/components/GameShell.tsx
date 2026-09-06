@@ -5,8 +5,6 @@ import { GameBuddy } from "./GameBuddy";
 import { LevelCompleteOverlay } from "./LevelCompleteOverlay";
 
 interface GameShellProps {
-  /** Id del nivel (p. ej. "n3"): decide qué perrito acompaña esta pantalla. */
-  levelId: string;
   onExit: () => void;
   /** Fondo del nivel: cada uno tiene su color para que el niño los distinga sin leer. */
   background: string;
@@ -42,7 +40,6 @@ interface GameShellProps {
  * reaprender dónde está el botón de regresar en cada juego.
  */
 export function GameShell({
-  levelId,
   onExit,
   background,
   celebrateSignal,
@@ -100,7 +97,7 @@ export function GameShell({
         ⬅️
       </button>
 
-      <GameBuddy levelId={levelId} celebrateSignal={celebrateSignal} />
+      <GameBuddy celebrateSignal={celebrateSignal} />
 
       {confetti}
 

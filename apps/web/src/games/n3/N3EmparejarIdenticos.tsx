@@ -166,7 +166,6 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
 
   return (
     <GameShell
-      levelId="n3"
       onExit={onExit}
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}

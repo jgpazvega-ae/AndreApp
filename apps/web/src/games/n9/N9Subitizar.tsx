@@ -122,7 +122,6 @@ export function N9Subitizar({ locale, onExit }: N9SubitizarProps) {
 
   return (
     <GameShell
-      levelId="n9"
       onExit={onExit}
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}

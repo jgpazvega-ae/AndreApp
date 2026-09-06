@@ -149,7 +149,6 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
 
   return (
     <GameShell
-      levelId="n4"
       onExit={onExit}
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}

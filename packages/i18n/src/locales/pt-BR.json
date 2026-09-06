@@ -17,6 +17,10 @@
   "home.stage.C": "Fundamentos",
   "home.stage.D": "Pré-escola",
 
+  "buddy.odie.name": "Odie",
+  "buddy.dante.name": "Dante",
+  "buddy.kira.name": "Kira",
+
   "parentZone.title": "Área dos pais",
   "parentZone.unlockHint": "Mantenha pressionado por 3 segundos para entrar",
   "parentZone.language": "Idioma",
@@ -32,7 +36,7 @@
   "parentZone.calmModeOff": "Desligado",
 
   "a11y.startCue": "Toque para começar",
-  "a11y.friend": "Amigo",
+  "a11y.chooseBuddy": "Escolher {{name}} como amigo",
   "a11y.target": "Toque em mim",
   "a11y.card": "Carta",
   "a11y.cardMatched": "Já combinado",

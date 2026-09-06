@@ -3,8 +3,9 @@ import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { CURRICULUM_LEVELS, getLevelsByStage, type Stage } from "@andreapp/curriculum";
 import { APP_NAME } from "@andreapp/shared";
-import { playChime } from "../audio/audioEngine";
+import { playChime, playSound } from "../audio/audioEngine";
 import { BigButton } from "../components/BigButton";
+import { BUDDIES } from "../data/buddies";
 import { useProgressStore } from "../store/progressStore";
 import { asset } from "../utils/asset";
 
@@ -12,9 +13,6 @@ import { asset } from "../utils/asset";
 const COMING_SOON_TOAST_MS = 1800;
 
 const STAGES: Stage[] = ["A", "B", "C", "D"];
-
-/** Los 3 perritos de la familia, como amigos que saludan en la pantalla de inicio. */
-const FRIEND_FILES = ["illustrations/friend-1.png", "illustrations/friend-2.png", "illustrations/friend-3.png"];
 
 const STAGE_GRADIENT: Record<Stage, [string, string]> = {
   A: ["#FFC46B", "#E0912A"],
@@ -43,6 +41,8 @@ interface HomeScreenProps {
 export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
   const { t } = useTranslation();
   const levelsProgress = useProgressStore((state) => state.levels);
+  const selectedBuddy = useProgressStore((state) => state.selectedBuddy);
+  const setSelectedBuddy = useProgressStore((state) => state.setSelectedBuddy);
   let tileIndex = 0;
 
   // Tocar un nivel "muy pronto" no debe sentirse como un botón roto: en vez de
@@ -170,8 +170,14 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
             marginTop: -4,
           }}
         >
-          {FRIEND_FILES.map((file, i) => (
-            <FriendAvatar key={file} file={file} delayIndex={i} />
+          {BUDDIES.map((buddy, i) => (
+            <BuddyAvatar
+              key={buddy.id}
+              buddy={buddy}
+              delayIndex={i}
+              selected={selectedBuddy === buddy.id}
+              onSelect={() => setSelectedBuddy(buddy.id)}
+            />
           ))}
         </div>
       </div>
@@ -287,12 +293,33 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
   );
 }
 
-/** Amiguito perruno tocable: hace una respiración suave y salta al tocarlo (sin sonido, es decorativo). */
-function FriendAvatar({ file, delayIndex }: { file: string; delayIndex: number }) {
+/**
+ * Amiguito perruno tocable: tocarlo lo ELIGE como compañero (se guarda en el
+ * progreso y a partir de ahí acompaña al niño en todos los niveles, ver
+ * GameBuddy) — a diferencia de antes, donde tocar solo hacía un saltito sin
+ * ningún efecto real. Ladra con su propio sonido al elegirlo, y el elegido
+ * queda con un anillo que lo distingue de los otros dos sin necesitar texto
+ * (el niño no lee, docs/CURRICULUM.md §2).
+ */
+function BuddyAvatar({
+  buddy,
+  delayIndex,
+  selected,
+  onSelect,
+}: {
+  buddy: (typeof BUDDIES)[number];
+  delayIndex: number;
+  selected: boolean;
+  onSelect: () => void;
+}) {
   const { t } = useTranslation();
-  const [tapCount, setTapCount] = useState(0);
   const [cheering, setCheering] = useState(false);
   const mounted = useRef(false);
+
+  const handleTap = () => {
+    onSelect();
+    playSound(buddy.barkSound);
+  };
 
   useEffect(() => {
     if (!mounted.current) {
@@ -302,25 +329,37 @@ function FriendAvatar({ file, delayIndex }: { file: string; delayIndex: number }
     setCheering(true);
     const timeout = window.setTimeout(() => setCheering(false), 700);
     return () => window.clearTimeout(timeout);
-  }, [tapCount]);
+  }, [selected]);
 
   return (
     <motion.button
       type="button"
-      aria-label={t("a11y.friend")}
-      onPointerDown={() => setTapCount((c) => c + 1)}
+      aria-label={t("a11y.chooseBuddy", { name: t(buddy.nameKey) })}
+      aria-pressed={selected}
+      onPointerDown={handleTap}
       initial={{ opacity: 0, y: 16 }}
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.4, delay: 0.15 + delayIndex * 0.08, ease: "easeOut" }}
-      style={{ background: "none", border: "none", padding: 0, width: 56 }}
+      style={{
+        background: "none",
+        border: "none",
+        padding: 6,
+        width: 68,
+        borderRadius: "var(--radius-pill)",
+        boxShadow: selected ? "0 0 0 3px var(--color-accent)" : "none",
+      }}
     >
       <motion.img
-        src={asset(file)}
+        src={buddy.image}
         alt=""
         aria-hidden="true"
-        animate={cheering ? { y: [0, -16, 0], rotate: [0, -10, 10, 0], scale: [1, 1.15, 1] } : { y: [0, -3, 0] }}
+        animate={
+          cheering && selected ? { y: [0, -16, 0], rotate: [0, -10, 10, 0], scale: [1, 1.15, 1] } : { y: [0, -3, 0] }
+        }
         transition={
-          cheering ? { duration: 0.7, ease: "easeInOut" } : { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
+          cheering && selected
+            ? { duration: 0.7, ease: "easeInOut" }
+            : { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
         }
         style={{ width: "100%", height: "auto", filter: "drop-shadow(0 6px 8px rgba(0,0,0,0.18))" }}
       />

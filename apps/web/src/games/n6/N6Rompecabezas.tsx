@@ -137,7 +137,6 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
 
   return (
     <GameShell
-      levelId="n6"
       onExit={onExit}
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}

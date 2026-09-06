@@ -100,7 +100,6 @@ export function N5VocabularioYSonidos({ locale, onExit }: N5VocabularioYSonidosP
 
   return (
     <GameShell
-      levelId="n5"
       onExit={onExit}
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}

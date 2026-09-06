@@ -88,7 +88,6 @@ export function N7Emociones({ locale, onExit }: N7EmocionesProps) {
 
   return (
     <GameShell
-      levelId="n7"
       onExit={onExit}
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}

@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist, type StateStorage } from "zustand/middleware";
 import type { AppLocale, LevelProgress } from "@andreapp/shared";
 import { DEFAULT_LOCALE } from "@andreapp/shared";
+import type { BuddyId } from "../data/buddies";
 
 localforage.config({ name: "andreapp", storeName: "progress" });
 
@@ -19,12 +20,15 @@ interface ProgressState {
   locale: AppLocale;
   sensoryMode: SensoryMode;
   levels: Record<string, LevelProgress>;
+  /** El compañero perruno que el niño eligió en la pantalla de inicio (null = aún no elige). */
+  selectedBuddy: BuddyId | null;
   setLocale: (locale: AppLocale) => void;
   setSensoryMode: (mode: SensoryMode) => void;
   recordPlay: (levelId: string) => void;
   setMastered: (levelId: string, mastered: boolean) => void;
   /** Se llama cuando useGameSession cierra una ronda (ver LevelCompleteOverlay). */
   recordRoundComplete: (levelId: string) => void;
+  setSelectedBuddy: (buddy: BuddyId) => void;
 }
 
 /**
@@ -38,9 +42,11 @@ export const useProgressStore = create<ProgressState>()(
       locale: DEFAULT_LOCALE,
       sensoryMode: "normal",
       levels: {},
+      selectedBuddy: null,
 
       setLocale: (locale) => set({ locale }),
       setSensoryMode: (sensoryMode) => set({ sensoryMode }),
+      setSelectedBuddy: (selectedBuddy) => set({ selectedBuddy }),
 
       recordPlay: (levelId) =>
         set((state) => {
