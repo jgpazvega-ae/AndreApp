@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { CURRICULUM_LEVELS, getLevel, getLevelsByStage } from "@andreapp/curriculum";
+import { CURRICULUM_LEVELS, getLevel, getLevelsByStage, getLevelsByWorld } from "@andreapp/curriculum";
 import { GAME_REGISTRY } from "../games/registry";
 
 describe("catálogo del currículo", () => {
@@ -34,6 +34,12 @@ describe("catálogo del currículo", () => {
     const stageB = getLevelsByStage("B");
     expect(stageB.every((level) => level.stage === "B")).toBe(true);
     expect(stageB.map((l) => l.order)).toEqual([...stageB.map((l) => l.order)].sort((a, b) => a - b));
+  });
+
+  it("todo nivel tiene un mundo asignado y getLevelsByWorld los reparte sin perder ninguno", () => {
+    expect(CURRICULUM_LEVELS.every((level) => level.world !== undefined)).toBe(true);
+    const byWorld = [...getLevelsByWorld("estacion"), ...getLevelsByWorld("bosque"), ...getLevelsByWorld("oceano")];
+    expect(byWorld).toHaveLength(CURRICULUM_LEVELS.length);
   });
 });
 

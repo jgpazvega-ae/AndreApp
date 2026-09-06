@@ -1,4 +1,4 @@
-import type { CurriculumLevel } from "./types";
+import type { CurriculumLevel, WorldId } from "./types";
 
 /**
  * Catálogo declarativo de los 22 niveles del currículo.
@@ -292,4 +292,8 @@ export function getLevel(id: string): CurriculumLevel | undefined {
 
 export function getLevelsByStage(stage: CurriculumLevel["stage"]): CurriculumLevel[] {
   return CURRICULUM_LEVELS.filter((level) => level.stage === stage).sort((a, b) => a.order - b.order);
+}
+
+export function getLevelsByWorld(world: WorldId): CurriculumLevel[] {
+  return CURRICULUM_LEVELS.filter((level) => level.world === world).sort((a, b) => a.order - b.order);
 }

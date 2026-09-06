@@ -27,29 +27,45 @@ async function openHome(page: Page) {
   await expect(page.getByText("Elige un mundo")).toBeVisible();
 }
 
+/** Abre un mundo desde el mapa de inicio (requiere estar ya en HomeScreen). */
+async function openWorld(page: Page, worldName: string) {
+  await page.getByRole("button", { name: worldName }).click();
+}
+
+/** Va de HomeScreen a un nivel concreto, pasando por su mundo. */
+async function openLevel(page: Page, worldName: string, levelName: string) {
+  await openWorld(page, worldName);
+  await page.getByRole("button", { name: levelName }).click();
+}
+
 /** Los niveles jugables de la Fase 1, con una interacción representativa de cada mecánica. */
 const PLAYABLE_LEVELS = [
-  { name: "Causa y efecto", interact: (page: Page) => page.mouse.click(195, 400) },
+  { name: "Causa y efecto", world: "La Estación", interact: (page: Page) => page.mouse.click(195, 400) },
   {
     name: "Toca al objetivo",
+    world: "La Estación",
     // force: el objetivo "respira" sin parar, así que nunca queda quieto para
     // la comprobación de estabilidad de Playwright — un dedo sí puede tocarlo.
     interact: (page: Page) => page.getByRole("button", { name: "Tócame" }).click({ force: true }),
   },
   {
     name: "Emparejar idénticos",
+    world: "El Bosque",
     interact: (page: Page) => page.locator('button[aria-label="Tarjeta"]').first().click(),
   },
   {
     name: "Clasificar por 1 atributo",
+    world: "La Estación",
     interact: (page: Page) => page.locator('button[aria-label="Zona de color"]').first().click(),
   },
   {
     name: "Vocabulario y sonidos",
+    world: "El Bosque",
     interact: (page: Page) => page.locator('button[aria-label="Animal"]').first().click(),
   },
   {
     name: "Rompecabezas",
+    world: "El Bosque",
     interact: async (page: Page) => {
       // La ronda arranca con 2 figuras en orden aleatorio: tocar la primera
       // pieza y luego probar ambos huecos garantiza un acierto sin tener
@@ -62,6 +78,7 @@ const PLAYABLE_LEVELS = [
   },
   {
     name: "Emociones",
+    world: "El Bosque",
     interact: async (page: Page) => {
       // Las 4 emociones están siempre visibles; tocarlas todas garantiza
       // acertar la consigna actual sin tener que leerla del DOM (se da por
@@ -76,6 +93,7 @@ const PLAYABLE_LEVELS = [
   },
   {
     name: "Para y sigue",
+    world: "El Océano",
     // Tocar mientras baila no hace nada malo (solo se escucha, sin romper nada):
     // basta un toque cualquiera para probar que la pantalla responde. El nombre
     // accesible cambia según la fase, de ahí el regex en vez de texto exacto.
@@ -83,6 +101,7 @@ const PLAYABLE_LEVELS = [
   },
   {
     name: "Subitizar 1-3",
+    world: "La Estación",
     // Los grupos se anuncian por su cantidad ("1 objeto" / "2 objetos"), así que
     // se puede tocar uno cualquiera para comprobar que la pantalla responde.
     interact: (page: Page) =>
@@ -93,6 +112,7 @@ const PLAYABLE_LEVELS = [
   },
   {
     name: "Contar 1-5",
+    world: "La Estación",
     // La primera parada tiene un solo objeto: tocarlo basta para probar que
     // la pantalla responde (el recorrido completo tiene su propia prueba).
     interact: (page: Page) => page.getByRole("button", { name: "Objeto" }).first().click({ force: true }),
@@ -129,15 +149,30 @@ test.describe("pantalla de inicio", () => {
     expect(problems).toEqual([]);
   });
 
+  test("abre un mundo y el botón regresar vuelve al mapa de mundos", async ({ page }) => {
+    await openHome(page);
+    await openWorld(page, "El Bosque");
+    await expect(page.getByText("El Bosque")).toBeVisible();
+    await page.getByRole("button", { name: "Regresar" }).click();
+    await expect(page.getByText("Elige un mundo")).toBeVisible();
+  });
+
   test("solo los niveles jugables se pueden abrir", async ({ page }) => {
     await openHome(page);
-    for (const level of PLAYABLE_LEVELS) {
-      await expect(page.getByRole("button", { name: level.name })).toBeEnabled();
+    const worlds = [...new Set(PLAYABLE_LEVELS.map((level) => level.world))];
+    for (const world of worlds) {
+      await openWorld(page, world);
+      for (const level of PLAYABLE_LEVELS.filter((l) => l.world === world)) {
+        await expect(page.getByRole("button", { name: level.name })).toBeEnabled();
+      }
+      await page.getByRole("button", { name: "Regresar" }).click();
+      await expect(page.getByText("Elige un mundo")).toBeVisible();
     }
   });
 
   test("un nivel aún no construido no abre una pantalla vacía, pero sí responde al toque", async ({ page }) => {
     await openHome(page);
+    await openWorld(page, "La Estación");
     const comingSoon = page.getByRole("button", { name: "Contar 6-10" });
     // aria-disabled (no el atributo nativo "disabled"): a propósito, para que
     // el tile pueda reaccionar al toque sin permitir la navegación real —
@@ -149,8 +184,8 @@ test.describe("pantalla de inicio", () => {
     // el comportamiento real del navegador (aria-disabled es semántica para
     // lectores de pantalla, no bloquea eventos de puntero de verdad).
     await comingSoon.click({ force: true });
-    // Nunca navega a una pantalla vacía: se queda en el mapa...
-    await expect(page.getByText("Elige un mundo")).toBeVisible();
+    // Nunca navega a una pantalla vacía: se queda en el mundo...
+    await expect(page.getByText("La Estación")).toBeVisible();
     // ...pero sí avisa que el toque se sintió.
     await expect(page.getByText("Muy pronto")).toBeVisible();
   });
@@ -162,7 +197,7 @@ test.describe("niveles", () => {
       const problems = failOnPageProblems(page);
       await openHome(page);
 
-      await page.getByRole("button", { name: level.name }).click();
+      await openLevel(page, level.world, level.name);
       await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
       await page.waitForTimeout(400); // deja entrar la pantalla antes de tocar
 
@@ -179,7 +214,7 @@ test.describe("niveles", () => {
   test("el compañero elegido acompaña al niño en el nivel", async ({ page }) => {
     await openHome(page);
     await page.getByRole("button", { name: "Elegir a Kira como amigo" }).click();
-    await page.getByRole("button", { name: "Causa y efecto" }).click();
+    await openLevel(page, "La Estación", "Causa y efecto");
     await expect(page.locator('img[src*="buddy-kira"]')).toHaveCount(1);
   });
 
@@ -203,7 +238,7 @@ test.describe("niveles", () => {
 
   test("N6: completar un rompecabezas hace crecer el siguiente en una pieza", async ({ page }) => {
     await openHome(page);
-    await page.getByRole("button", { name: "Rompecabezas" }).click();
+    await openLevel(page, "El Bosque", "Rompecabezas");
     await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
     await page.waitForTimeout(400);
 
@@ -218,7 +253,7 @@ test.describe("niveles", () => {
 
   test("N3: emparejar un par lo marca como emparejado (verde + palomita)", async ({ page }) => {
     await openHome(page);
-    await page.getByRole("button", { name: "Emparejar idénticos" }).click();
+    await openLevel(page, "El Bosque", "Emparejar idénticos");
     await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
     await page.waitForTimeout(600);
 
@@ -251,7 +286,7 @@ test.describe("niveles", () => {
   test("N4: tras varios aciertos aparece la fase nombrada (bolita oculta, se pregunta el color)", async ({ page }) => {
     const problems = failOnPageProblems(page);
     await openHome(page);
-    await page.getByRole("button", { name: "Clasificar por 1 atributo" }).click();
+    await openLevel(page, "La Estación", "Clasificar por 1 atributo");
     await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
     await page.waitForTimeout(500);
 
@@ -317,7 +352,7 @@ test.describe("niveles", () => {
 
   test("N8: 3 congelamientos seguidos disparan la celebración de racha", async ({ page }) => {
     await openHome(page);
-    await page.getByRole("button", { name: "Para y sigue" }).click();
+    await openLevel(page, "El Océano", "Para y sigue");
     await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
 
     // La celebración de racha reutiliza los elogios de N2; que suene uno es
@@ -338,6 +373,7 @@ test.describe("niveles", () => {
   test("N9: tocar el grupo con la cantidad pedida acierta (y el equivocado no castiga)", async ({ page }) => {
     const problems = failOnPageProblems(page);
     await openHome(page);
+    await openWorld(page, "La Estación");
 
     // La consigna se da SOLO por voz (el niño no lee), así que la prueba se
     // entera igual que el niño: escuchando cuál clip pidió el nivel. Hay que
@@ -370,7 +406,7 @@ test.describe("niveles", () => {
   test("N10: recorre las 5 paradas contando cada objeto y llega a la meta", async ({ page }) => {
     const problems = failOnPageProblems(page);
     await openHome(page);
-    await page.getByRole("button", { name: "Contar 1-5" }).click();
+    await openLevel(page, "La Estación", "Contar 1-5");
     await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
     await page.waitForTimeout(500);
 
@@ -396,7 +432,7 @@ test.describe("niveles", () => {
   test("al completar una ronda aparece la pantalla de logro y no interrumpe el juego", async ({ page }) => {
     const problems = failOnPageProblems(page);
     await openHome(page);
-    await page.getByRole("button", { name: "Toca al objetivo" }).click();
+    await openLevel(page, "La Estación", "Toca al objetivo");
     await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
     await page.waitForTimeout(400);
 
@@ -423,6 +459,9 @@ test.describe("niveles", () => {
     await expect(page.getByText("¡Lo lograste!")).toBeVisible({ timeout: 3000 });
     await page.getByRole("button", { name: "Mapa" }).click();
     await expect(page.getByText("Elige un mundo")).toBeVisible();
+
+    // La insignia de rondas completadas vive en el tile del nivel, dentro de su mundo.
+    await openWorld(page, "La Estación");
     await expect(page.getByRole("button", { name: "Toca al objetivo" }).getByText("⭐2")).toBeVisible();
 
     expect(problems).toEqual([]);
@@ -476,7 +515,7 @@ test.describe("zona de padres", () => {
 
   test("registra en el progreso el nivel que el niño jugó", async ({ page }) => {
     await openHome(page);
-    await page.getByRole("button", { name: "Causa y efecto" }).click();
+    await openLevel(page, "La Estación", "Causa y efecto");
     await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
     await page.getByRole("button", { name: "Regresar" }).click();
     await expect(page.getByText("Elige un mundo")).toBeVisible();

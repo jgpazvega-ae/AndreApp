@@ -1,27 +1,14 @@
-import { AnimatePresence, motion } from "framer-motion";
+import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CURRICULUM_LEVELS, getLevelsByStage, type Stage } from "@andreapp/curriculum";
+import { CURRICULUM_LEVELS, type WorldId } from "@andreapp/curriculum";
 import { APP_NAME } from "@andreapp/shared";
-import { playChime, playSound } from "../audio/audioEngine";
+import { playSound } from "../audio/audioEngine";
 import { BigButton } from "../components/BigButton";
 import { BUDDIES } from "../data/buddies";
+import { WORLDS } from "../data/worlds";
 import { useProgressStore } from "../store/progressStore";
 import { asset } from "../utils/asset";
-
-/** Cuánto queda visible el avisito de "muy pronto" tras tocar un nivel aún no construido. */
-const COMING_SOON_TOAST_MS = 1800;
-
-const STAGES: Stage[] = ["A", "B", "C", "D"];
-
-const STAGE_GRADIENT: Record<Stage, [string, string]> = {
-  A: ["#FFC46B", "#E0912A"],
-  B: ["#6BD6C2", "#2E9C89"],
-  C: ["#8B7FF5", "#5B4FE0"],
-  D: ["#F58BC0", "#D94F94"],
-};
-
-const STAGE_BADGE: Record<Stage, string> = { A: "🌟", B: "🧭", C: "🧠", D: "🎓" };
 
 /** Chispas flotantes del hero: mismo lenguaje visual que AudioUnlockGate, para que
  * la primera pantalla que el niño ve después de desbloquear el audio se sienta
@@ -34,34 +21,14 @@ const HERO_SPARKLES = [
 ];
 
 interface HomeScreenProps {
-  onPlay: (levelId: string) => void;
+  onOpenWorld: (worldId: WorldId) => void;
   onOpenParentZone: () => void;
 }
 
-export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
+export function HomeScreen({ onOpenWorld, onOpenParentZone }: HomeScreenProps) {
   const { t } = useTranslation();
-  const levelsProgress = useProgressStore((state) => state.levels);
   const selectedBuddy = useProgressStore((state) => state.selectedBuddy);
   const setSelectedBuddy = useProgressStore((state) => state.setSelectedBuddy);
-  let tileIndex = 0;
-
-  // Tocar un nivel "muy pronto" no debe sentirse como un botón roto: en vez de
-  // no hacer nada (un <button disabled> nativo ni siquiera reacciona al
-  // toque), suena y muestra un avisito breve — sin fingir que el nivel existe.
-  const [showComingSoon, setShowComingSoon] = useState(false);
-  const comingSoonTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
-  const handleLockedTap = () => {
-    playChime();
-    setShowComingSoon(true);
-    if (comingSoonTimer.current) clearTimeout(comingSoonTimer.current);
-    comingSoonTimer.current = setTimeout(() => setShowComingSoon(false), COMING_SOON_TOAST_MS);
-  };
-  useEffect(
-    () => () => {
-      if (comingSoonTimer.current) clearTimeout(comingSoonTimer.current);
-    },
-    [],
-  );
 
   return (
     <div
@@ -182,66 +149,24 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
         </div>
       </div>
 
-      <div style={{ display: "flex", flexDirection: "column", gap: "var(--space-lg)", padding: "0 var(--space-md)" }}>
-        {STAGES.map((stage) => {
-          const levels = getLevelsByStage(stage);
-          if (levels.length === 0) return null;
-          const [from, to] = STAGE_GRADIENT[stage];
-          return (
-            <section key={stage}>
-              <div
-                style={{
-                  display: "inline-flex",
-                  alignItems: "center",
-                  gap: 6,
-                  padding: "4px 12px 4px 8px",
-                  borderRadius: "var(--radius-pill)",
-                  background: `linear-gradient(90deg, ${from}, ${to})`,
-                  marginBottom: "var(--space-sm)",
-                }}
-              >
-                <span aria-hidden="true">{STAGE_BADGE[stage]}</span>
-                <h2
-                  style={{
-                    fontSize: "0.85rem",
-                    fontWeight: 800,
-                    color: "#fff",
-                    margin: 0,
-                    textShadow: "0 1px 2px rgba(0,0,0,0.15)",
-                  }}
-                >
-                  {t(`home.stage.${stage}`)}
-                </h2>
-              </div>
-              <div
-                style={{
-                  display: "grid",
-                  gridTemplateColumns: "repeat(auto-fill, minmax(96px, 1fr))",
-                  gap: "var(--space-sm)",
-                }}
-              >
-                {levels.map((level) => {
-                  const isPlayable = level.status === "playable";
-                  const idx = tileIndex++;
-                  return (
-                    <BigButton
-                      key={level.id}
-                      icon={isPlayable ? level.icon : level.free ? "⏳" : "🔒"}
-                      label={t(level.titleKey)}
-                      gradient={STAGE_GRADIENT[stage]}
-                      locked={!isPlayable}
-                      disabled={!isPlayable}
-                      delayIndex={idx}
-                      roundsCompleted={levelsProgress[level.id]?.roundsCompleted ?? 0}
-                      onTap={() => onPlay(level.id)}
-                      onLockedTap={handleLockedTap}
-                    />
-                  );
-                })}
-              </div>
-            </section>
-          );
-        })}
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(140px, 1fr))",
+          gap: "var(--space-md)",
+          padding: "0 var(--space-md)",
+        }}
+      >
+        {WORLDS.map((world, i) => (
+          <BigButton
+            key={world.id}
+            icon={world.icon}
+            label={t(world.nameKey)}
+            gradient={world.gradient}
+            delayIndex={i}
+            onTap={() => onOpenWorld(world.id)}
+          />
+        ))}
       </div>
 
       <footer
@@ -254,41 +179,6 @@ export function HomeScreen({ onPlay, onOpenParentZone }: HomeScreenProps) {
       >
         {CURRICULUM_LEVELS.filter((l) => l.status === "playable").length} / {CURRICULUM_LEVELS.length} niveles listos
       </footer>
-
-      <AnimatePresence>
-        {showComingSoon && (
-          <motion.div
-            key="coming-soon-toast"
-            role="status"
-            initial={{ opacity: 0, y: 16, scale: 0.92 }}
-            animate={{ opacity: 1, y: 0, scale: 1 }}
-            exit={{ opacity: 0, y: 10, scale: 0.92 }}
-            transition={{ type: "spring", stiffness: 340, damping: 22 }}
-            style={{
-              position: "fixed",
-              left: "50%",
-              bottom: "max(env(safe-area-inset-bottom), 20px)",
-              transform: "translateX(-50%)",
-              zIndex: 30,
-              background: "var(--color-text)",
-              color: "#fff",
-              padding: "10px 18px",
-              borderRadius: "var(--radius-pill)",
-              display: "flex",
-              alignItems: "center",
-              gap: 8,
-              fontWeight: 700,
-              fontSize: "0.9rem",
-              boxShadow: "var(--shadow-soft)",
-              pointerEvents: "none",
-              whiteSpace: "nowrap",
-            }}
-          >
-            <span aria-hidden="true">🚧</span>
-            {t("common.comingSoon")}
-          </motion.div>
-        )}
-      </AnimatePresence>
     </div>
   );
 }

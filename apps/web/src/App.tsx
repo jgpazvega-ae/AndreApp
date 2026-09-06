@@ -1,13 +1,19 @@
 import { AnimatePresence, MotionConfig, motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
+import type { WorldId } from "@andreapp/curriculum";
 import { AudioUnlockGate } from "./components/AudioUnlockGate";
 import { ErrorBoundary } from "./components/ErrorBoundary";
 import { GAME_REGISTRY } from "./games/registry";
 import { HomeScreen } from "./screens/HomeScreen";
 import { ParentZoneScreen } from "./screens/ParentZoneScreen";
+import { WorldScreen } from "./screens/WorldScreen";
 import { useProgressStore } from "./store/progressStore";
 
-type Screen = { name: "home" } | { name: "game"; levelId: string } | { name: "parentZone" };
+type Screen =
+  | { name: "home" }
+  | { name: "world"; worldId: WorldId }
+  | { name: "game"; levelId: string }
+  | { name: "parentZone" };
 
 export function App() {
   const [screen, setScreen] = useState<Screen>({ name: "home" });
@@ -35,7 +41,13 @@ export function App() {
               hace que navegar se sienta como una app viva y no como cambiar de página. */}
           <AnimatePresence mode="wait">
             <motion.div
-              key={screen.name === "game" ? `game-${screen.levelId}` : screen.name}
+              key={
+                screen.name === "game"
+                  ? `game-${screen.levelId}`
+                  : screen.name === "world"
+                    ? `world-${screen.worldId}`
+                    : screen.name
+              }
               initial={{ opacity: 0, scale: 0.94, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
               exit={{ opacity: 0, scale: 0.97 }}
@@ -44,8 +56,16 @@ export function App() {
             >
               {screen.name === "home" && (
                 <HomeScreen
-                  onPlay={(levelId) => setScreen({ name: "game", levelId })}
+                  onOpenWorld={(worldId) => setScreen({ name: "world", worldId })}
                   onOpenParentZone={() => setScreen({ name: "parentZone" })}
+                />
+              )}
+
+              {screen.name === "world" && (
+                <WorldScreen
+                  worldId={screen.worldId}
+                  onPlay={(levelId) => setScreen({ name: "game", levelId })}
+                  onBack={goHome}
                 />
               )}
 

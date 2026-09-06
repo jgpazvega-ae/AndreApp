@@ -21,6 +21,10 @@
   "buddy.dante.name": "Dante",
   "buddy.kira.name": "Kira",
 
+  "world.estacion.name": "A Estação",
+  "world.bosque.name": "A Floresta",
+  "world.oceano.name": "O Oceano",
+
   "parentZone.title": "Área dos pais",
   "parentZone.unlockHint": "Mantenha pressionado por 3 segundos para entrar",
   "parentZone.language": "Idioma",
