@@ -13,6 +13,17 @@ const PRAISE_FILES: [string, ...string[]] = [
   "n2-praise-4.mp3",
 ];
 
+/** Chispas flotantes alrededor de la tarjeta: sin esto, el logro se sentía
+ * "congelado" apenas terminaba la entrada con resorte de las estrellas —
+ * mismo lenguaje visual que AudioUnlockGate/HomeScreen (docs/CURRICULUM.md
+ * §2: la app siempre se siente viva, nunca estática). */
+const SPARKLES = [
+  { left: "6%", top: "12%", size: "1.1rem", delay: 0 },
+  { left: "90%", top: "20%", size: "0.9rem", delay: 0.5 },
+  { left: "12%", top: "82%", size: "0.85rem", delay: 1 },
+  { left: "86%", top: "78%", size: "1rem", delay: 1.5 },
+];
+
 interface LevelCompleteOverlayProps {
   visible: boolean;
   locale: string;
@@ -64,6 +75,19 @@ export function LevelCompleteOverlay({ visible, locale, onPlayAgain, onGoHome }:
             backdropFilter: "blur(2px)",
           }}
         >
+          {SPARKLES.map((pos, i) => (
+            <motion.span
+              key={i}
+              aria-hidden="true"
+              style={{ position: "absolute", left: pos.left, top: pos.top, fontSize: pos.size }}
+              initial={{ opacity: 0 }}
+              animate={{ y: [0, -10, 0], opacity: [0.35, 1, 0.35] }}
+              transition={{ duration: 2.4, repeat: Infinity, ease: "easeInOut", delay: pos.delay }}
+            >
+              ✨
+            </motion.span>
+          ))}
+
           <motion.div
             initial={{ scale: 0.7, opacity: 0, y: 20 }}
             animate={{ scale: 1, opacity: 1, y: 0 }}
@@ -95,9 +119,14 @@ export function LevelCompleteOverlay({ visible, locale, onPlayAgain, onGoHome }:
               ))}
             </div>
 
-            <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--color-text)", textAlign: "center" }}>
+            <motion.div
+              initial={{ scale: 0.6, opacity: 0 }}
+              animate={{ scale: 1, opacity: 1 }}
+              transition={{ type: "spring", stiffness: 300, damping: 14, delay: 0.75 }}
+              style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--color-text)", textAlign: "center" }}
+            >
               {t("roundComplete.title")}
-            </div>
+            </motion.div>
 
             <div style={{ display: "flex", gap: "var(--space-sm)", marginTop: "var(--space-xs)" }}>
               <motion.button

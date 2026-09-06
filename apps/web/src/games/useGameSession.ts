@@ -17,6 +17,15 @@ const WELCOME_DELAY_MS = 500;
 const DEFAULT_ROUND_SIZE = 5;
 
 /**
+ * El confeti del último acierto estalla en el mismo instante en que se
+ * cierra la ronda; sin este respiro, la pantalla de logro (fondo oscuro +
+ * blur) lo tapa antes de que el niño llegue a verlo — el premio grande
+ * "gana" al premio chico en vez de continuarlo. Este retraso deja que el
+ * confeti se vea primero (principio de puesta en escena/staging).
+ */
+const ROUND_COMPLETE_REVEAL_DELAY_MS = 450;
+
+/**
  * Voz cálida al equivocarse — nunca de decepción, nunca "no". Antes, un
  * error solo se sacudía en silencio (o sonaba igual que un toque
  * cualquiera): ahora el niño escucha que se le anima a seguir intentando,
@@ -65,6 +74,7 @@ export function useGameSession(
   const recordRoundComplete = useProgressStore((state) => state.recordRoundComplete);
   const { burst, confettiField } = useConfetti();
   const lastEncourageAt = useRef(0);
+  const roundCompleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   useEffect(() => {
     recordPlay(levelId);
@@ -73,6 +83,13 @@ export function useGameSession(
     // Solo al montar: la consigna de bienvenida no debe repetirse si cambia el idioma a media partida.
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
+
+  useEffect(
+    () => () => {
+      if (roundCompleteTimer.current) clearTimeout(roundCompleteTimer.current);
+    },
+    [],
+  );
 
   /**
    * Acusa recibo de un toque NEUTRAL que no es un acierto ni un error real
@@ -110,7 +127,11 @@ export function useGameSession(
       if (next >= roundSize) {
         streakRef.current = 0;
         recordRoundComplete(levelId);
-        setRoundComplete(true);
+        // El valor de retorno (para que el nivel suprima su propio elogio
+        // local) sigue siendo síncrono; solo la REVELACIÓN visual del logro
+        // espera, para no tapar el confeti que acaba de estallar.
+        if (roundCompleteTimer.current) clearTimeout(roundCompleteTimer.current);
+        roundCompleteTimer.current = setTimeout(() => setRoundComplete(true), ROUND_COMPLETE_REVEAL_DELAY_MS);
         return true;
       }
       streakRef.current = next;
