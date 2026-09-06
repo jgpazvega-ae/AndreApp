@@ -291,6 +291,11 @@ test.describe("niveles", () => {
   });
 
   test("N4: tras varios aciertos aparece la fase nombrada (bolita oculta, se pregunta el color)", async ({ page }) => {
+    // Cada ronda que se completa durante la prueba necesita margen real (la
+    // pantalla de logro se revela con retraso a propósito, y N4 tarda su
+    // propio tiempo en preparar el tablero nuevo): el timeout por defecto se
+    // queda corto si toca completar varias rondas antes de ver la fase nombrada.
+    test.setTimeout(60_000);
     const problems = failOnPageProblems(page);
     await openHome(page);
     await openLevel(page, "La Estación", "Clasificar por 1 atributo");
@@ -301,21 +306,33 @@ test.describe("niveles", () => {
     const otraVez = page.getByRole("button", { name: "Otra vez" });
     async function playOneTrial() {
       await zones.first().click();
+      // Corto a propósito: si este toque fue el correcto, el nivel queda
+      // "busy" hasta el siguiente intento (NEXT_ITEM_DELAY_MS, 500ms) — el
+      // toque de respaldo de abajo cae dentro de esa ventana y no hace nada,
+      // en vez de contar por accidente como un acierto del intento SIGUIENTE.
       await page.waitForTimeout(200);
+      if (!(await otraVez.isVisible().catch(() => false)) && (await zones.count()) >= 2) {
+        await zones.nth(1).click(); // respaldo: si el primer toque falló, prueba el otro color.
+      }
+      // La pantalla de logro se revela con un pequeño retraso a propósito
+      // (deja ver el confeti del acierto que cierra la ronda antes de
+      // taparlo, ver useGameSession.ROUND_COMPLETE_REVEAL_DELAY_MS, 450ms):
+      // hay que esperar claramente más que eso. El toque que cierra la ronda
+      // pudo ser el de respaldo de arriba (recién hecho), así que el reloj
+      // de 450ms puede haber arrancado apenas ahora — no hace 200ms.
+      await page.waitForTimeout(600);
       if (await otraVez.isVisible().catch(() => false)) {
         await otraVez.click();
-        await page.waitForTimeout(300);
-        return;
-      }
-      if ((await zones.count()) >= 2) {
-        await zones.nth(1).click();
+        // N4 tarda su propio ROUND_COMPLETE_DELAY_MS (1600ms) en preparar el
+        // tablero nuevo tras el acierto que cerró la ronda, sin importar
+        // cuándo se cierre esta pantalla de logro. Sin esperar eso (más el
+        // margen de la transición de salida de la superposición), el
+        // siguiente toque cae sobre una superposición que aún no terminó de
+        // desaparecer, o sobre un tablero que todavía sigue "busy".
+        await page.waitForTimeout(1800);
+      } else {
         await page.waitForTimeout(200);
-        if (await otraVez.isVisible().catch(() => false)) {
-          await otraVez.click();
-          await page.waitForTimeout(300);
-        }
       }
-      await page.waitForTimeout(400);
     }
 
     // Los primeros 5 aciertos son siempre en fase perceptual (la bolita
@@ -353,6 +370,24 @@ test.describe("niveles", () => {
       await zones.nth(1).click();
     }
     await exclaim;
+
+    expect(problems).toEqual([]);
+  });
+
+  test("N5: el altavoz repite la pregunta actual sin errores", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await openLevel(page, "El Bosque", "Vocabulario y sonidos");
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(600);
+
+    // force: el altavoz "respira" sin parar (igual que el objetivo de N2),
+    // así que nunca queda quieto para la comprobación de estabilidad de
+    // Playwright — un dedo real sí puede tocarlo.
+    const replayButton = page.getByRole("button", { name: "Escuchar de nuevo" });
+    await expect(replayButton).toBeVisible();
+    await replayButton.click({ force: true });
+    await page.waitForTimeout(300);
 
     expect(problems).toEqual([]);
   });
