@@ -18,6 +18,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "✨",
     free: true,
     status: "playable",
+    area: "descubro",
+    world: "estacion",
   },
   {
     id: "n2",
@@ -28,6 +30,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🎯",
     free: true,
     status: "playable",
+    area: "descubro",
+    world: "estacion",
   },
   {
     id: "n3",
@@ -38,6 +42,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🧩",
     free: true,
     status: "playable",
+    area: "descubro",
+    world: "bosque",
   },
 
   // Etapa B — Exploración (muestra gratis: N4; resto de pago)
@@ -50,6 +56,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🟥",
     free: true,
     status: "playable",
+    area: "pienso",
+    world: "estacion",
   },
   {
     id: "n5",
@@ -60,6 +68,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🐶",
     free: false,
     status: "playable",
+    area: "comunico",
+    world: "bosque",
   },
   {
     id: "n6",
@@ -70,6 +80,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🧩",
     free: false,
     status: "playable",
+    area: "pienso",
+    world: "bosque",
   },
   {
     id: "n7",
@@ -81,6 +93,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "😊",
     free: false,
     status: "playable",
+    area: "comprendo",
+    world: "bosque",
   },
   {
     id: "n8",
@@ -92,6 +106,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🛑",
     free: false,
     status: "playable",
+    area: "resuelvo",
+    world: "oceano",
   },
 
   // Etapa C — Fundamentos (de pago)
@@ -104,6 +120,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🔢",
     free: false,
     status: "playable",
+    area: "construyo",
+    world: "estacion",
   },
   {
     id: "n10",
@@ -114,6 +132,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🚗",
     free: false,
     status: "playable",
+    area: "construyo",
+    world: "estacion",
   },
   {
     id: "n11",
@@ -124,6 +144,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🔟",
     free: false,
     status: "coming-soon",
+    area: "construyo",
+    world: "estacion",
   },
   {
     id: "n12",
@@ -134,6 +156,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🔺",
     free: false,
     status: "coming-soon",
+    area: "pienso",
+    world: "oceano",
   },
   {
     id: "n13",
@@ -145,6 +169,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🧠",
     free: false,
     status: "coming-soon",
+    area: "resuelvo",
+    world: "bosque",
   },
   {
     id: "n14",
@@ -155,6 +181,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🎵",
     free: false,
     status: "coming-soon",
+    area: "comunico",
+    world: "bosque",
   },
   {
     id: "n15",
@@ -166,6 +194,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "📏",
     free: false,
     status: "coming-soon",
+    area: "comprendo",
+    world: "oceano",
   },
   {
     id: "n16",
@@ -176,6 +206,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "✏️",
     free: false,
     status: "coming-soon",
+    area: "creo",
+    world: "bosque",
   },
 
   // Etapa D — Preescolar (de pago)
@@ -188,6 +220,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "2️⃣",
     free: false,
     status: "coming-soon",
+    area: "construyo",
+    world: "estacion",
   },
   {
     id: "n18",
@@ -198,6 +232,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "➕",
     free: false,
     status: "coming-soon",
+    area: "construyo",
+    world: "estacion",
   },
   {
     id: "n19",
@@ -209,6 +245,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🔄",
     free: false,
     status: "coming-soon",
+    area: "resuelvo",
+    world: "oceano",
   },
   {
     id: "n20",
@@ -219,6 +257,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "🔤",
     free: false,
     status: "coming-soon",
+    area: "comunico",
+    world: "bosque",
   },
   {
     id: "n21",
@@ -229,6 +269,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "📝",
     free: false,
     status: "coming-soon",
+    area: "creo",
+    world: "bosque",
   },
   {
     id: "n22",
@@ -239,6 +281,8 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     icon: "📖",
     free: false,
     status: "coming-soon",
+    area: "comunico",
+    world: "bosque",
   },
 ];
 

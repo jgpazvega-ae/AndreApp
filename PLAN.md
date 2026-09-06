@@ -269,6 +269,7 @@ Estrategia: **validar la diversión y la pedagogía antes de cobrar.** Primero u
 
 ## 14. Decisiones abiertas y feedback pedagógico
 
+- **Universo por mundos (Estación/Bosque/Océano) y personaje guía "André":** confirmado — ver el Blueprint v1 (artifact compartido con el propietario). Reetiqueta la navegación y el currículo (`area`/`world` en `packages/curriculum`) sin tocar el motor de juego ni el flujo de PayPal manual de este documento, que sigue vigente sin cambios.
 - **Bandera de inglés:** 🇺🇸 por defecto (ajustable a 🇬🇧 o globo neutro).
 - **Sin cuentas de padres:** por diseño, no hay login ni contraseñas de usuario (menos fricción y menos datos que proteger); el acceso de pago se resuelve con el **código de licencia**, no con una identidad.
 - **Motor de juego:** DOM/SVG + framer-motion por defecto; PixiJS/Phaser solo donde un mundo lo justifique.

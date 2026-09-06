@@ -17,6 +17,16 @@ export type Domain =
 /** Eje transversal (ver docs/CURRICULUM.md §3). */
 export type TransversalAxis = "executive-function" | "social-emotional";
 
+/**
+ * Área de habilidad orientada al padre (Blueprint v1 §"Mapa pedagógico").
+ * Reetiqueta de `Domain` para presentación — no reemplaza `domain`, que
+ * sigue siendo la clasificación pedagógica fina.
+ */
+export type SkillArea = "descubro" | "pienso" | "construyo" | "comunico" | "creo" | "resuelvo" | "comprendo";
+
+/** Mundo narrativo (Blueprint v1 §"Arquitectura de mundos"). `null` = aún sin asignar. */
+export type WorldId = "estacion" | "bosque" | "oceano";
+
 /** Si un nivel está implementado como juego jugable en esta build. */
 export type LevelStatus = "playable" | "coming-soon";
 
@@ -28,6 +38,10 @@ export interface CurriculumLevel {
   stage: Stage;
   domain: Domain;
   axis?: TransversalAxis;
+  /** Ver SkillArea. Opcional mientras se completan los 22 niveles. */
+  area?: SkillArea;
+  /** Ver WorldId. Opcional mientras se completan los 22 niveles. */
+  world?: WorldId;
   /** Clave de i18n para el título del nivel (zona de padres; el niño no lee). */
   titleKey: string;
   /** Ícono/emoji representativo (redundancia visual, no depende de texto). */
