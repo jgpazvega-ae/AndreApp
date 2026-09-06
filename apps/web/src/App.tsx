@@ -10,10 +10,7 @@ import { WorldScreen } from "./screens/WorldScreen";
 import { useProgressStore } from "./store/progressStore";
 
 type Screen =
-  | { name: "home" }
-  | { name: "world"; worldId: WorldId }
-  | { name: "game"; levelId: string }
-  | { name: "parentZone" };
+  { name: "home" } | { name: "world"; worldId: WorldId } | { name: "game"; levelId: string } | { name: "parentZone" };
 
 export function App() {
   const [screen, setScreen] = useState<Screen>({ name: "home" });
