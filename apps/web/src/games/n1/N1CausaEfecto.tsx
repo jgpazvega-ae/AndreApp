@@ -6,6 +6,7 @@ import { asset } from "../../utils/asset";
 import { pickRandom } from "../../utils/random";
 import { useGameSession } from "../useGameSession";
 import { useIdleHint } from "../useIdleHint";
+import { useTimers } from "../useTimers";
 
 interface DelightObject {
   image: string;
@@ -54,6 +55,7 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
   // niveles que YA muestran su tablero) se siente como una app que no
   // reacciona. Aquí la mascota se asoma mucho antes.
   const { idle, resetIdle } = useIdleHint(2000);
+  const { after } = useTimers();
 
   const handleTap = useCallback(
     (event: React.PointerEvent<HTMLDivElement>) => {
@@ -67,11 +69,11 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
       // La voz nombra lo que apareció: el vínculo palabra/objeto es el aporte de N1.
       playVoiceClip(locale, object.voiceFile);
 
-      setTimeout(() => {
+      after(POP_LIFETIME_MS, () => {
         setPops((prev) => prev.filter((pop) => pop.id !== id));
-      }, POP_LIFETIME_MS);
+      });
     },
-    [locale, resetIdle, celebrate],
+    [locale, resetIdle, celebrate, after],
   );
 
   return (

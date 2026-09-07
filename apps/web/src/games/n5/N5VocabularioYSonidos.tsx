@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playSound, playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
+import { ReplayQuestionButton } from "../../components/ReplayQuestionButton";
 import { asset } from "../../utils/asset";
 import { pickRandom, pickRandomExcept, shuffle } from "../../utils/random";
 import { useGameSession } from "../useGameSession";
@@ -111,32 +112,7 @@ export function N5VocabularioYSonidos({ locale, onExit }: N5VocabularioYSonidosP
       roundComplete={roundComplete}
       onPlayAgain={continueRound}
     >
-      {/* "¿Dónde está el perro?" se dice UNA vez; sin esto, un niño que la
-          olvida (comprensión auditiva a esta edad, no memoria) se quedaba
-          sin forma de volver a oírla salvo equivocándose. El mismo patrón
-          de altavoz tocable que ya usa N4 en su fase nombrada. */}
-      <motion.button
-        type="button"
-        aria-label={t("a11y.replayQuestion")}
-        onClick={() => !busy && playVoiceClip(locale, ANIMAL_ASSET[target].questionFile)}
-        whileTap={{ scale: 0.88 }}
-        animate={{ scale: [1, 1.06, 1] }}
-        transition={{ duration: 1.8, repeat: Infinity, ease: "easeInOut" }}
-        style={{
-          position: "relative",
-          zIndex: 1,
-          alignSelf: "center",
-          marginTop: "max(env(safe-area-inset-top), 16px)",
-          width: 52,
-          height: 52,
-          borderRadius: "var(--radius-pill)",
-          background: "rgba(255,255,255,0.85)",
-          fontSize: "1.5rem",
-          boxShadow: "var(--shadow-soft)",
-        }}
-      >
-        🔊
-      </motion.button>
+      <ReplayQuestionButton onReplay={() => !busy && playVoiceClip(locale, ANIMAL_ASSET[target].questionFile)} />
 
       <div
         style={{

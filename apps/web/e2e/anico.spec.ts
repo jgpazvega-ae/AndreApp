@@ -392,6 +392,36 @@ test.describe("niveles", () => {
     expect(problems).toEqual([]);
   });
 
+  test("N7: el altavoz repite la pregunta actual sin errores", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await openLevel(page, "El Bosque", "Emociones");
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(600);
+
+    const replayButton = page.getByRole("button", { name: "Escuchar de nuevo" });
+    await expect(replayButton).toBeVisible();
+    await replayButton.click({ force: true });
+    await page.waitForTimeout(300);
+
+    expect(problems).toEqual([]);
+  });
+
+  test("N9: el altavoz repite la pregunta actual sin errores", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await openLevel(page, "La Estación", "Subitizar 1-3");
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(600);
+
+    const replayButton = page.getByRole("button", { name: "Escuchar de nuevo" });
+    await expect(replayButton).toBeVisible();
+    await replayButton.click({ force: true });
+    await page.waitForTimeout(300);
+
+    expect(problems).toEqual([]);
+  });
+
   test("N8: 3 congelamientos seguidos disparan la celebración de racha", async ({ page }) => {
     await openHome(page);
     await openLevel(page, "El Océano", "Para y sigue");

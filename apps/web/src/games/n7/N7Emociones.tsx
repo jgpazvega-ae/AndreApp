@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
+import { ReplayQuestionButton } from "../../components/ReplayQuestionButton";
 import { asset } from "../../utils/asset";
 import { pickRandom, pickRandomExcept, shuffle } from "../../utils/random";
 import { useGameSession } from "../useGameSession";
@@ -105,6 +106,8 @@ export function N7Emociones({ locale, onExit }: N7EmocionesProps) {
       roundComplete={roundComplete}
       onPlayAgain={continueRound}
     >
+      <ReplayQuestionButton onReplay={() => !busy && playVoiceClip(locale, EMOTION_ASSET[target].questionFile)} />
+
       <div
         style={{
           position: "relative",
@@ -115,7 +118,7 @@ export function N7Emociones({ locale, onExit }: N7EmocionesProps) {
           alignItems: "center",
           justifyItems: "center",
           gap: "var(--space-sm)",
-          padding: "calc(max(env(safe-area-inset-top), 16px) + 64px) var(--space-md) var(--space-md)",
+          padding: "var(--space-sm) var(--space-md) var(--space-md)",
         }}
       >
         {order.map((type) => (

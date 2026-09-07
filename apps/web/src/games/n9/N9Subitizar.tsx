@@ -3,6 +3,7 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
+import { ReplayQuestionButton } from "../../components/ReplayQuestionButton";
 import { asset } from "../../utils/asset";
 import { pickRandom, pickRandomExcept, shuffle } from "../../utils/random";
 import { useGameSession } from "../useGameSession";
@@ -131,6 +132,8 @@ export function N9Subitizar({ locale, onExit }: N9SubitizarProps) {
       roundComplete={roundComplete}
       onPlayAgain={continueRound}
     >
+      <ReplayQuestionButton onReplay={() => !busy && playVoiceClip(locale, QUESTION_FILE[target])} />
+
       <div
         style={{
           position: "relative",
@@ -140,10 +143,7 @@ export function N9Subitizar({ locale, onExit }: N9SubitizarProps) {
           alignItems: "center",
           justifyContent: "center",
           gap: "var(--space-sm)",
-          // Vertical simétrico a propósito: con padding-top grande y bottom chico,
-          // el centrado de flex deja el contenido visiblemente por debajo del
-          // centro (es lo que hacía ver medio vacía la pantalla en N3).
-          padding: "calc(max(env(safe-area-inset-top), 16px) + 56px) var(--space-sm)",
+          padding: "var(--space-sm)",
         }}
       >
         {order.map((qty) => {

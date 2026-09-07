@@ -3,10 +3,11 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
+import { ShapeIcon, type ShapeType } from "../../components/ShapeIcon";
 import { findDropTarget } from "../../utils/dropTarget";
 import { pickRandom, shuffle } from "../../utils/random";
 import { useGameSession } from "../useGameSession";
-import { ShapeIcon, type ShapeType } from "./ShapeIcon";
+import { useTimers } from "../useTimers";
 
 const ALL_SHAPES: [ShapeType, ...ShapeType[]] = ["circle", "square", "triangle", "star"];
 
@@ -67,6 +68,7 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
   // celebrate() ya avisa que cerró la ronda y aquí se evita el elogio local
   // duplicado con el de LevelCompleteOverlay.
   const lastPieceClosedSharedRoundRef = useRef(false);
+  const { after } = useTimers();
 
   // Rompecabezas completo: celebrar y empezar el siguiente, con una pieza más.
   useEffect(() => {
@@ -112,10 +114,10 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
         // pieza sigue seleccionada.
         encourage();
         setShakeSlot(slotShape);
-        setTimeout(() => setShakeSlot(null), SHAKE_MS);
+        after(SHAKE_MS, () => setShakeSlot(null));
       }
     },
-    [placed, celebrate, encourage],
+    [placed, celebrate, encourage, after],
   );
 
   const handleTapSlot = useCallback(

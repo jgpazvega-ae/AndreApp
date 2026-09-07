@@ -7,6 +7,7 @@ import { asset } from "../../utils/asset";
 import { pickRandom, shuffle } from "../../utils/random";
 import { useGameSession } from "../useGameSession";
 import { useIdleHint } from "../useIdleHint";
+import { useTimers } from "../useTimers";
 
 type ObjectType = "star" | "bell" | "balloon" | "flower";
 
@@ -84,6 +85,7 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
   const { acknowledgeTap, celebrate, encourage, celebrateSignal, confettiField, roundComplete, continueRound } =
     useGameSession("n3", { locale, welcomeFile: "n3-welcome.mp3" });
   const { idle, resetIdle } = useIdleHint();
+  const { after } = useTimers();
   // Cada ronda de N3 son siempre 3 pares, así que cada 5 rondas (15 aciertos)
   // el cierre de "3 pares" coincide con el cierre de ronda compartido de
   // useGameSession (cada 5 aciertos): en ese toque exacto, celebrate() ya
@@ -142,26 +144,26 @@ export function N3EmparejarIdenticos({ locale, onExit }: N3EmparejarIdenticosPro
         lastMatchClosedSharedRoundRef.current = celebrate(event);
         playVoiceClip(locale, OBJECT_ASSET[card.type].voiceFile);
         setPoppingIds(new Set([selected.id, card.id]));
-        setTimeout(() => {
+        after(MATCH_RESOLVE_MS, () => {
           setMatchedIds((prev) => new Set(prev).add(selected.id).add(card.id));
           setPoppingIds(new Set());
           setSelected(null);
           setBusy(false);
-        }, MATCH_RESOLVE_MS);
+        });
       } else {
         // Sin confeti: el error no se castiga, solo se deshace — pero sí se
         // escucha una voz que anima a seguir intentando.
         encourage();
         setBusy(true);
         setShakeIds(new Set([selected.id, card.id]));
-        setTimeout(() => {
+        after(MISMATCH_SHAKE_MS, () => {
           setShakeIds(new Set());
           setSelected(null);
           setBusy(false);
-        }, MISMATCH_SHAKE_MS);
+        });
       }
     },
-    [busy, matchedIds, selected, locale, acknowledgeTap, celebrate, encourage, resetIdle],
+    [busy, matchedIds, selected, locale, acknowledgeTap, celebrate, encourage, resetIdle, after],
   );
 
   return (
