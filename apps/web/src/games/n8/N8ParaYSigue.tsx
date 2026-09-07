@@ -1,5 +1,5 @@
 import { AnimatePresence, motion } from "framer-motion";
-import { useCallback, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playChime, playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
@@ -47,6 +47,16 @@ export function N8ParaYSigue({ locale, onExit }: N8ParaYSigueProps) {
   const [phase, setPhase] = useState<Phase>("dancing");
   const [streak, setStreak] = useState(0);
   const [caught, setCaught] = useState(false);
+  // La racha vive también en un ref para poder decidir el elogio en el mismo
+  // toque sin meter un efecto (reproducir voz) dentro del actualizador de
+  // estado: React puede ejecutar ese actualizador dos veces (StrictMode) y
+  // entonces el elogio de racha se programaba y sonaba DOBLE. Mismo patrón
+  // que streakRef en useGameSession.
+  const streakRef = useRef(0);
+  // Timers en vuelo: sin esto, el elogio de la 3ra racha seguía sonando
+  // encima del mapa de mundos si el niño salía justo después de atraparla.
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
   const { acknowledgeTap, celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession(
     "n8",
     { locale, welcomeFile: "n8-welcome.mp3" },
@@ -77,14 +87,14 @@ export function N8ParaYSigue({ locale, onExit }: N8ParaYSigueProps) {
       setCaught(true);
       celebrate(event);
       setPhase("dancing");
-      setStreak((s) => {
-        const next = s + 1;
-        if (next >= STREAK_TARGET) {
-          setTimeout(() => playVoiceClip(locale, pickRandom(STREAK_COMPLETE_FILES)), 300);
-          return 0;
-        }
-        return next;
-      });
+      const next = streakRef.current + 1;
+      if (next >= STREAK_TARGET) {
+        streakRef.current = 0;
+        timers.current.push(setTimeout(() => playVoiceClip(locale, pickRandom(STREAK_COMPLETE_FILES)), 300));
+      } else {
+        streakRef.current = next;
+      }
+      setStreak(streakRef.current);
     },
     [phase, caught, locale, acknowledgeTap, celebrate],
   );

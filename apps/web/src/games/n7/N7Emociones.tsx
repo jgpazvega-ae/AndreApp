@@ -1,5 +1,5 @@
 import { motion } from "framer-motion";
-import { useCallback, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
@@ -55,6 +55,12 @@ export function N7Emociones({ locale, onExit }: N7EmocionesProps) {
   const [target, setTarget] = useState<EmotionType>(() => pickRandom(ALL_EMOTIONS));
   const [busy, setBusy] = useState(false);
   const [shakeType, setShakeType] = useState<EmotionType | null>(null);
+  // Timers en vuelo (sacudida y siguiente pregunta): se limpian al desmontar,
+  // igual que en N5/N9. Sin esto, salir del nivel dentro de la ventana de
+  // NEXT_QUESTION_DELAY_MS dejaba la pregunta hablada ("¿Quién está feliz?")
+  // sonando ENCIMA del mapa de mundos, ya fuera del juego.
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
   const { celebrate, encourage, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n7", {
     locale,
     welcomeFile: EMOTION_ASSET[target].questionFile,
@@ -68,20 +74,22 @@ export function N7Emociones({ locale, onExit }: N7EmocionesProps) {
         // Se sacude Y se anima a seguir intentando: la consigna sigue en pie.
         encourage();
         setShakeType(type);
-        setTimeout(() => setShakeType(null), SHAKE_MS);
+        timers.current.push(setTimeout(() => setShakeType(null), SHAKE_MS));
         return;
       }
 
       setBusy(true);
       celebrate(event);
       playVoiceClip(locale, EMOTION_ASSET[type].exclaimFile);
-      setTimeout(() => {
-        const next = pickRandomExcept(ALL_EMOTIONS, target);
-        setOrder(shuffle(ALL_EMOTIONS));
-        setTarget(next);
-        playVoiceClip(locale, EMOTION_ASSET[next].questionFile);
-        setBusy(false);
-      }, NEXT_QUESTION_DELAY_MS);
+      timers.current.push(
+        setTimeout(() => {
+          const next = pickRandomExcept(ALL_EMOTIONS, target);
+          setOrder(shuffle(ALL_EMOTIONS));
+          setTarget(next);
+          playVoiceClip(locale, EMOTION_ASSET[next].questionFile);
+          setBusy(false);
+        }, NEXT_QUESTION_DELAY_MS),
+      );
     },
     [busy, target, locale, celebrate, encourage],
   );

@@ -5,6 +5,7 @@ import { getLevelsByWorld, type WorldId } from "@andreapp/curriculum";
 import { playChime } from "../audio/audioEngine";
 import { BigButton } from "../components/BigButton";
 import { getBuddy } from "../data/buddies";
+import { buddyIdle, buddyIdleTransition } from "../data/buddyMotion";
 import { getWorld } from "../data/worlds";
 import { useProgressStore } from "../store/progressStore";
 
@@ -69,33 +70,41 @@ export function WorldScreen({ worldId, onPlay, onBack }: WorldScreenProps) {
             aria-label={t("common.back")}
             onClick={onBack}
             whileTap={{ scale: 0.9 }}
+            // Mismo tamaño y mismo glifo que el "regresar" de GameShell: el
+            // niño no lee, así que aprende UN dibujo para "atrás". Antes esta
+            // pantalla usaba una flecha tipográfica "←" de 44px y el juego un
+            // "⬅️" de 48px: dos botones distintos para la misma acción.
             style={{
-              width: 44,
-              height: 44,
+              width: 48,
+              height: 48,
               borderRadius: "var(--radius-pill)",
               background: "rgba(255,255,255,0.85)",
-              fontSize: "1.2rem",
+              fontSize: "1.4rem",
               boxShadow: "var(--shadow-soft)",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
             }}
           >
-            ←
+            ⬅️
           </motion.button>
           <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>
             {t(world.nameKey)}
           </div>
-          <div style={{ width: 44 }} aria-hidden="true" />
+          <div style={{ width: 48 }} aria-hidden="true" />
         </div>
 
+        {/* El anfitrión espera con SU carácter (ver buddyMotion): Dante casi
+            inmóvil en La Estación, Odie inquieto en El Bosque, Kira brincando
+            en El Océano. Antes los tres flotaban idénticos, así que el mundo
+            no se distinguía por quién lo recibe sino solo por su color. */}
         <motion.img
           src={host.image}
           alt=""
           aria-hidden="true"
           initial={{ opacity: 0, y: 16 }}
-          animate={{ opacity: 1, y: [0, -8, 0] }}
-          transition={{
-            opacity: { duration: 0.4 },
-            y: { duration: 2.6, repeat: Infinity, ease: "easeInOut", delay: 0.3 },
-          }}
+          animate={{ opacity: 1, ...buddyIdle(host.id) }}
+          transition={{ opacity: { duration: 0.4 }, ...buddyIdleTransition(host.id), delay: 0.3 }}
           style={{
             display: "block",
             margin: "var(--space-sm) auto 0",
@@ -118,7 +127,12 @@ export function WorldScreen({ worldId, onPlay, onBack }: WorldScreenProps) {
           return (
             <BigButton
               key={level.id}
-              icon={isPlayable ? level.icon : level.free ? "⏳" : "🔒"}
+              // ⏳ ("todavía no existe") para TODO lo no construido, sea de
+              // pago o no: el candado 🔒 promete "esto se compra" y hoy no hay
+              // nada que comprar (la licencia es Fase 3, PLAN.md §10). Mostrarlo
+              // ahora le dice al papá que le están escondiendo contenido que ya
+              // existe. El candado vuelve cuando exista el flujo de compra.
+              icon={isPlayable ? level.icon : "⏳"}
               label={t(level.titleKey)}
               gradient={world.gradient}
               locked={!isPlayable}

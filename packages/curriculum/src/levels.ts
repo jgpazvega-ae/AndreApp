@@ -38,8 +38,12 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     order: 3,
     stage: "A",
     domain: "perception",
+    // NO 🧩: ese es el de N6 (Rompecabezas) y ambos viven en El Bosque. El
+    // niño no lee los títulos — navega por el ícono, así que dos mosaicos
+    // idénticos en el mismo mundo son, para él, el mismo juego dos veces.
+    // 👯 = "dos iguales", que es exactamente la mecánica de N3.
     titleKey: "level.n3.title",
-    icon: "🧩",
+    icon: "👯",
     free: true,
     status: "playable",
     area: "descubro",

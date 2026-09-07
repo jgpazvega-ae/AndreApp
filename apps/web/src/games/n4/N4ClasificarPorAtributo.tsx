@@ -1,5 +1,5 @@
 import { motion, type PanInfo } from "framer-motion";
-import { useCallback, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
@@ -70,6 +70,12 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
   });
   const zoneColorsRef = useRef(zoneColors);
   zoneColorsRef.current = zoneColors;
+  // Timers en vuelo (sacudida, siguiente intento, tablero nuevo): se limpian
+  // al desmontar. Sin esto, salir del nivel dentro de NEXT_ITEM_DELAY_MS
+  // dejaba la pregunta hablada de la fase nombrada ("¿Dónde está el
+  // naranja?") sonando ENCIMA del mapa de mundos, ya fuera del juego.
+  const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  useEffect(() => () => timers.current.forEach(clearTimeout), []);
   // Total de aciertos en la sesión (no se reinicia entre rondas): decide cuándo
   // puede aparecer la fase nombrada. Vive en un ref porque solo se lee dentro
   // de callbacks, nunca directamente en el render.
@@ -99,7 +105,7 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
         // Se sacude Y se anima a seguir intentando: el intento sigue en pie.
         encourage();
         setShaking(true);
-        setTimeout(() => setShaking(false), SHAKE_MS);
+        timers.current.push(setTimeout(() => setShaking(false), SHAKE_MS));
         return;
       }
 
@@ -114,23 +120,27 @@ export function N4ClasificarPorAtributo({ locale, onExit }: N4ClasificarPorAtrib
         // El festejo de ronda completa (3 estrellas + elogio) ya lo da
         // LevelCompleteOverlay solo: aquí solo se prepara el tablero para
         // cuando el niño cierre la pantalla de logro, sin voz duplicada.
-        setTimeout(() => {
-          const colors = pickRoundColors();
-          setZoneColors(colors);
-          setSortedCount(0);
-          // Primer intento de cada ronda siempre perceptual: nombrar un color
-          // mientras el tablero nuevo está tapado por la pantalla de logro
-          // dejaría la pregunta hablada sin nada que el niño pueda responder todavía.
-          setMode("perceptual");
-          setItemColor(pickRandom(colors));
-          setBusy(false);
-        }, ROUND_COMPLETE_DELAY_MS);
+        timers.current.push(
+          setTimeout(() => {
+            const colors = pickRoundColors();
+            setZoneColors(colors);
+            setSortedCount(0);
+            // Primer intento de cada ronda siempre perceptual: nombrar un color
+            // mientras el tablero nuevo está tapado por la pantalla de logro
+            // dejaría la pregunta hablada sin nada que el niño pueda responder todavía.
+            setMode("perceptual");
+            setItemColor(pickRandom(colors));
+            setBusy(false);
+          }, ROUND_COMPLETE_DELAY_MS),
+        );
       } else {
         setSortedCount(newCount);
-        setTimeout(() => {
-          startTrial(zoneColorsRef.current);
-          setBusy(false);
-        }, NEXT_ITEM_DELAY_MS);
+        timers.current.push(
+          setTimeout(() => {
+            startTrial(zoneColorsRef.current);
+            setBusy(false);
+          }, NEXT_ITEM_DELAY_MS),
+        );
       }
     },
     [busy, itemColor, sortedCount, mode, locale, celebrate, encourage, startTrial],

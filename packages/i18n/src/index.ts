@@ -3,6 +3,8 @@ import en from "./locales/en.json";
 import ptBR from "./locales/pt-BR.json";
 
 export {
+  COMMON_VOICE_MANIFEST,
+  ES_MX_VOICE_MANIFEST,
   N1_VOICE_MANIFEST,
   N2_VOICE_MANIFEST,
   N3_VOICE_MANIFEST,

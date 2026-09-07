@@ -7,6 +7,19 @@ import type { VoiceManifestEntry } from "../index";
  * palabras completas como estas, pero se marca igual para que el flujo de
  * revisión sea consistente en todo el catálogo).
  */
+/**
+ * Clips que no pertenecen a un nivel: los usa el motor compartido
+ * (useGameSession) en TODOS los niveles al equivocarse — elogio de proceso
+ * también en el intento fallido (docs/CURRICULUM.md §7). Estaban en disco y
+ * en uso desde hace varios niveles, pero sin declarar en ningún manifiesto.
+ */
+export const COMMON_VOICE_MANIFEST: VoiceManifestEntry[] = [
+  { key: "common.encourage.1", file: "encourage-1.mp3", reviewed: false },
+  { key: "common.encourage.2", file: "encourage-2.mp3", reviewed: false },
+  { key: "common.encourage.3", file: "encourage-3.mp3", reviewed: false },
+  { key: "common.encourage.4", file: "encourage-4.mp3", reviewed: false },
+];
+
 export const N1_VOICE_MANIFEST: VoiceManifestEntry[] = [
   { key: "n1.welcome", file: "welcome.mp3", reviewed: false },
   { key: "n1.object.star", file: "object-star.mp3", reviewed: false },
@@ -26,8 +39,20 @@ export const N2_VOICE_MANIFEST: VoiceManifestEntry[] = [
 /** N3 reutiliza los clips object-*.mp3 de N1 (nombra el objeto al emparejar) y los n2-praise-*.mp3 (ronda completa). */
 export const N3_VOICE_MANIFEST: VoiceManifestEntry[] = [{ key: "n3.welcome", file: "n3-welcome.mp3", reviewed: false }];
 
-/** N4 (perceptual, sin nombrar el color) reutiliza los n2-praise-*.mp3 al completar una ronda. */
-export const N4_VOICE_MANIFEST: VoiceManifestEntry[] = [{ key: "n4.welcome", file: "n4-welcome.mp3", reviewed: false }];
+/**
+ * N4 reutiliza los n2-praise-*.mp3 al completar una ronda. Los clips de color
+ * son de su fase NOMBRADA ("¿dónde está el naranja?" / "¡naranja!"): estaban
+ * generados y en uso, pero sin declarar aquí.
+ */
+export const N4_VOICE_MANIFEST: VoiceManifestEntry[] = [
+  { key: "n4.welcome", file: "n4-welcome.mp3", reviewed: false },
+  { key: "n4.color.orange", file: "n4-color-orange.mp3", reviewed: false },
+  { key: "n4.color.indigo", file: "n4-color-indigo.mp3", reviewed: false },
+  { key: "n4.color.teal", file: "n4-color-teal.mp3", reviewed: false },
+  { key: "n4.exclaim.orange", file: "n4-exclaim-orange.mp3", reviewed: false },
+  { key: "n4.exclaim.indigo", file: "n4-exclaim-indigo.mp3", reviewed: false },
+  { key: "n4.exclaim.teal", file: "n4-exclaim-teal.mp3", reviewed: false },
+];
 
 export const N5_VOICE_MANIFEST: VoiceManifestEntry[] = [
   { key: "n5.question.dog", file: "n5-question-dog.mp3", reviewed: false },
@@ -82,4 +107,25 @@ export const N11_VOICE_MANIFEST: VoiceManifestEntry[] = [
   { key: "n11.count.8", file: "n11-count-8.mp3", reviewed: false },
   { key: "n11.count.9", file: "n11-count-9.mp3", reviewed: false },
   { key: "n11.count.10", file: "n11-count-10.mp3", reviewed: false },
+];
+
+/**
+ * Índice completo del paquete de voz es-MX. Es lo que permite comprobar
+ * automáticamente (ver apps/web/src/__tests__/voiceAssets.test.ts) que lo
+ * declarado, lo que hay en disco y lo que el código pide son la misma lista:
+ * un clip que falta NO se ve como un error, se oye como silencio.
+ */
+export const ES_MX_VOICE_MANIFEST: VoiceManifestEntry[] = [
+  ...COMMON_VOICE_MANIFEST,
+  ...N1_VOICE_MANIFEST,
+  ...N2_VOICE_MANIFEST,
+  ...N3_VOICE_MANIFEST,
+  ...N4_VOICE_MANIFEST,
+  ...N5_VOICE_MANIFEST,
+  ...N6_VOICE_MANIFEST,
+  ...N7_VOICE_MANIFEST,
+  ...N8_VOICE_MANIFEST,
+  ...N9_VOICE_MANIFEST,
+  ...N10_VOICE_MANIFEST,
+  ...N11_VOICE_MANIFEST,
 ];

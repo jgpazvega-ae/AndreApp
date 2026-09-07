@@ -76,7 +76,9 @@ export function N5VocabularioYSonidos({ locale, onExit }: N5VocabularioYSonidosP
         // Se sacude Y se anima a seguir intentando: la consigna sigue en pie.
         encourage();
         setShakeType(type);
-        setTimeout(() => setShakeType(null), SHAKE_MS);
+        // También va al registro de timers: quedaba fuera y era el único de
+        // este archivo que seguía vivo tras salir del nivel.
+        pendingTimers.current.push(setTimeout(() => setShakeType(null), SHAKE_MS));
         return;
       }
 

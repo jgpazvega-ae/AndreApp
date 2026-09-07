@@ -6,6 +6,7 @@ import { APP_NAME } from "@andreapp/shared";
 import { playSound } from "../audio/audioEngine";
 import { BigButton } from "../components/BigButton";
 import { BUDDIES } from "../data/buddies";
+import { BUDDY_CHEER_MS, buddyCheer, buddyCheerTransition, buddyIdle, buddyIdleTransition } from "../data/buddyMotion";
 import { WORLDS } from "../data/worlds";
 import { useProgressStore } from "../store/progressStore";
 import { asset } from "../utils/asset";
@@ -177,7 +178,12 @@ export function HomeScreen({ onOpenWorld, onOpenParentZone }: HomeScreenProps) {
           textAlign: "center",
         }}
       >
-        {CURRICULUM_LEVELS.filter((l) => l.status === "playable").length} / {CURRICULUM_LEVELS.length} niveles listos
+        {/* Era la única cadena escrita a mano en español dentro de la app: en
+            inglés y portugués seguía diciendo "niveles listos". */}
+        {t("home.levelsReady", {
+          done: CURRICULUM_LEVELS.filter((l) => l.status === "playable").length,
+          total: CURRICULUM_LEVELS.length,
+        })}
       </footer>
     </div>
   );
@@ -190,6 +196,12 @@ export function HomeScreen({ onOpenWorld, onOpenParentZone }: HomeScreenProps) {
  * ningún efecto real. Ladra con su propio sonido al elegirlo, y el elegido
  * queda con un anillo que lo distingue de los otros dos sin necesitar texto
  * (el niño no lee, docs/CURRICULUM.md §2).
+ *
+ * Cada uno se mueve como es (ver buddyMotion): aquí es donde más importa,
+ * porque esta es la pantalla donde el niño ELIGE — y a esta edad se elige
+ * por cómo se comporta el personaje, no por su nombre escrito. Antes los
+ * tres flotaban con exactamente la misma animación, así que la elección era
+ * puramente de color de pelo.
  */
 function BuddyAvatar({
   buddy,
@@ -217,9 +229,9 @@ function BuddyAvatar({
       return;
     }
     setCheering(true);
-    const timeout = window.setTimeout(() => setCheering(false), 700);
+    const timeout = window.setTimeout(() => setCheering(false), BUDDY_CHEER_MS[buddy.id]);
     return () => window.clearTimeout(timeout);
-  }, [selected]);
+  }, [selected, buddy.id]);
 
   return (
     <motion.button
@@ -243,14 +255,8 @@ function BuddyAvatar({
         src={buddy.image}
         alt=""
         aria-hidden="true"
-        animate={
-          cheering && selected ? { y: [0, -16, 0], rotate: [0, -10, 10, 0], scale: [1, 1.15, 1] } : { y: [0, -3, 0] }
-        }
-        transition={
-          cheering && selected
-            ? { duration: 0.7, ease: "easeInOut" }
-            : { duration: 2.2, repeat: Infinity, ease: "easeInOut" }
-        }
+        animate={cheering && selected ? buddyCheer(buddy.id) : buddyIdle(buddy.id)}
+        transition={cheering && selected ? buddyCheerTransition(buddy.id) : buddyIdleTransition(buddy.id)}
         style={{ width: "100%", height: "auto", filter: "drop-shadow(0 6px 8px rgba(0,0,0,0.18))" }}
       />
     </motion.button>

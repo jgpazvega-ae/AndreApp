@@ -12,6 +12,7 @@
   "roundComplete.goHome": "Mapa",
 
   "home.title": "Escolha um mundo",
+  "home.levelsReady": "{{done}} / {{total}} níveis prontos",
   "home.stage.A": "Descoberta",
   "home.stage.B": "Exploração",
   "home.stage.C": "Fundamentos",

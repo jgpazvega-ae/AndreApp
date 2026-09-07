@@ -36,6 +36,16 @@ describe("catálogo del currículo", () => {
     expect(stageB.map((l) => l.order)).toEqual([...stageB.map((l) => l.order)].sort((a, b) => a - b));
   });
 
+  it("no repite el ícono dentro de un mismo mundo", () => {
+    // El niño no lee: el ícono ES el nombre del juego para él. Dos mosaicos
+    // con el mismo emoji en la misma pantalla de mundo son indistinguibles
+    // (fue el caso real de N3 y N6, ambos 🧩 en El Bosque).
+    for (const world of ["estacion", "bosque", "oceano"] as const) {
+      const icons = getLevelsByWorld(world).map((level) => level.icon);
+      expect(new Set(icons).size).toBe(icons.length);
+    }
+  });
+
   it("todo nivel tiene un mundo asignado y getLevelsByWorld los reparte sin perder ninguno", () => {
     expect(CURRICULUM_LEVELS.every((level) => level.world !== undefined)).toBe(true);
     const byWorld = [...getLevelsByWorld("estacion"), ...getLevelsByWorld("bosque"), ...getLevelsByWorld("oceano")];

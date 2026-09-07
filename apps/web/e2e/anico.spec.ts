@@ -507,6 +507,33 @@ test.describe("niveles", () => {
     await secondCount;
   });
 
+  test("N11: la parada de 6 llega hasta 'seis' con las voces nuevas del nivel", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await openLevel(page, "La Estación", "Contar 6-10");
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(500);
+
+    // La razón de existir de N11 son sus voces 6-10: la primera parada tiene 6
+    // objetos y el conteo arranca en "uno" (reutilizando las voces de N10),
+    // así que el SEXTO toque es el primero que puede pedir n11-count-6.mp3.
+    // Sin esta prueba, N11 podía quedarse contando 1-5 y callado del 6 en
+    // adelante sin que nada fallara.
+    await expect(page.getByRole("button", { name: "Objeto" })).toHaveCount(6);
+    const sixth = page.waitForResponse((res) => /n11-count-6\.mp3/.test(res.url()), { timeout: 10000 });
+    for (let i = 0; i < 6; i++) {
+      await page.getByRole("button", { name: "Objeto" }).first().click({ force: true });
+      await page.waitForTimeout(150);
+    }
+    await sixth;
+
+    // Y la parada siguiente crece a 7 (checkpoints [6..10]).
+    await page.waitForTimeout(1300);
+    await expect(page.getByRole("button", { name: "Objeto" })).toHaveCount(7);
+
+    expect(problems).toEqual([]);
+  });
+
   test("al completar una ronda aparece la pantalla de logro y no interrumpe el juego", async ({ page }) => {
     const problems = failOnPageProblems(page);
     await openHome(page);

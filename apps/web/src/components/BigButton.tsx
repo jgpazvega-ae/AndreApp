@@ -53,8 +53,18 @@ export function BigButton({
       initial={{ opacity: 0, y: 18, scale: 0.85 }}
       animate={{ opacity: 1, y: 0, scale: 1 }}
       transition={{ duration: 0.35, delay: delayIndex * 0.045, ease: [0.22, 1, 0.36, 1] }}
-      whileTap={{ scale: disabled ? 0.96 : 0.9, rotate: disabled ? 0 : -2 }}
-      whileHover={disabled ? undefined : { scale: 1.04 }}
+      // El `transition` de arriba es el de la ENTRADA y framer-motion lo
+      // reutiliza por defecto para los gestos: sin el suyo propio, el hundido
+      // del toque heredaba también el `delay` del escalonado — el mosaico
+      // número 8 tardaba ~0.3s en reaccionar al dedo, que a los 3 años se
+      // lee como "no funciona" y provoca el segundo toque. Ahora responde de
+      // inmediato y regresa con el rebote del resorte (follow-through).
+      whileTap={{
+        scale: disabled ? 0.96 : 0.9,
+        rotate: disabled ? 0 : -2,
+        transition: { type: "spring", stiffness: 900, damping: 26, delay: 0 },
+      }}
+      whileHover={disabled ? undefined : { scale: 1.04, transition: { duration: 0.15, delay: 0 } }}
       style={{
         position: "relative",
         minWidth: "var(--touch-target-min)",

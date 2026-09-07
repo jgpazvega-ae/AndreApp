@@ -63,6 +63,10 @@ export function ContarPista({
   const [countedIds, setCountedIds] = useState<Set<number>>(new Set());
   const [busy, setBusy] = useState(false);
   const timers = useRef<ReturnType<typeof setTimeout>[]>([]);
+  const clearTimers = useCallback(() => {
+    timers.current.forEach(clearTimeout);
+    timers.current = [];
+  }, []);
   useEffect(() => () => timers.current.forEach(clearTimeout), []);
 
   const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession(levelId, {
@@ -110,13 +114,23 @@ export function ContarPista({
   /** "Otra vez" en la pantalla de logro reinicia la vuelta desde la primera
    * parada: a diferencia de otros niveles, aquí una ronda ES una vuelta
    * completa (salida → paradas → meta), así que "seguir jugando" quiere
-   * decir "otra vuelta", no "reanudar a medias". */
+   * decir "otra vuelta", no "reanudar a medias".
+   *
+   * Cancela primero los timers en vuelo: la pantalla de logro se revela a los
+   * 450ms del último acierto pero el avance de parada estaba programado para
+   * los 1100ms, así que tocar "otra vez" dentro de esa ventana (medio segundo
+   * largo, muy alcanzable para un niño que ya está tocando la pantalla)
+   * reiniciaba a la parada 0 y acto seguido el timer viejo la empujaba a 1 —
+   * la vuelta nueva empezaba en la SEGUNDA parada, saltándose la primera, y
+   * con la voz de meta aún pendiente encima. */
   const handlePlayAgain = useCallback(() => {
+    clearTimers();
     continueRound();
     setCheckpointIndex(0);
     setCountedIds(new Set());
     setImage(pickRandom(OBJECT_IMAGES));
-  }, [continueRound]);
+    setBusy(false);
+  }, [continueRound, clearTimers]);
 
   // Posición del carro en la pista, de 0 (salida) a 100 (meta), con una parada por punto.
   const carPercent = (Math.min(checkpointIndex, checkpoints.length) / checkpoints.length) * 100;
