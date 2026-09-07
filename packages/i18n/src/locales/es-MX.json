@@ -29,6 +29,7 @@
   "parentZone.title": "Zona de padres",
   "parentZone.unlockHint": "Mantén pulsado 3 segundos para entrar",
   "parentZone.language": "Idioma",
+  "parentZone.voicesSpanishOnly": "Las voces habladas del juego (instrucciones, elogios) existen solo en español por ahora. En otro idioma, tu hij@ jugará sin esas voces.",
   "parentZone.about": "Acerca de {{appName}}",
   "parentZone.aboutBody": "Sin cuentas, sin publicidad: todo el progreso vive en este dispositivo.",
   "parentZone.progress": "Progreso de tu hij@",

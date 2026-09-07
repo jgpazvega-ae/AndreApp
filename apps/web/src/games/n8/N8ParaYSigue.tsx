@@ -3,7 +3,8 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playChime, playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
-import { asset } from "../../utils/asset";
+import { getBuddy } from "../../data/buddies";
+import { useProgressStore } from "../../store/progressStore";
 import { pickRandom } from "../../utils/random";
 import { useGameSession } from "../useGameSession";
 
@@ -36,14 +37,17 @@ interface N8ParaYSigueProps {
 
 /**
  * N8 · Para y sigue (docs/CURRICULUM.md ficha N8, control inhibitorio).
- * La mascota baila sola; cuando se congela (con un tono como señal audible,
- * redundante con la señal visual) hay que tocarla. Tocar mientras baila
- * solo se escucha (acknowledgeTap), sin romper la racha ni castigar — es
- * una invitación a esperar, no un error. No escala de velocidad (a
- * diferencia de N2): aquí el reto es la espera, no la puntería.
+ * El compañero que el niño eligió baila solo; cuando se congela (con un
+ * tono como señal audible, redundante con la señal visual) hay que
+ * tocarlo. Tocar mientras baila solo se escucha (acknowledgeTap), sin
+ * romper la racha ni castigar — es una invitación a esperar, no un error.
+ * No escala de velocidad (a diferencia de N2): aquí el reto es la espera,
+ * no la puntería.
  */
 export function N8ParaYSigue({ locale, onExit }: N8ParaYSigueProps) {
   const { t } = useTranslation();
+  const selectedBuddy = useProgressStore((state) => state.selectedBuddy);
+  const buddy = getBuddy(selectedBuddy);
   const [phase, setPhase] = useState<Phase>("dancing");
   const [streak, setStreak] = useState(0);
   const [caught, setCaught] = useState(false);
@@ -105,6 +109,7 @@ export function N8ParaYSigue({ locale, onExit }: N8ParaYSigueProps) {
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}
       confetti={confettiField}
+      hideBuddy
       style={{ display: "flex", flexDirection: "column" }}
       locale={locale}
       roundComplete={roundComplete}
@@ -213,7 +218,7 @@ export function N8ParaYSigue({ locale, onExit }: N8ParaYSigueProps) {
           }}
         >
           <img
-            src={asset("illustrations/mascot.png")}
+            src={buddy.image}
             alt=""
             aria-hidden="true"
             style={{

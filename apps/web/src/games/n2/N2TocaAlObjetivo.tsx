@@ -3,7 +3,8 @@ import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
-import { asset } from "../../utils/asset";
+import { getBuddy } from "../../data/buddies";
+import { useProgressStore } from "../../store/progressStore";
 import { pickRandom } from "../../utils/random";
 import { useGameSession } from "../useGameSession";
 import { useIdleHint } from "../useIdleHint";
@@ -49,13 +50,17 @@ interface N2TocaAlObjetivoProps {
 
 /**
  * N2 · Toca al objetivo (docs/CURRICULUM.md ficha N2).
- * La mascota aparece quieta (solo "respira"); al atraparla reaparece en
- * otro lugar y, tras un par de aciertos, empieza a desplazarse (más rápido
- * conforme se acierta más) — dirigir la atención y apuntar. Sin estado de
- * fallo: no hay penalización por no tocar, solo una invitación más notoria.
+ * El objetivo es el compañero que el niño eligió (Odie/Dante/Kira, no una
+ * mascota genérica): atraparlo es atrapar a SU amigo, no a un desconocido.
+ * Aparece quieto (solo "respira"); al atraparlo reaparece en otro lugar y,
+ * tras un par de aciertos, empieza a desplazarse (más rápido conforme se
+ * acierta más) — dirigir la atención y apuntar. Sin estado de fallo: no hay
+ * penalización por no tocar, solo una invitación más notoria.
  */
 export function N2TocaAlObjetivo({ locale, onExit }: N2TocaAlObjetivoProps) {
   const { t } = useTranslation();
+  const selectedBuddy = useProgressStore((state) => state.selectedBuddy);
+  const buddy = getBuddy(selectedBuddy);
   const [position, setPosition] = useState<Position>(() => randomPosition());
   const [catchCount, setCatchCount] = useState(0);
   const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n2", {
@@ -92,6 +97,7 @@ export function N2TocaAlObjetivo({ locale, onExit }: N2TocaAlObjetivoProps) {
       background={BACKGROUND}
       celebrateSignal={celebrateSignal}
       confetti={confettiField}
+      hideBuddy
       locale={locale}
       roundComplete={roundComplete}
       onPlayAgain={continueRound}
@@ -141,7 +147,7 @@ export function N2TocaAlObjetivo({ locale, onExit }: N2TocaAlObjetivoProps) {
           }}
         >
           <img
-            src={asset("illustrations/mascot.png")}
+            src={buddy.image}
             alt=""
             aria-hidden="true"
             style={{

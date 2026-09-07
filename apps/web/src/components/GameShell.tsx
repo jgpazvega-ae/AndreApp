@@ -14,6 +14,13 @@ interface GameShellProps {
   confetti: ReactNode;
   /** Burbujas decorativas de fondo. Se apagan en niveles donde competirían con el contenido. */
   decor?: boolean;
+  /**
+   * Oculta al compañero de la esquina. Solo para niveles donde el compañero
+   * elegido YA es el protagonista en pantalla (N2 lo persigues, N8 lo
+   * despiertas al congelarse): mostrarlo también en la esquina duplicaría
+   * al mismo perrito dos veces a la vez, algo que un niño de 3 años nota.
+   */
+  hideBuddy?: boolean;
   /** Para niveles donde el área completa es la zona tocable (N1). */
   onPointerDown?: (event: PointerEvent<HTMLDivElement>) => void;
   /** Ajustes de layout del contenedor (p. ej. columna flex). */
@@ -45,6 +52,7 @@ export function GameShell({
   celebrateSignal,
   confetti,
   decor = true,
+  hideBuddy = false,
   onPointerDown,
   style,
   locale,
@@ -97,7 +105,7 @@ export function GameShell({
         ⬅️
       </button>
 
-      <GameBuddy celebrateSignal={celebrateSignal} />
+      {!hideBuddy && <GameBuddy celebrateSignal={celebrateSignal} />}
 
       {confetti}
 

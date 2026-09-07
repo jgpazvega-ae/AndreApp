@@ -29,6 +29,7 @@
   "parentZone.title": "Parents' zone",
   "parentZone.unlockHint": "Hold for 3 seconds to enter",
   "parentZone.language": "Language",
+  "parentZone.voicesSpanishOnly": "Spoken voices (instructions, praise) are only available in Spanish for now. In another language, your child will play without those voices.",
   "parentZone.about": "About {{appName}}",
   "parentZone.aboutBody": "No accounts, no ads: all progress stays on this device.",
   "parentZone.progress": "Your child's progress",

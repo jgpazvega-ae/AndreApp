@@ -61,6 +61,16 @@ export function ParentZoneScreen({ onClose }: ParentZoneScreenProps) {
             </button>
           ))}
         </div>
+        {/* Honesto en vez de silencioso: hoy solo existen voces en español
+            (roadmap Fase 2, PLAN.md). Sin este aviso, un padre que elige otro
+            idioma no tiene forma de saber por qué el niño deja de escuchar
+            las consignas — se sentiría como una app rota, no como un idioma
+            todavía sin voces. */}
+        {locale !== "es-MX" && (
+          <p style={{ color: "var(--color-text-muted)", fontSize: "0.85rem", marginTop: "var(--space-sm)" }}>
+            {t("parentZone.voicesSpanishOnly")}
+          </p>
+        )}
       </section>
 
       <section style={{ marginTop: "var(--space-lg)" }}>
