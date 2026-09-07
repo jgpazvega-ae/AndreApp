@@ -109,6 +109,12 @@ export const N11_VOICE_MANIFEST: VoiceManifestEntry[] = [
   { key: "n11.count.10", file: "n11-count-10.mp3", reviewed: false },
 ];
 
+/** N12 reutiliza los n2-praise-*.mp3 al completar una ronda. Sin voces que nombren cada forma: el
+ * patrón se enseña por razonamiento visual, no por vocabulario (a diferencia de N4/N5/N7/N9). */
+export const N12_VOICE_MANIFEST: VoiceManifestEntry[] = [
+  { key: "n12.welcome", file: "n12-welcome.mp3", reviewed: false },
+];
+
 /**
  * Índice completo del paquete de voz es-MX. Es lo que permite comprobar
  * automáticamente (ver apps/web/src/__tests__/voiceAssets.test.ts) que lo
@@ -128,4 +134,5 @@ export const ES_MX_VOICE_MANIFEST: VoiceManifestEntry[] = [
   ...N9_VOICE_MANIFEST,
   ...N10_VOICE_MANIFEST,
   ...N11_VOICE_MANIFEST,
+  ...N12_VOICE_MANIFEST,
 ];

@@ -159,7 +159,7 @@ export const CURRICULUM_LEVELS: CurriculumLevel[] = [
     titleKey: "level.n12.title",
     icon: "🔺",
     free: false,
-    status: "coming-soon",
+    status: "playable",
     area: "pienso",
     world: "oceano",
   },

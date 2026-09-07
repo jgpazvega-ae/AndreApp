@@ -124,6 +124,13 @@ const PLAYABLE_LEVELS = [
     // primera parada basta para probar que la pantalla responde.
     interact: (page: Page) => page.getByRole("button", { name: "Objeto" }).first().click({ force: true }),
   },
+  {
+    name: "Formas y patrones",
+    world: "El Océano",
+    // Tocar cualquier opción (acierte o no) basta para probar que la
+    // pantalla responde; el acierto exacto tiene su propia prueba dedicada.
+    interact: (page: Page) => page.locator('[aria-label="Forma"]').first().click({ force: true }),
+  },
 ];
 
 test.describe("pantalla de inicio", () => {
@@ -560,6 +567,34 @@ test.describe("niveles", () => {
     // Y la parada siguiente crece a 7 (checkpoints [6..10]).
     await page.waitForTimeout(1300);
     await expect(page.getByRole("button", { name: "Objeto" })).toHaveCount(7);
+
+    expect(problems).toEqual([]);
+  });
+
+  test("N12: tocar la forma correcta rellena el hueco del patrón", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await openLevel(page, "El Océano", "Formas y patrones");
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(500);
+
+    const options = page.locator('button[aria-label="Forma"]');
+    await expect(options).toHaveCount(3);
+
+    // El hueco (5to lugar del patrón) empieza con contorno punteado (variant
+    // "slot" de ShapeIcon); es la única forma en pantalla sin relleno, así
+    // que se prueban las 3 opciones hasta encontrar la que lo rellena, sin
+    // depender de qué color le tocó a cada una (es aleatorio por ronda).
+    const hole = page.locator("svg g[stroke-dasharray]");
+    await expect(hole).toHaveCount(1);
+
+    let solved = false;
+    for (let i = 0; i < 3 && !solved; i++) {
+      await options.nth(i).click({ force: true });
+      await page.waitForTimeout(250);
+      solved = (await hole.count()) === 0;
+    }
+    expect(solved).toBe(true);
 
     expect(problems).toEqual([]);
   });

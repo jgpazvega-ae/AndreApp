@@ -10,6 +10,7 @@ import { N8ParaYSigue } from "./n8/N8ParaYSigue";
 import { N9Subitizar } from "./n9/N9Subitizar";
 import { N10ContarPista } from "./n10/N10ContarPista";
 import { N11Contar6a10 } from "./n11/N11Contar6a10";
+import { N12FormasYPatrones } from "./n12/N12FormasYPatrones";
 
 export interface GameProps {
   locale: string;
@@ -29,4 +30,5 @@ export const GAME_REGISTRY: Record<string, ComponentType<GameProps>> = {
   n9: N9Subitizar,
   n10: N10ContarPista,
   n11: N11Contar6a10,
+  n12: N12FormasYPatrones,
 };
