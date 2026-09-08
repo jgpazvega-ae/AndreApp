@@ -4,6 +4,8 @@ import { useTranslation } from "react-i18next";
 import { APP_NAME } from "@andreapp/shared";
 import { unlockAudio } from "../audio/audioEngine";
 import { useAudioUnlock } from "../audio/useAudioUnlock";
+import { getBuddy } from "../data/buddies";
+import { useProgressStore } from "../store/progressStore";
 import { asset } from "../utils/asset";
 
 interface AudioUnlockGateProps {
@@ -13,12 +15,15 @@ interface AudioUnlockGateProps {
 /**
  * Pantalla inicial "toca para empezar": necesaria porque iOS Safari exige
  * un gesto directo del usuario antes de permitir cualquier audio
- * (PLAN.md §2). También sirve como bienvenida amigable con la mascota,
- * redundante en imagen (nunca solo texto) para un niño que aún no lee.
+ * (PLAN.md §2). También sirve como bienvenida amigable con el compañero
+ * elegido (Odie por defecto antes de elegir), redundante en imagen (nunca
+ * solo texto) para un niño que aún no lee.
  */
 export function AudioUnlockGate({ children }: AudioUnlockGateProps) {
   const { t } = useTranslation();
   const unlocked = useAudioUnlock();
+  const selectedBuddy = useProgressStore((state) => state.selectedBuddy);
+  const buddy = getBuddy(selectedBuddy);
 
   if (unlocked) return <>{children}</>;
 
@@ -82,7 +87,7 @@ export function AudioUnlockGate({ children }: AudioUnlockGateProps) {
       ))}
 
       <motion.img
-        src={asset("illustrations/mascot.png")}
+        src={buddy.image}
         alt=""
         aria-hidden="true"
         style={{

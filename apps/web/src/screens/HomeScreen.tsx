@@ -5,7 +5,7 @@ import { CURRICULUM_LEVELS, type WorldId } from "@andreapp/curriculum";
 import { APP_NAME } from "@andreapp/shared";
 import { playSound } from "../audio/audioEngine";
 import { BigButton } from "../components/BigButton";
-import { BUDDIES } from "../data/buddies";
+import { BUDDIES, getBuddy } from "../data/buddies";
 import { BUDDY_CHEER_MS, buddyCheer, buddyCheerTransition, buddyIdle, buddyIdleTransition } from "../data/buddyMotion";
 import { WORLDS } from "../data/worlds";
 import { useProgressStore } from "../store/progressStore";
@@ -30,6 +30,7 @@ export function HomeScreen({ onOpenWorld, onOpenParentZone }: HomeScreenProps) {
   const { t } = useTranslation();
   const selectedBuddy = useProgressStore((state) => state.selectedBuddy);
   const setSelectedBuddy = useProgressStore((state) => state.setSelectedBuddy);
+  const heroBuddy = getBuddy(selectedBuddy);
 
   return (
     <div
@@ -106,7 +107,10 @@ export function HomeScreen({ onOpenWorld, onOpenParentZone }: HomeScreenProps) {
 
         {/* Entrada (una vez) e idle (en bucle) son dos motion separados a propósito:
             mezclarlos en un solo `animate` hace que la entrada "espere" al primer
-            keyframe del bucle en vez de aparecer rápido. */}
+            keyframe del bucle en vez de aparecer rápido.
+            El héroe es el compañero elegido (o Odie por defecto antes de elegir),
+            no una mascota genérica: es el mismo personaje que protagoniza los
+            niveles, así que la primera pantalla ya lo presenta. */}
         <motion.div
           initial={{ opacity: 0, y: 24 }}
           animate={{ opacity: 1, y: 0 }}
@@ -114,7 +118,7 @@ export function HomeScreen({ onOpenWorld, onOpenParentZone }: HomeScreenProps) {
           style={{ position: "relative", zIndex: 1 }}
         >
           <motion.img
-            src={asset("illustrations/mascot.png")}
+            src={heroBuddy.image}
             alt=""
             aria-hidden="true"
             animate={{ y: [0, -8, 0] }}

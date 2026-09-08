@@ -2,6 +2,8 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useRef, useState } from "react";
 import { playVoiceClip } from "../../audio/audioEngine";
 import { GameShell } from "../../components/GameShell";
+import { getBuddy } from "../../data/buddies";
+import { useProgressStore } from "../../store/progressStore";
 import { asset } from "../../utils/asset";
 import { pickRandom } from "../../utils/random";
 import { useGameSession } from "../useGameSession";
@@ -39,11 +41,12 @@ interface N1CausaEfectoProps {
  * N1 · Causa y efecto (docs/CURRICULUM.md ficha N1).
  * Tocar cualquier parte de la pantalla produce una animación + sonido +
  * la voz nombra lo que apareció. Sin estado de fallo: cualquier toque es
- * "correcto". Si no toca en ~2s, la mascota se asoma invitando a intentar
- * (más rápido que el resto de los niveles: aquí la pantalla entera está
- * vacía hasta el primer toque, no solo un detalle del tablero).
+ * "correcto". Si no toca en ~2s, el compañero elegido se asoma invitando a
+ * intentar (más rápido que el resto de los niveles: aquí la pantalla entera
+ * está vacía hasta el primer toque, no solo un detalle del tablero).
  */
 export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
+  const buddy = getBuddy(useProgressStore((state) => state.selectedBuddy));
   const [pops, setPops] = useState<Pop[]>([]);
   const nextId = useRef(0);
   const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("n1", {
@@ -83,6 +86,7 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
       celebrateSignal={celebrateSignal}
       confetti={confettiField}
       onPointerDown={handleTap}
+      hideBuddy
       locale={locale}
       roundComplete={roundComplete}
       onPlayAgain={continueRound}
@@ -91,7 +95,7 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
         {idle && pops.length === 0 && (
           <motion.img
             key="idle-hint"
-            src={asset("illustrations/mascot.png")}
+            src={buddy.image}
             alt=""
             aria-hidden="true"
             initial={{ opacity: 0, y: 80 }}

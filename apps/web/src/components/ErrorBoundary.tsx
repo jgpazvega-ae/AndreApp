@@ -1,6 +1,7 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
-import { asset } from "../utils/asset";
+import { getBuddy } from "../data/buddies";
+import { useProgressStore } from "../store/progressStore";
 
 interface ErrorBoundaryProps {
   children: ReactNode;
@@ -13,8 +14,8 @@ interface ErrorBoundaryState {
 }
 
 /**
- * Red de seguridad: si un nivel truena, el niño ve a la mascota y un botón
- * grande para volver, no una pantalla en blanco. Importa más de lo normal
+ * Red de seguridad: si un nivel truena, el niño ve a su compañero elegido y
+ * un botón grande para volver, no una pantalla en blanco. Importa más de lo normal
  * aquí porque quien usa la app no sabe leer ni puede pedir ayuda: una
  * pantalla vacía en el teléfono de su papá no tiene salida posible.
  */
@@ -44,6 +45,8 @@ export class ErrorBoundary extends Component<ErrorBoundaryProps, ErrorBoundarySt
 
 function ErrorScreen({ onReset }: { onReset: () => void }) {
   const { t } = useTranslation();
+  const selectedBuddy = useProgressStore((state) => state.selectedBuddy);
+  const buddy = getBuddy(selectedBuddy);
 
   return (
     <div
@@ -61,7 +64,7 @@ function ErrorScreen({ onReset }: { onReset: () => void }) {
         background: "var(--color-bg)",
       }}
     >
-      <img src={asset("illustrations/mascot.png")} alt="" aria-hidden="true" style={{ width: "min(45vw, 180px)" }} />
+      <img src={buddy.image} alt="" aria-hidden="true" style={{ width: "min(45vw, 180px)" }} />
       <h1 style={{ fontSize: "1.3rem", margin: 0 }}>{t("error.title")}</h1>
       <p style={{ color: "var(--color-text-muted)", margin: 0 }}>{t("error.body")}</p>
       <button

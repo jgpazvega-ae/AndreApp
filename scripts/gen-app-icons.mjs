@@ -1,7 +1,8 @@
 // Genera los íconos de la PWA (192/512/maskable-512/apple-touch-icon)
-// componiendo la mascota real sobre un fondo degradado de marca.
-// Sin dependencias externas: decodificador/codificador PNG + resize
-// bilineal + composición alfa, todo hecho a mano.
+// componiendo a Odie (el compañero por defecto antes de elegir; el ícono
+// es estático y no puede reaccionar a cuál elige cada niño) sobre un fondo
+// degradado de marca. Sin dependencias externas: decodificador/codificador
+// PNG + resize bilineal + composición alfa, todo hecho a mano.
 import { deflateSync, inflateSync } from "node:zlib";
 import { readFileSync, writeFileSync } from "node:fs";
 
@@ -230,16 +231,20 @@ function makeIcon(size, mascot, { paddingFraction, roundedCorner = false } = {})
   return encodePng(size, size, bg);
 }
 
-const mascotPath = new URL("../apps/web/public/illustrations/mascot.png", import.meta.url);
+// PNG (RGBA8, sin interlace) porque el decodificador de arriba es casero y
+// no entiende webp: es una conversión directa de buddy-odie.webp, la fuente
+// real. Vive fuera de apps/web/public para no sumarle peso al build enviado
+// al navegador — solo esta herramienta la necesita.
+const mascotPath = new URL("./assets/buddy-odie-icon-source.png", import.meta.url);
 const mascot = decodePng(readFileSync(mascotPath));
 
 const outDir = new URL("../apps/web/public/icons/", import.meta.url);
 
 const targets = [
-  { file: "icon-192.png", size: 192, paddingFraction: 0.1 },
-  { file: "icon-512.png", size: 512, paddingFraction: 0.1 },
-  { file: "icon-maskable-512.png", size: 512, paddingFraction: 0.19 },
-  { file: "apple-touch-icon.png", size: 180, paddingFraction: 0.09 },
+  { file: "icon-192.png", size: 192, paddingFraction: 0.17 },
+  { file: "icon-512.png", size: 512, paddingFraction: 0.17 },
+  { file: "icon-maskable-512.png", size: 512, paddingFraction: 0.26 },
+  { file: "apple-touch-icon.png", size: 180, paddingFraction: 0.16 },
 ];
 
 for (const t of targets) {
