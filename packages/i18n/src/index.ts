@@ -17,6 +17,7 @@ export {
   N10_VOICE_MANIFEST,
   N11_VOICE_MANIFEST,
   N12_VOICE_MANIFEST,
+  N13_VOICE_MANIFEST,
 } from "./voiceManifests/es-MX";
 
 /**

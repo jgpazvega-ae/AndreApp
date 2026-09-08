@@ -131,6 +131,13 @@ const PLAYABLE_LEVELS = [
     // pantalla responde; el acierto exacto tiene su propia prueba dedicada.
     interact: (page: Page) => page.locator('[aria-label="Forma"]').first().click({ force: true }),
   },
+  {
+    name: "Memoria",
+    world: "El Bosque",
+    // Voltear la primera tarjeta basta para probar que el tablero responde;
+    // el emparejamiento exacto tiene su propia prueba dedicada.
+    interact: (page: Page) => page.locator('[aria-label="Tarjeta"]').first().click({ force: true }),
+  },
 ];
 
 test.describe("pantalla de inicio", () => {
@@ -294,6 +301,37 @@ test.describe("niveles", () => {
 
     // Tras emparejar, esas dos cartas quedan como "Ya emparejado": la señal
     // clara de logro que antes no se percibía (el bug que reportó el usuario).
+    await expect(page.locator('button[aria-label="Ya emparejado"]')).toHaveCount(2, { timeout: 3000 });
+  });
+
+  test("N13: voltear un par igual lo marca como emparejado (memoria)", async ({ page }) => {
+    await openHome(page);
+    await openLevel(page, "El Bosque", "Memoria");
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(600);
+
+    // La imagen de cada tarjeta vive en el DOM desde el inicio (el "frente"
+    // solo se rota fuera de vista mientras está boca abajo), así que se
+    // puede leer su tipo igual que en N3 sin necesidad de voltearla primero.
+    const cardType = (i: number) =>
+      page
+        .locator('button[aria-label="Tarjeta"], button[aria-label="Ya emparejado"]')
+        .nth(i)
+        .locator("img")
+        .getAttribute("src");
+    const count = await page.locator('button[aria-label="Tarjeta"]').count();
+    expect(count).toBe(4); // primera ronda: 2 pares
+
+    const types: (string | null)[] = [];
+    for (let i = 0; i < count; i++) types.push((await cardType(i))?.match(/(?:object|animal)-(\w+)/)?.[1] ?? null);
+    const first = types.findIndex((t) => t !== null);
+    const second = types.findIndex((t, i) => i > first && t === types[first]);
+    expect(second).toBeGreaterThan(-1);
+
+    const cards = page.locator('button[aria-label="Tarjeta"]');
+    await cards.nth(first).click();
+    await cards.nth(second).click();
+
     await expect(page.locator('button[aria-label="Ya emparejado"]')).toHaveCount(2, { timeout: 3000 });
   });
 

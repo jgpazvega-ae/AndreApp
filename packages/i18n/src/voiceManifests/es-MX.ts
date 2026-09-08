@@ -115,6 +115,15 @@ export const N12_VOICE_MANIFEST: VoiceManifestEntry[] = [
   { key: "n12.welcome", file: "n12-welcome.mp3", reviewed: false },
 ];
 
+/** N13 reutiliza object-star/bell/balloon/flower.mp3 (ya existen desde N1) para 4 de los 6
+ * tipos de tarjeta; gato y pato necesitan su propio nombre en voz (N5 solo tiene el sonido
+ * del animal y una exclamación completa, no el sustantivo suelto que hace falta aquí). */
+export const N13_VOICE_MANIFEST: VoiceManifestEntry[] = [
+  { key: "n13.welcome", file: "n13-welcome.mp3", reviewed: false },
+  { key: "n13.name.cat", file: "n13-name-cat.mp3", reviewed: false },
+  { key: "n13.name.duck", file: "n13-name-duck.mp3", reviewed: false },
+];
+
 /**
  * Índice completo del paquete de voz es-MX. Es lo que permite comprobar
  * automáticamente (ver apps/web/src/__tests__/voiceAssets.test.ts) que lo
@@ -135,4 +144,5 @@ export const ES_MX_VOICE_MANIFEST: VoiceManifestEntry[] = [
   ...N10_VOICE_MANIFEST,
   ...N11_VOICE_MANIFEST,
   ...N12_VOICE_MANIFEST,
+  ...N13_VOICE_MANIFEST,
 ];

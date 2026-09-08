@@ -1,6 +1,6 @@
 # Cómo agregar un nivel
 
-Quedan 11 de los 22 niveles del [mapa curricular](CURRICULUM.md). Esta guía
+Quedan 9 de los 22 niveles del [mapa curricular](CURRICULUM.md). Esta guía
 existe para que construirlos sea repetir un procedimiento, no reinventar la
 pantalla cada vez — y para que el niño encuentre siempre la salida, la
 celebración y el compañero en el mismo lugar.
