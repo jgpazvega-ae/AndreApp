@@ -27,11 +27,21 @@ export function FavoritosScreen({ onPlay, onOpenExploreScene, onBack }: Favorito
   const levelsProgress = useProgressStore((state) => state.levels);
 
   const favoriteLevels = CURRICULUM_LEVELS.filter((level) => favoriteIds.includes(level.id));
-  const favoriteScenes = EXPLORE_CATALOG.filter((scene) => scene.built && favoriteIds.includes(`${EXPLORE_PREFIX}${scene.id}`));
+  const favoriteScenes = EXPLORE_CATALOG.filter(
+    (scene) => scene.built && favoriteIds.includes(`${EXPLORE_PREFIX}${scene.id}`),
+  );
   const isEmpty = favoriteLevels.length === 0 && favoriteScenes.length === 0;
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "var(--color-bg)", paddingBottom: "var(--space-xl)" }}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: "var(--color-bg)",
+        paddingBottom: "var(--space-xl)",
+      }}
+    >
       <header
         style={{
           display: "flex",

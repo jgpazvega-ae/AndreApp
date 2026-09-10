@@ -787,10 +787,7 @@ test.describe("pilares Jugar/Explorar/Favoritos", () => {
     await page.getByRole("button", { name: "Regresar" }).click();
 
     await page.getByRole("button", { name: "Jugar", exact: true }).click();
-    await page
-      .locator('button[aria-label="Agregar a favoritos"]')
-      .first()
-      .click();
+    await page.locator('button[aria-label="Agregar a favoritos"]').first().click();
 
     await page.getByRole("button", { name: "Regresar" }).click();
     await page.getByRole("button", { name: "Favoritos", exact: true }).click();

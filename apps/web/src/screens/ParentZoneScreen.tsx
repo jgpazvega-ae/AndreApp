@@ -37,7 +37,9 @@ export function ParentZoneScreen({ onClose }: ParentZoneScreenProps) {
   // no una lista de aciertos/errores. `lastPlayedAt` ya se registra por
   // sesión (useGameSession); solo hace falta agrupar por skill del día.
   const todayKey = new Date().toDateString();
-  const playedToday = playedLevels.filter((p) => p.lastPlayedAt && new Date(p.lastPlayedAt).toDateString() === todayKey);
+  const playedToday = playedLevels.filter(
+    (p) => p.lastPlayedAt && new Date(p.lastPlayedAt).toDateString() === todayKey,
+  );
   const skillsToday = Array.from(new Set(playedToday.flatMap((p) => getLevel(p.levelId)?.skills ?? [])));
 
   return (

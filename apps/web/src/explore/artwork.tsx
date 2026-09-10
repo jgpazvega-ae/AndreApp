@@ -116,8 +116,22 @@ export function BallArt() {
         </radialGradient>
       </defs>
       <circle cx={50} cy={50} r={34} fill="url(#explore-ball-grad)" />
-      <path d="M50 16 Q66 34 50 50 Q34 66 50 84" fill="none" stroke="#fff" strokeWidth={5} strokeLinecap="round" opacity={0.75} />
-      <path d="M18 42 Q40 50 50 50 Q60 50 82 42" fill="none" stroke="#fff" strokeWidth={5} strokeLinecap="round" opacity={0.6} />
+      <path
+        d="M50 16 Q66 34 50 50 Q34 66 50 84"
+        fill="none"
+        stroke="#fff"
+        strokeWidth={5}
+        strokeLinecap="round"
+        opacity={0.75}
+      />
+      <path
+        d="M18 42 Q40 50 50 50 Q60 50 82 42"
+        fill="none"
+        stroke="#fff"
+        strokeWidth={5}
+        strokeLinecap="round"
+        opacity={0.6}
+      />
     </svg>
   );
 }

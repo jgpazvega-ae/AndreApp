@@ -22,7 +22,15 @@ export function JugarScreen({ onPlay, onBack }: JugarScreenProps) {
   const playable = CURRICULUM_LEVELS.filter((level) => level.status === "playable").sort((a, b) => a.order - b.order);
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "var(--color-bg)", paddingBottom: "var(--space-xl)" }}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: "var(--color-bg)",
+        paddingBottom: "var(--space-xl)",
+      }}
+    >
       <header
         style={{
           display: "flex",

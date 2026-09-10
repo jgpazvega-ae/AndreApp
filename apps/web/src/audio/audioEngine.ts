@@ -135,7 +135,15 @@ export function playSparkle(): void {
 }
 
 /** Un tono simple con rampa de frecuencia, bloque base de los sonidos de Explorar. */
-function tone(ctx: AudioContext, startTime: number, freqFrom: number, freqTo: number, duration: number, peakGain = 0.2, type: OscillatorType = "sine") {
+function tone(
+  ctx: AudioContext,
+  startTime: number,
+  freqFrom: number,
+  freqTo: number,
+  duration: number,
+  peakGain = 0.2,
+  type: OscillatorType = "sine",
+) {
   const osc = ctx.createOscillator();
   const gain = ctx.createGain();
   osc.type = type;

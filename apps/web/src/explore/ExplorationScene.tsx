@@ -43,7 +43,13 @@ export function ExplorationScene({ scene, onExit }: ExplorationSceneProps) {
   );
 
   return (
-    <GameShell onExit={onExit} background={scene.background} celebrateSignal={noticeSignal} confetti={confettiField} hideBuddy>
+    <GameShell
+      onExit={onExit}
+      background={scene.background}
+      celebrateSignal={noticeSignal}
+      confetti={confettiField}
+      hideBuddy
+    >
       <AmbientClouds />
 
       {scene.objects.map((object) => (
@@ -97,7 +103,15 @@ function AmbientClouds() {
         aria-hidden="true"
         animate={{ x: [0, 40, 0] }}
         transition={{ duration: 26, repeat: Infinity, ease: "easeInOut" }}
-        style={{ position: "absolute", left: "6%", top: "10%", width: 70, height: 44, opacity: 0.85, pointerEvents: "none" }}
+        style={{
+          position: "absolute",
+          left: "6%",
+          top: "10%",
+          width: 70,
+          height: 44,
+          opacity: 0.85,
+          pointerEvents: "none",
+        }}
       >
         <CloudArt />
       </motion.div>
@@ -105,7 +119,15 @@ function AmbientClouds() {
         aria-hidden="true"
         animate={{ x: [0, -30, 0] }}
         transition={{ duration: 32, repeat: Infinity, ease: "easeInOut", delay: 2 }}
-        style={{ position: "absolute", right: "10%", top: "18%", width: 50, height: 32, opacity: 0.7, pointerEvents: "none" }}
+        style={{
+          position: "absolute",
+          right: "10%",
+          top: "18%",
+          width: 50,
+          height: 32,
+          opacity: 0.7,
+          pointerEvents: "none",
+        }}
       >
         <CloudArt />
       </motion.div>

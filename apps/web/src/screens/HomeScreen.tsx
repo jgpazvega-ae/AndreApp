@@ -35,7 +35,13 @@ interface HomeScreenProps {
   onOpenParentZone: () => void;
 }
 
-export function HomeScreen({ onOpenJugar, onOpenExplorar, onOpenAprender, onOpenFavoritos, onOpenParentZone }: HomeScreenProps) {
+export function HomeScreen({
+  onOpenJugar,
+  onOpenExplorar,
+  onOpenAprender,
+  onOpenFavoritos,
+  onOpenParentZone,
+}: HomeScreenProps) {
   const { t } = useTranslation();
   const PILLAR_HANDLERS: Record<(typeof PILLARS)[number]["id"], () => void> = {
     jugar: onOpenJugar,

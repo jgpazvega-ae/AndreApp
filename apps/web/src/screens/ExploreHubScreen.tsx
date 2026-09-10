@@ -31,10 +31,23 @@ export function ExploreHubScreen({ onOpenScene, onBack }: ExploreHubScreenProps)
     if (timer.current) clearTimeout(timer.current);
     timer.current = setTimeout(() => setShowComingSoon(false), COMING_SOON_TOAST_MS);
   };
-  useEffect(() => () => { if (timer.current) clearTimeout(timer.current); }, []);
+  useEffect(
+    () => () => {
+      if (timer.current) clearTimeout(timer.current);
+    },
+    [],
+  );
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "var(--color-bg)", paddingBottom: "var(--space-xl)" }}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: "var(--color-bg)",
+        paddingBottom: "var(--space-xl)",
+      }}
+    >
       <header
         style={{
           display: "flex",

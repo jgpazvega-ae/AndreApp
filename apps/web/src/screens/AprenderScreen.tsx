@@ -19,7 +19,15 @@ export function AprenderScreen({ onOpenWorld, onBack }: AprenderScreenProps) {
   const { t } = useTranslation();
 
   return (
-    <div style={{ flex: 1, display: "flex", flexDirection: "column", background: "var(--color-bg)", paddingBottom: "var(--space-xl)" }}>
+    <div
+      style={{
+        flex: 1,
+        display: "flex",
+        flexDirection: "column",
+        background: "var(--color-bg)",
+        paddingBottom: "var(--space-xl)",
+      }}
+    >
       <header
         style={{
           display: "flex",
@@ -70,7 +78,14 @@ export function AprenderScreen({ onOpenWorld, onBack }: AprenderScreenProps) {
         ))}
       </div>
 
-      <footer style={{ padding: "var(--space-md)", color: "var(--color-text-muted)", fontSize: "0.75rem", textAlign: "center" }}>
+      <footer
+        style={{
+          padding: "var(--space-md)",
+          color: "var(--color-text-muted)",
+          fontSize: "0.75rem",
+          textAlign: "center",
+        }}
+      >
         {t("home.levelsReady", {
           done: CURRICULUM_LEVELS.filter((l) => l.status === "playable").length,
           total: CURRICULUM_LEVELS.length,
