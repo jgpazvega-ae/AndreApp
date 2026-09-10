@@ -60,14 +60,20 @@ export function CloudArt() {
 export function BirdArt() {
   return (
     <svg viewBox="0 0 100 100" style={fill} aria-hidden="true">
+      <defs>
+        <radialGradient id="explore-bird-grad" cx="40%" cy="30%" r="75%">
+          <stop offset="0%" stopColor="#A8ECD9" />
+          <stop offset="100%" stopColor="#6BD6C2" />
+        </radialGradient>
+      </defs>
       {/* Colita, a la izquierda y detrás del cuerpo. */}
       <path d="M22 58 Q6 52 8 38 Q22 42 30 56 Z" fill="#4FB89F" />
       {/* Cuerpo, en forma de gota redondeada. */}
-      <ellipse cx={48} cy={58} rx={26} ry={19} fill="#6BD6C2" />
+      <ellipse cx={48} cy={58} rx={26} ry={19} fill="url(#explore-bird-grad)" />
       {/* Ala plegada, un tono más oscuro para separarla del cuerpo. */}
       <ellipse cx={44} cy={53} rx={15} ry={10} fill="#4FB89F" transform="rotate(-18 44 53)" />
       {/* Cabeza, superpuesta al cuerpo hacia la derecha. */}
-      <circle cx={72} cy={45} r={11} fill="#6BD6C2" />
+      <circle cx={72} cy={45} r={11} fill="url(#explore-bird-grad)" />
       <circle cx={76} cy={42} r={2.4} fill="#3A2E22" />
       <path d="M81 46 L92 49 L81 52 Z" fill="#F58C1F" />
       {/* Patitas delgadas. */}
@@ -94,11 +100,21 @@ export function TreeArt() {
 export function ButterflyArt() {
   return (
     <svg viewBox="0 0 100 100" style={fill} aria-hidden="true">
+      <defs>
+        <radialGradient id="explore-butterfly-pink" cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor="#FFC2E2" />
+          <stop offset="100%" stopColor="#F58BC0" />
+        </radialGradient>
+        <radialGradient id="explore-butterfly-purple" cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stopColor="#B0A8FF" />
+          <stop offset="100%" stopColor="#8B7FF5" />
+        </radialGradient>
+      </defs>
       <g>
-        <ellipse cx={30} cy={38} rx={22} ry={16} fill="#F58BC0" />
-        <ellipse cx={30} cy={64} rx={16} ry={12} fill="#8B7FF5" />
-        <ellipse cx={70} cy={38} rx={22} ry={16} fill="#F58BC0" />
-        <ellipse cx={70} cy={64} rx={16} ry={12} fill="#8B7FF5" />
+        <ellipse cx={30} cy={38} rx={22} ry={16} fill="url(#explore-butterfly-pink)" />
+        <ellipse cx={30} cy={64} rx={16} ry={12} fill="url(#explore-butterfly-purple)" />
+        <ellipse cx={70} cy={38} rx={22} ry={16} fill="url(#explore-butterfly-pink)" />
+        <ellipse cx={70} cy={64} rx={16} ry={12} fill="url(#explore-butterfly-purple)" />
       </g>
       <rect x={47} y={28} width={6} height={44} rx={3} fill="#3A2E22" />
       <circle cx={50} cy={26} r={5} fill="#3A2E22" />
@@ -139,13 +155,23 @@ export function BallArt() {
 export function FlowerArt() {
   return (
     <svg viewBox="0 0 100 100" style={fill} aria-hidden="true">
+      <defs>
+        <radialGradient id="explore-flower-petal" cx="50%" cy="25%" r="80%">
+          <stop offset="0%" stopColor="#FFC2E2" />
+          <stop offset="100%" stopColor="#F58BC0" />
+        </radialGradient>
+        <radialGradient id="explore-flower-center" cx="40%" cy="30%" r="70%">
+          <stop offset="0%" stopColor="#FFEB9C" />
+          <stop offset="100%" stopColor="#FFD93D" />
+        </radialGradient>
+      </defs>
       <rect x={46} y={55} width={8} height={38} rx={4} fill="#4FB89F" />
-      <g fill="#F58BC0">
+      <g fill="url(#explore-flower-petal)">
         {[0, 72, 144, 216, 288].map((angle) => (
           <ellipse key={angle} cx={50} cy={28} rx={12} ry={17} transform={`rotate(${angle} 50 42)`} />
         ))}
       </g>
-      <circle cx={50} cy={42} r={11} fill="#FFD93D" />
+      <circle cx={50} cy={42} r={11} fill="url(#explore-flower-center)" />
     </svg>
   );
 }
@@ -153,7 +179,13 @@ export function FlowerArt() {
 export function KiteArt() {
   return (
     <svg viewBox="0 0 100 100" style={fill} aria-hidden="true">
-      <path d="M50 6 L82 42 L50 60 L18 42 Z" fill="#8B7FF5" />
+      <defs>
+        <radialGradient id="explore-kite-grad" cx="38%" cy="30%" r="80%">
+          <stop offset="0%" stopColor="#B0A8FF" />
+          <stop offset="100%" stopColor="#8B7FF5" />
+        </radialGradient>
+      </defs>
+      <path d="M50 6 L82 42 L50 60 L18 42 Z" fill="url(#explore-kite-grad)" />
       <path d="M50 6 L82 42 L50 60 Z" fill="#6B5FE0" />
       <path d="M50 6 L50 60 M18 42 L82 42" stroke="#3A2E22" strokeWidth={1.5} opacity={0.35} />
       <path d="M50 60 Q46 74 50 86 Q54 96 50 100" fill="none" stroke="#3A2E22" strokeWidth={2} opacity={0.5} />
@@ -195,11 +227,17 @@ export function RippleArt() {
 export function FountainArt() {
   return (
     <svg viewBox="0 0 100 100" style={fill} aria-hidden="true">
+      <defs>
+        <radialGradient id="explore-fountain-water" cx="45%" cy="30%" r="75%">
+          <stop offset="0%" stopColor="#BEE3FF" />
+          <stop offset="100%" stopColor="#6FAEE0" />
+        </radialGradient>
+      </defs>
       <ellipse cx={50} cy={78} rx={38} ry={12} fill="#C9BFB0" />
       <ellipse cx={50} cy={74} rx={32} ry={9} fill="#E4DCCF" />
-      <ellipse cx={50} cy={73} rx={26} ry={6} fill="#8FCBEE" />
+      <ellipse cx={50} cy={73} rx={26} ry={6} fill="url(#explore-fountain-water)" />
       <rect x={46} y={40} width={8} height={34} rx={4} fill="#C9BFB0" />
-      <path d="M50 10 Q56 30 50 44 Q44 30 50 10 Z" fill="#BEE3FF" opacity={0.9} />
+      <path d="M50 10 Q56 30 50 44 Q44 30 50 10 Z" fill="url(#explore-fountain-water)" opacity={0.9} />
       <circle cx={38} cy={26} r={4} fill="#BEE3FF" opacity={0.8} />
       <circle cx={64} cy={30} r={3.5} fill="#BEE3FF" opacity={0.8} />
     </svg>
