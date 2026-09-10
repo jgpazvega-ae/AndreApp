@@ -952,4 +952,33 @@ test.describe("Explorar", () => {
 
     expect(problems).toEqual([]);
   });
+
+  test("el árbol asusta al pájaro, la mariposa se posa en la flor y la rana vuelve a salpicar el charco", async ({
+    page,
+  }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await page.getByRole("button", { name: "Explorar" }).click();
+    await page.getByRole("button", { name: "Parque" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(400);
+
+    // Árbol → hojas → el pájaro (siempre visible, vive su propia vida
+    // ambiente) reacciona como si lo hubiera asustado el ruido.
+    await page.getByRole("button", { name: "Árbol" }).click();
+    await page.waitForTimeout(600);
+
+    // Mariposa → vuela → se posa en la flor, que reacciona a su vez.
+    await page.getByRole("button", { name: "Mariposa" }).click();
+    await page.waitForTimeout(600);
+
+    // Rana (revelada al tocar el charco) → salta → salpica el charco de
+    // vuelta al tocarla directamente (entra/sale del charco).
+    await page.getByRole("button", { name: "Charco" }).click();
+    await expect(page.getByRole("button", { name: "Rana" })).toBeVisible({ timeout: 2000 });
+    await page.getByRole("button", { name: "Rana" }).click();
+    await page.waitForTimeout(600);
+
+    expect(problems).toEqual([]);
+  });
 });
