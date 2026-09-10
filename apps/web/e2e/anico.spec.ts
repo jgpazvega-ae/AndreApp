@@ -46,6 +46,19 @@ async function openLevel(page: Page, worldName: string, levelName: string) {
   await page.getByRole("button", { name: levelName }).click();
 }
 
+/** Arrastra un objeto de Explorar (cometa/columpio: role="img", no botón) con un gesto real de mouse. */
+async function dragObject(page: Page, name: string, dx: number, dy: number) {
+  const el = page.getByRole("img", { name });
+  const box = await el.boundingBox();
+  if (!box) throw new Error(`No se encontró el objeto arrastrable "${name}"`);
+  const startX = box.x + box.width / 2;
+  const startY = box.y + box.height / 2;
+  await page.mouse.move(startX, startY);
+  await page.mouse.down();
+  await page.mouse.move(startX + dx, startY + dy, { steps: 10 });
+  await page.mouse.up();
+}
+
 /** Los niveles jugables de la Fase 1, con una interacción representativa de cada mecánica. */
 const PLAYABLE_LEVELS = [
   { name: "Causa y efecto", world: "La Estación", interact: (page: Page) => page.mouse.click(195, 400) },
@@ -822,7 +835,9 @@ test.describe("Explorar", () => {
     expect(problems).toEqual([]);
   });
 
-  test("el Parque tiene 10 objetos y tocar la pelota hace que el compañero note y festeje", async ({ page }) => {
+  test("el Parque tiene 14 objetos visibles y tocar la pelota hace que el compañero note y festeje", async ({
+    page,
+  }) => {
     const problems = failOnPageProblems(page);
     await openHome(page);
     await page.getByRole("button", { name: "Explorar" }).click();
@@ -830,11 +845,28 @@ test.describe("Explorar", () => {
     await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
     await page.waitForTimeout(400);
 
-    // Los 10 objetos del parque piloto (Product Vision §34): cada uno es su
-    // propio botón tocable, sin meta ni orden.
-    for (const name of ["Sol", "Nube", "Cometa", "Pájaro", "Árbol", "Fuente", "Mariposa", "Pelota", "Charco", "Flor"]) {
+    // 12 objetos tocables (botón) visibles desde el inicio; Cometa y Columpio
+    // se arrastran en vez de tocarse (ver prueba dedicada más abajo), y la
+    // Rana todavía no existe — solo aparece al tocar el Charco.
+    for (const name of [
+      "Sol",
+      "Nube",
+      "Pájaro",
+      "Árbol",
+      "Fuente",
+      "Mariposa",
+      "Banco",
+      "Piedra",
+      "Pasto",
+      "Pelota",
+      "Flor",
+      "Charco",
+    ]) {
       await expect(page.getByRole("button", { name })).toBeVisible();
     }
+    await expect(page.getByRole("img", { name: "Cometa" })).toBeVisible();
+    await expect(page.getByRole("img", { name: "Columpio" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Rana" })).toHaveCount(0);
 
     // Interacción emergente (Product Vision §35): tocar la pelota no solo
     // anima la pelota — el compañero elegido lo nota y ladra su festejo,
@@ -849,6 +881,74 @@ test.describe("Explorar", () => {
     // (cadena declarada en la config de la escena, no código especial).
     await page.getByRole("button", { name: "Nube" }).click();
     await page.waitForTimeout(600);
+
+    expect(problems).toEqual([]);
+  });
+
+  test("los descubrimientos camuflados (pasto, piedra) reaccionan y el banco también avisa al compañero", async ({
+    page,
+  }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await page.getByRole("button", { name: "Explorar" }).click();
+    await page.getByRole("button", { name: "Parque" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(400);
+
+    // Curiosity design: pasto y piedra se confunden con el suelo (no llaman
+    // la atención como botones normales) pero sí reaccionan al tocarlos.
+    await page.getByRole("button", { name: "Pasto" }).click();
+    await page.waitForTimeout(300);
+    await page.getByRole("button", { name: "Piedra" }).click();
+    await page.waitForTimeout(300);
+
+    // El banco es otro objeto que avisa al compañero, igual que la pelota.
+    const benchBark = page.waitForResponse((res) => /buddy-(odie|dante|kira)-bark\.mp3/.test(res.url()), {
+      timeout: 5000,
+    });
+    await page.getByRole("button", { name: "Banco" }).click();
+    await benchBark;
+
+    expect(problems).toEqual([]);
+  });
+
+  test("tocar el charco revela a la rana, que no existía antes (descubrimiento sin explicar)", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await page.getByRole("button", { name: "Explorar" }).click();
+    await page.getByRole("button", { name: "Parque" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(400);
+
+    await expect(page.getByRole("button", { name: "Rana" })).toHaveCount(0);
+    await page.getByRole("button", { name: "Charco" }).click();
+    await expect(page.getByRole("button", { name: "Rana" })).toBeVisible({ timeout: 2000 });
+
+    // Una vez revelada, la rana reacciona a su propio toque como cualquier otro objeto.
+    await page.getByRole("button", { name: "Rana" }).click();
+    await page.waitForTimeout(300);
+
+    expect(problems).toEqual([]);
+  });
+
+  test("el cometa y el columpio se arrastran (no se tocan) y el columpio avisa al compañero", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await page.getByRole("button", { name: "Explorar" }).click();
+    await page.getByRole("button", { name: "Parque" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(400);
+
+    await dragObject(page, "Cometa", 40, -20);
+    await page.waitForTimeout(300);
+
+    // El columpio, como la pelota y el banco, avisa al compañero — pero solo
+    // al arrastrarlo (no tiene botón: es un juguete de verdad, no un ícono).
+    const swingBark = page.waitForResponse((res) => /buddy-(odie|dante|kira)-bark\.mp3/.test(res.url()), {
+      timeout: 5000,
+    });
+    await dragObject(page, "Columpio", 20, 0);
+    await swingBark;
 
     expect(problems).toEqual([]);
   });

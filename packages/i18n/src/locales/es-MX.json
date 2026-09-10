@@ -40,6 +40,11 @@
   "explore.object.kite": "Cometa",
   "explore.object.puddle": "Charco",
   "explore.object.fountain": "Fuente",
+  "explore.object.swing": "Columpio",
+  "explore.object.frog": "Rana",
+  "explore.object.bench": "Banco",
+  "explore.object.grass": "Pasto",
+  "explore.object.stone": "Piedra",
 
   "buddy.odie.name": "Odie",
   "buddy.dante.name": "Dante",

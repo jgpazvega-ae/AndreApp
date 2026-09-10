@@ -9,7 +9,20 @@
  * sonido sintetizado y ambientación en reactions.ts/sounds. Un objeto nuevo
  * reutiliza una de estas en vez de inventar coreografía propia. */
 export type ExploreReaction =
-  "shine" | "drift" | "fly" | "shed-leaves" | "flutter" | "bounce" | "sway" | "soar" | "splash" | "spray";
+  | "shine"
+  | "drift"
+  | "fly"
+  | "shed-leaves"
+  | "flutter"
+  | "bounce"
+  | "sway"
+  | "soar"
+  | "splash"
+  | "spray"
+  | "hop"
+  | "sparkle"
+  | "wobble"
+  | "creak";
 
 export interface InteractiveObjectConfig {
   /** Estable dentro de la escena; se usa para registrar descubrimientos. */
@@ -31,6 +44,21 @@ export interface InteractiveObjectConfig {
   chainTargetId?: string;
   /** Tocar este objeto hace que el compañero elegido lo note y reaccione (ver ExplorationScene). */
   notifiesBuddy?: boolean;
+  /**
+   * Empieza invisible: solo se revela la primera vez que otro objeto lo
+   * dispara vía `chainTargetId` (p. ej. el charco revela a la rana). Una vez
+   * descubierto queda visible para siempre (se recuerda en progressStore.discoveries),
+   * y a partir de ahí es un objeto tocable normal.
+   */
+  startsHidden?: boolean;
+  /**
+   * Objeto que se controla arrastrando en vez de tocando (Product Vision
+   * §"Interacciones", cometa/columpio). "kite" sigue el dedo y regresa solo
+   * (como un hilo); "swing" se balancea horizontalmente y se asienta con
+   * rebote. Cuando está definido, el objeto ignora `reaction` para el toque
+   * y usa su propio gesto.
+   */
+  drag?: "kite" | "swing";
 }
 
 export interface ExplorationSceneConfig {

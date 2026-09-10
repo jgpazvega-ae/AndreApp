@@ -164,7 +164,20 @@ function tone(
  * de una escena nueva solo elige uno de estos siete timbres.
  */
 export type ExploreSoundKind =
-  "shine" | "drift" | "fly" | "shed-leaves" | "flutter" | "bounce" | "sway" | "soar" | "splash" | "spray";
+  | "shine"
+  | "drift"
+  | "fly"
+  | "shed-leaves"
+  | "flutter"
+  | "bounce"
+  | "sway"
+  | "soar"
+  | "splash"
+  | "spray"
+  | "hop"
+  | "sparkle"
+  | "wobble"
+  | "creak";
 
 export function playExploreSound(kind: ExploreSoundKind): void {
   if (!unlocked) return;
@@ -225,6 +238,26 @@ export function playExploreSound(kind: ExploreSoundKind): void {
       for (let i = 0; i < 4; i++) {
         tone(ctx, now + i * 0.07, 900 + i * 120, 1200 + i * 120, 0.09, 0.1, "sine");
       }
+      break;
+    // Rana: un brinquito agudo y un "plop" grave al caer al agua.
+    case "hop":
+      tone(ctx, now, 500, 750, 0.1, 0.18, "triangle");
+      tone(ctx, now + 0.55, 300, 110, 0.18, 0.16, "sine");
+      break;
+    // Pasto: un tintineo breve y brillante, como luciérnagas.
+    case "sparkle":
+      for (let i = 0; i < 3; i++) {
+        tone(ctx, now + i * 0.08, 1500 + i * 200, 1800 + i * 200, 0.12, 0.1, "sine");
+      }
+      break;
+    // Piedra: un par de "boops" graves y juguetones, de lado a lado.
+    case "wobble":
+      tone(ctx, now, 220, 160, 0.16, 0.16, "square");
+      tone(ctx, now + 0.16, 160, 220, 0.16, 0.14, "square");
+      break;
+    // Banco: un crujido de madera, un solo tono grave y lento.
+    case "creak":
+      tone(ctx, now, 200, 140, 0.35, 0.12, "sawtooth");
       break;
   }
 }

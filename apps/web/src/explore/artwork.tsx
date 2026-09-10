@@ -244,6 +244,122 @@ export function FountainArt() {
   );
 }
 
+export function FrogArt() {
+  return (
+    <svg viewBox="0 0 100 100" style={fill} aria-hidden="true">
+      <defs>
+        <radialGradient id="explore-frog-grad" cx="38%" cy="30%" r="75%">
+          <stop offset="0%" stopColor="#B6E85C" />
+          <stop offset="100%" stopColor="#7FB939" />
+        </radialGradient>
+      </defs>
+      {/* Patas traseras, dobladas (en cuclillas, lista para saltar). */}
+      <ellipse cx={26} cy={78} rx={14} ry={9} fill="#7FB939" transform="rotate(-20 26 78)" />
+      <ellipse cx={74} cy={78} rx={14} ry={9} fill="#7FB939" transform="rotate(20 74 78)" />
+      {/* Cuerpo. */}
+      <ellipse cx={50} cy={62} rx={34} ry={26} fill="url(#explore-frog-grad)" />
+      {/* Ojos saltones, arriba del cuerpo. */}
+      <circle cx={34} cy={38} r={13} fill="url(#explore-frog-grad)" />
+      <circle cx={66} cy={38} r={13} fill="url(#explore-frog-grad)" />
+      <circle cx={34} cy={36} r={6.5} fill="#3A2E22" />
+      <circle cx={66} cy={36} r={6.5} fill="#3A2E22" />
+      <circle cx={36} cy={34} r={1.8} fill="#fff" />
+      <circle cx={68} cy={34} r={1.8} fill="#fff" />
+      {/* Sonrisa. */}
+      <path d="M32 66 Q50 76 68 66" fill="none" stroke="#3A2E22" strokeWidth={2.5} strokeLinecap="round" />
+    </svg>
+  );
+}
+
+/** Columpio completo (Product Vision — interacción de arrastre): un juego de
+ * columpio con su propia estructura en A a cada lado y travesaño arriba, no
+ * cuerdas sueltas que "se pierden" en la nada — se lee como completo sin
+ * depender de nada fuera de su propio recuadro. */
+export function SwingArt() {
+  return (
+    <svg viewBox="0 0 100 140" style={fill} aria-hidden="true">
+      <path d="M12 10 L4 130 M12 10 L20 130" stroke="#B98555" strokeWidth={5} strokeLinecap="round" fill="none" />
+      <path d="M88 10 L96 130 M88 10 L80 130" stroke="#B98555" strokeWidth={5} strokeLinecap="round" fill="none" />
+      <path d="M12 10 L88 10" stroke="#96714A" strokeWidth={6} strokeLinecap="round" />
+      <path d="M36 10 L36 92" stroke="#8A6642" strokeWidth={3} strokeLinecap="round" />
+      <path d="M64 10 L64 92" stroke="#8A6642" strokeWidth={3} strokeLinecap="round" />
+      <rect x={26} y={90} width={48} height={12} rx={6} fill="#E0912A" />
+      <rect x={26} y={90} width={48} height={5} rx={2.5} fill="#FFB03B" />
+    </svg>
+  );
+}
+
+export function BenchArt() {
+  return (
+    <svg viewBox="0 0 100 70" style={fill} aria-hidden="true">
+      <defs>
+        <linearGradient id="explore-bench-wood" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stopColor="#D9A968" />
+          <stop offset="100%" stopColor="#B98555" />
+        </linearGradient>
+      </defs>
+      {/* Patas. */}
+      <rect x={8} y={40} width={6} height={26} rx={2} fill="#8C6A44" />
+      <rect x={86} y={40} width={6} height={26} rx={2} fill="#8C6A44" />
+      {/* Respaldo. */}
+      <rect x={10} y={6} width={80} height={10} rx={3} fill="url(#explore-bench-wood)" />
+      <rect x={10} y={20} width={80} height={10} rx={3} fill="url(#explore-bench-wood)" />
+      {/* Asiento. */}
+      <rect x={4} y={36} width={92} height={11} rx={3} fill="url(#explore-bench-wood)" />
+    </svg>
+  );
+}
+
+/** Matita de pasto camuflada entre la decoración — uno de los descubrimientos
+ * sin explicar (Product Vision — curiosity design). */
+export function GrassArt() {
+  return (
+    <svg viewBox="0 0 60 60" style={fill} aria-hidden="true">
+      {[
+        { x: 14, rot: -14, h: 34 },
+        { x: 24, rot: -4, h: 42 },
+        { x: 34, rot: 6, h: 40 },
+        { x: 44, rot: 16, h: 30 },
+      ].map((blade) => (
+        <path
+          key={blade.x}
+          d={`M${blade.x} 58 Q${blade.x - 4} ${58 - blade.h * 0.6} ${blade.x} ${58 - blade.h}`}
+          fill="none"
+          stroke="#4FB89F"
+          strokeWidth={4}
+          strokeLinecap="round"
+          transform={`rotate(${blade.rot} ${blade.x} 58)`}
+        />
+      ))}
+    </svg>
+  );
+}
+
+/** Piedrita camuflada — otro descubrimiento sin explicar. */
+export function StoneArt() {
+  return (
+    <svg viewBox="0 0 60 40" style={fill} aria-hidden="true">
+      <defs>
+        <radialGradient id="explore-stone-grad" cx="35%" cy="30%" r="80%">
+          <stop offset="0%" stopColor="#C9BFB0" />
+          <stop offset="100%" stopColor="#9B8E7B" />
+        </radialGradient>
+      </defs>
+      <ellipse cx={30} cy={26} rx={26} ry={13} fill="url(#explore-stone-grad)" />
+      <ellipse cx={14} cy={30} rx={11} ry={7} fill="url(#explore-stone-grad)" />
+    </svg>
+  );
+}
+
+/** Chispita suelta para la matita de pasto al tocarla (InteractiveObject). */
+export function SparkleArt() {
+  return (
+    <svg viewBox="0 0 24 24" style={fill} aria-hidden="true">
+      <path d="M12 0 L14.2 9.8 L24 12 L14.2 14.2 L12 24 L9.8 14.2 L0 12 L9.8 9.8 Z" fill="#FFD93D" />
+    </svg>
+  );
+}
+
 /** Hojita suelta para la animación de "caen hojas" del árbol (InteractiveObject). */
 export function LeafArt({ color = "#4FB89F" }: { color?: string }) {
   return (
@@ -265,4 +381,9 @@ export const EXPLORE_OBJECT_ART: Record<string, () => JSX.Element> = {
   kite: KiteArt,
   puddle: PuddleArt,
   fountain: FountainArt,
+  frog: FrogArt,
+  swing: SwingArt,
+  bench: BenchArt,
+  grass: GrassArt,
+  stone: StoneArt,
 };

@@ -23,15 +23,49 @@ export const PARK_SCENE: ExplorationSceneConfig = {
       reaction: "drift",
       chainTargetId: "puddle",
     },
-    { id: "kite", nameKey: "explore.object.kite", x: 42, y: 9, size: 6.5, reaction: "soar" },
+    // Cometa y columpio se arrastran (no se tocan): el hilo/la cuerda
+    // siguen el dedo y regresan solos, como un juguete de verdad.
+    { id: "kite", nameKey: "explore.object.kite", x: 42, y: 9, size: 6.5, reaction: "soar", drag: "kite" },
     { id: "bird", nameKey: "explore.object.bird", x: 60, y: 26, size: 4.5, reaction: "fly" },
     { id: "tree", nameKey: "explore.object.tree", x: 15, y: 58, size: 9, reaction: "shed-leaves" },
-    { id: "fountain", nameKey: "explore.object.fountain", x: 42, y: 62, size: 7.5, reaction: "spray" },
+    {
+      id: "swing",
+      nameKey: "explore.object.swing",
+      x: 30,
+      y: 38,
+      size: 8,
+      reaction: "sway",
+      drag: "swing",
+      notifiesBuddy: true,
+    },
+    { id: "fountain", nameKey: "explore.object.fountain", x: 42, y: 60, size: 7.5, reaction: "spray" },
     { id: "butterfly", nameKey: "explore.object.butterfly", x: 68, y: 46, size: 4, reaction: "flutter" },
+    { id: "bench", nameKey: "explore.object.bench", x: 68, y: 58, size: 7, reaction: "creak", notifiesBuddy: true },
+    // Descubrimientos camuflados (Product Vision — curiosity design): no
+    // llaman la atención, se confunden con la decoración del suelo. 4rem
+    // (--touch-target-min) para que "pequeño" no signifique "difícil de tocar".
+    // Lejos de la esquina donde vive el compañero (left:8%/bottom:6% en
+    // ExplorationScene): ahí encima quedaba tapado por el perrito.
+    { id: "stone", nameKey: "explore.object.stone", x: 84, y: 63, size: 4, reaction: "wobble" },
+    { id: "grass", nameKey: "explore.object.grass", x: 47, y: 72, size: 4, reaction: "sparkle" },
     // Tocar la pelota hace que el compañero elegido la note y festeje
     // (Product Vision §35: "Ball + dog → dog chases ball").
-    { id: "ball", nameKey: "explore.object.ball", x: 46, y: 82, size: 5, reaction: "bounce", notifiesBuddy: true },
-    { id: "puddle", nameKey: "explore.object.puddle", x: 68, y: 90, size: 7, reaction: "splash" },
-    { id: "flower", nameKey: "explore.object.flower", x: 88, y: 78, size: 4.5, reaction: "sway" },
+    { id: "ball", nameKey: "explore.object.ball", x: 55, y: 80, size: 5, reaction: "bounce", notifiesBuddy: true },
+    { id: "flower", nameKey: "explore.object.flower", x: 80, y: 80, size: 4.5, reaction: "sway" },
+    // Tocar el charco revela a la rana (Product Vision: "tap charco → aparece
+    // rana") — descubrimiento sin explicar, la rana no existe hasta entonces.
+    // Entre la pelota y la flor, sin pisar el área tocable de ninguna de las
+    // dos (y sin bajar tanto que se recorte contra el borde inferior, como
+    // pasaba en y:90-92 en pantallas más bajas, iPhone 13 incluido).
+    {
+      id: "puddle",
+      nameKey: "explore.object.puddle",
+      x: 68,
+      y: 84,
+      size: 5,
+      reaction: "splash",
+      chainTargetId: "frog",
+    },
+    { id: "frog", nameKey: "explore.object.frog", x: 78, y: 89, size: 4, reaction: "hop", startsHidden: true },
   ],
 };

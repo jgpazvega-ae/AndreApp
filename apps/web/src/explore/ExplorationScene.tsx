@@ -24,6 +24,8 @@ const DISCOVERY_SPARKLE_COUNT = 10;
 const CHAIN_DELAY_MS = 400;
 /** Evita que toques muy seguidos de "pelota" amontonen ladridos del compañero. */
 const BUDDY_NOTICE_COOLDOWN_MS = 1200;
+/** Referencia estable: evita que un selector de Zustand devuelva un array nuevo cada render. */
+const NO_DISCOVERIES: string[] = [];
 
 /**
  * Motor reusable de Explorar (Product Vision §5, §18, §20): una escena
@@ -37,6 +39,7 @@ export function ExplorationScene({ scene, onExit }: ExplorationSceneProps) {
   const selectedBuddy = useProgressStore((state) => state.selectedBuddy);
   const buddy = getBuddy(selectedBuddy);
   const recordDiscovery = useProgressStore((state) => state.recordDiscovery);
+  const discoveries = useProgressStore((state) => state.discoveries[scene.id] ?? NO_DISCOVERIES);
   const [noticeSignal, setNoticeSignal] = useState(0);
   const [chainSignals, setChainSignals] = useState<Record<string, number>>({});
   const [buddyNoticing, setBuddyNoticing] = useState(false);
@@ -86,6 +89,7 @@ export function ExplorationScene({ scene, onExit }: ExplorationSceneProps) {
       hideBuddy
     >
       <AmbientClouds />
+      <GroundPath />
 
       {scene.objects.map((object) => (
         <InteractiveObject
@@ -93,6 +97,7 @@ export function ExplorationScene({ scene, onExit }: ExplorationSceneProps) {
           config={object}
           onTap={handleObjectTap}
           externalTrigger={chainSignals[object.id] ?? 0}
+          initiallyRevealed={!object.startsHidden || discoveries.includes(object.id)}
         />
       ))}
 
@@ -141,6 +146,29 @@ export function ExplorationScene({ scene, onExit }: ExplorationSceneProps) {
 
       <span style={{ position: "absolute", width: 1, height: 1, overflow: "hidden" }}>{t(scene.nameKey)}</span>
     </GameShell>
+  );
+}
+
+/** Un camino de tierra serpenteante en el suelo — composición, no interacción
+ * (evita que la escena se sienta "objetos flotando en un fondo liso"). */
+function GroundPath() {
+  return (
+    <svg
+      viewBox="0 0 100 100"
+      preserveAspectRatio="none"
+      aria-hidden="true"
+      style={{ position: "absolute", inset: 0, width: "100%", height: "100%", pointerEvents: "none" }}
+    >
+      <path
+        d="M-5 105 Q20 82 12 68 Q4 54 30 50 Q56 46 50 30 Q46 18 60 -5"
+        fill="none"
+        stroke="#E4C98F"
+        strokeWidth={9}
+        strokeLinecap="round"
+        opacity={0.55}
+        vectorEffect="non-scaling-stroke"
+      />
+    </svg>
   );
 }
 

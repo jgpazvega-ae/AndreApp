@@ -20,6 +20,10 @@ export const REACTION_TAP_MS: Record<ExploreReaction, number> = {
   soar: 900,
   splash: 600,
   spray: 700,
+  hop: 900,
+  sparkle: 600,
+  wobble: 700,
+  creak: 600,
 };
 
 export function objectIdle(reaction: ExploreReaction): TargetAndTransition {
@@ -44,6 +48,14 @@ export function objectIdle(reaction: ExploreReaction): TargetAndTransition {
       return { scale: [1, 1.02, 1] };
     case "spray":
       return { scaleY: [1, 1.04, 1] };
+    case "hop":
+      return { scaleY: [1, 0.94, 1] };
+    case "sparkle":
+      return { rotate: [0, -3, 3, 0] };
+    case "wobble":
+      return { rotate: [0, -1, 1, 0] };
+    case "creak":
+      return { rotate: [0, -0.6, 0.6, 0] };
   }
 }
 
@@ -69,6 +81,14 @@ export function objectIdleTransition(reaction: ExploreReaction): Transition {
       return { duration: 3, repeat: Infinity, ease: "easeInOut" };
     case "spray":
       return { duration: 1.4, repeat: Infinity, ease: "easeInOut" };
+    case "hop":
+      return { duration: 2.4, repeat: Infinity, ease: "easeInOut" };
+    case "sparkle":
+      return { duration: 3.4, repeat: Infinity, ease: "easeInOut" };
+    case "wobble":
+      return { duration: 4, repeat: Infinity, ease: "easeInOut" };
+    case "creak":
+      return { duration: 5, repeat: Infinity, ease: "easeInOut" };
   }
 }
 
@@ -109,6 +129,22 @@ export function objectTap(reaction: ExploreReaction): TargetAndTransition {
     // La fuente lanza un chorro más alto un instante y vuelve a su altura de reposo.
     case "spray":
       return { scaleY: [1, 1.35, 1.1, 1], y: [0, -6, -2, 0] };
+    // La rana se agacha, brinca en arco y "cae" al agua (se achica un instante) antes de volver.
+    case "hop":
+      return {
+        y: [0, 6, -46, -20, 0, 0, 0],
+        scaleX: [1, 1.1, 0.9, 1, 1, 0.5, 1],
+        scaleY: [1, 0.85, 1.15, 0.95, 1, 0.5, 1],
+      };
+    // La matita de pasto se sacude y suelta un par de chispas (InteractiveObject las dibuja aparte).
+    case "sparkle":
+      return { rotate: [0, -12, 10, -6, 0], scale: [1, 1.08, 1] };
+    // La piedra se mece de lado a lado, como si algo se moviera debajo.
+    case "wobble":
+      return { rotate: [0, -8, 7, -5, 3, 0], x: [0, -3, 3, -2, 0] };
+    // El banco cruje un poco, como si alguien se sentara encima.
+    case "creak":
+      return { y: [0, 3, 0], rotate: [0, -1.5, 1, 0] };
   }
 }
 
@@ -135,5 +171,13 @@ export function objectTapTransition(reaction: ExploreReaction): Transition {
       return { duration, times: [0, 0.3, 0.6, 0.8, 1], ease: "easeOut" };
     case "spray":
       return { duration, times: [0, 0.3, 0.65, 1], ease: "easeOut" };
+    case "hop":
+      return { duration, times: [0, 0.15, 0.4, 0.6, 0.75, 0.88, 1], ease: "easeOut" };
+    case "sparkle":
+      return { duration, times: [0, 0.3, 0.6, 0.85, 1], ease: "easeOut" };
+    case "wobble":
+      return { duration, times: [0, 0.25, 0.5, 0.72, 0.9, 1], ease: "easeInOut" };
+    case "creak":
+      return { duration, times: [0, 0.4, 1], ease: "easeOut" };
   }
 }
