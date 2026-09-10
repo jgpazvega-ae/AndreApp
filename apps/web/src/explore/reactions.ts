@@ -17,6 +17,9 @@ export const REACTION_TAP_MS: Record<ExploreReaction, number> = {
   flutter: 800,
   bounce: 800,
   sway: 700,
+  soar: 900,
+  splash: 600,
+  spray: 700,
 };
 
 export function objectIdle(reaction: ExploreReaction): TargetAndTransition {
@@ -35,6 +38,12 @@ export function objectIdle(reaction: ExploreReaction): TargetAndTransition {
       return { scale: [1, 1.03, 1] };
     case "sway":
       return { rotate: [0, -4, 4, 0] };
+    case "soar":
+      return { y: [0, -10, 0], rotate: [0, 3, -3, 0] };
+    case "splash":
+      return { scale: [1, 1.02, 1] };
+    case "spray":
+      return { scaleY: [1, 1.04, 1] };
   }
 }
 
@@ -54,6 +63,12 @@ export function objectIdleTransition(reaction: ExploreReaction): Transition {
       return { duration: 1.8, repeat: Infinity, ease: "easeInOut" };
     case "sway":
       return { duration: 2.8, repeat: Infinity, ease: "easeInOut" };
+    case "soar":
+      return { duration: 3.2, repeat: Infinity, ease: "easeInOut" };
+    case "splash":
+      return { duration: 3, repeat: Infinity, ease: "easeInOut" };
+    case "spray":
+      return { duration: 1.4, repeat: Infinity, ease: "easeInOut" };
   }
 }
 
@@ -85,6 +100,15 @@ export function objectTap(reaction: ExploreReaction): TargetAndTransition {
     // La flor se mece más y "florece" un instante (pequeño pulso de tamaño).
     case "sway":
       return { rotate: [0, -10, 9, -6, 0], scale: [1, 1.12, 1.04, 1] };
+    // La cometa se agacha (anticipación) y luego sube alto, columpiándose.
+    case "soar":
+      return { y: [0, 10, -50, -30, -44, -26, -34, 0], rotate: [0, -4, 8, -6, 6, -4, 3, 0] };
+    // El charco se ondula hacia afuera (los anillos los dibuja InteractiveObject aparte).
+    case "splash":
+      return { scaleX: [1, 1.2, 0.95, 1.05, 1], scaleY: [1, 0.85, 1.05, 0.98, 1] };
+    // La fuente lanza un chorro más alto un instante y vuelve a su altura de reposo.
+    case "spray":
+      return { scaleY: [1, 1.35, 1.1, 1], y: [0, -6, -2, 0] };
   }
 }
 
@@ -104,6 +128,12 @@ export function objectTapTransition(reaction: ExploreReaction): Transition {
     case "bounce":
       return { duration, times: [0, 0.1, 0.32, 0.48, 0.66, 0.8, 0.92, 1], ease: "easeOut" };
     case "sway":
+      return { duration, times: [0, 0.3, 0.65, 1], ease: "easeOut" };
+    case "soar":
+      return { duration, times: [0, 0.12, 0.4, 0.55, 0.7, 0.82, 0.92, 1], ease: "easeOut" };
+    case "splash":
+      return { duration, times: [0, 0.3, 0.6, 0.8, 1], ease: "easeOut" };
+    case "spray":
       return { duration, times: [0, 0.3, 0.65, 1], ease: "easeOut" };
   }
 }

@@ -8,7 +8,8 @@
 /** Vocabulario cerrado de reacciones: cada una trae su propia animación,
  * sonido sintetizado y ambientación en reactions.ts/sounds. Un objeto nuevo
  * reutiliza una de estas en vez de inventar coreografía propia. */
-export type ExploreReaction = "shine" | "drift" | "fly" | "shed-leaves" | "flutter" | "bounce" | "sway";
+export type ExploreReaction =
+  "shine" | "drift" | "fly" | "shed-leaves" | "flutter" | "bounce" | "sway" | "soar" | "splash" | "spray";
 
 export interface InteractiveObjectConfig {
   /** Estable dentro de la escena; se usa para registrar descubrimientos. */
@@ -21,6 +22,15 @@ export interface InteractiveObjectConfig {
   /** Tamaño del objeto, en rem. */
   size: number;
   reaction: ExploreReaction;
+  /**
+   * Interacciones emergentes (Product Vision §35): tocar ESTE objeto hace
+   * reaccionar también a otro, sin que el niño lo haya tocado. Ej.: la nube
+   * (chainTargetId: "puddle") agita el charco. El objetivo, no el origen,
+   * dispara su propia reacción — mismo vocabulario, sin coreografía nueva.
+   */
+  chainTargetId?: string;
+  /** Tocar este objeto hace que el compañero elegido lo note y reaccione (ver ExplorationScene). */
+  notifiesBuddy?: boolean;
 }
 
 export interface ExplorationSceneConfig {

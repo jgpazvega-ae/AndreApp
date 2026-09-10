@@ -163,7 +163,8 @@ function tone(
  * generar, revisar ni registrar en el manifiesto de voces — cada objeto
  * de una escena nueva solo elige uno de estos siete timbres.
  */
-export type ExploreSoundKind = "shine" | "drift" | "fly" | "shed-leaves" | "flutter" | "bounce" | "sway";
+export type ExploreSoundKind =
+  "shine" | "drift" | "fly" | "shed-leaves" | "flutter" | "bounce" | "sway" | "soar" | "splash" | "spray";
 
 export function playExploreSound(kind: ExploreSoundKind): void {
   if (!unlocked) return;
@@ -208,6 +209,22 @@ export function playExploreSound(kind: ExploreSoundKind): void {
     case "sway":
       tone(ctx, now, 880, 880, 0.2, 0.14, "sine");
       tone(ctx, now + 0.14, 1046, 1046, 0.25, 0.12, "sine");
+      break;
+    // Cometa: un soplido de viento que sube y ondula.
+    case "soar":
+      tone(ctx, now, 300, 600, 0.35, 0.1, "sine");
+      tone(ctx, now + 0.2, 500, 420, 0.4, 0.08, "sine");
+      break;
+    // Charco: un "plop" grave y corto, como una gota al caer.
+    case "splash":
+      tone(ctx, now, 320, 120, 0.22, 0.2, "sine");
+      tone(ctx, now + 0.05, 700, 300, 0.14, 0.08, "triangle");
+      break;
+    // Fuente: goticas burbujeantes ascendentes.
+    case "spray":
+      for (let i = 0; i < 4; i++) {
+        tone(ctx, now + i * 0.07, 900 + i * 120, 1200 + i * 120, 0.09, 0.1, "sine");
+      }
       break;
   }
 }

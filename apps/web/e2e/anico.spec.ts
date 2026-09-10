@@ -821,4 +821,35 @@ test.describe("Explorar", () => {
 
     expect(problems).toEqual([]);
   });
+
+  test("el Parque tiene 10 objetos y tocar la pelota hace que el compañero note y festeje", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await page.getByRole("button", { name: "Explorar" }).click();
+    await page.getByRole("button", { name: "Parque" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(400);
+
+    // Los 10 objetos del parque piloto (Product Vision §34): cada uno es su
+    // propio botón tocable, sin meta ni orden.
+    for (const name of ["Sol", "Nube", "Cometa", "Pájaro", "Árbol", "Fuente", "Mariposa", "Pelota", "Charco", "Flor"]) {
+      await expect(page.getByRole("button", { name })).toBeVisible();
+    }
+
+    // Interacción emergente (Product Vision §35): tocar la pelota no solo
+    // anima la pelota — el compañero elegido lo nota y ladra su festejo,
+    // sin que el niño haya tocado al perrito directamente.
+    const bark = page.waitForResponse((res) => /buddy-(odie|dante|kira)-bark\.mp3/.test(res.url()), {
+      timeout: 5000,
+    });
+    await page.getByRole("button", { name: "Pelota" }).click();
+    await bark;
+
+    // Interacción emergente objeto→objeto: tocar la nube agita el charco
+    // (cadena declarada en la config de la escena, no código especial).
+    await page.getByRole("button", { name: "Nube" }).click();
+    await page.waitForTimeout(600);
+
+    expect(problems).toEqual([]);
+  });
 });

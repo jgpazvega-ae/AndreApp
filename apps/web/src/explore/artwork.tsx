@@ -150,6 +150,62 @@ export function FlowerArt() {
   );
 }
 
+export function KiteArt() {
+  return (
+    <svg viewBox="0 0 100 100" style={fill} aria-hidden="true">
+      <path d="M50 6 L82 42 L50 60 L18 42 Z" fill="#8B7FF5" />
+      <path d="M50 6 L82 42 L50 60 Z" fill="#6B5FE0" />
+      <path d="M50 6 L50 60 M18 42 L82 42" stroke="#3A2E22" strokeWidth={1.5} opacity={0.35} />
+      <path d="M50 60 Q46 74 50 86 Q54 96 50 100" fill="none" stroke="#3A2E22" strokeWidth={2} opacity={0.5} />
+      {[70, 84, 96].map((y, i) => (
+        <path
+          key={y}
+          d={`M${48 - i} ${y} Q50 ${y + 6} ${52 + i} ${y} Q50 ${y - 4} ${48 - i} ${y} Z`}
+          fill={i % 2 === 0 ? "#F58BC0" : "#FFD93D"}
+        />
+      ))}
+    </svg>
+  );
+}
+
+export function PuddleArt() {
+  return (
+    <svg viewBox="0 0 100 60" style={fill} aria-hidden="true">
+      <defs>
+        <radialGradient id="explore-puddle-grad" cx="45%" cy="35%" r="70%">
+          <stop offset="0%" stopColor="#BEE3FF" />
+          <stop offset="100%" stopColor="#6FAEE0" />
+        </radialGradient>
+      </defs>
+      <ellipse cx={50} cy={34} rx={44} ry={16} fill="url(#explore-puddle-grad)" />
+      <ellipse cx={38} cy={28} rx={12} ry={4} fill="#EAF6FF" opacity={0.7} />
+    </svg>
+  );
+}
+
+/** Anillo suelto para la ondulación del charco al tocarlo (InteractiveObject). */
+export function RippleArt() {
+  return (
+    <svg viewBox="0 0 40 40" style={fill} aria-hidden="true">
+      <ellipse cx={20} cy={20} rx={18} ry={7} fill="none" stroke="#EAF6FF" strokeWidth={2.5} opacity={0.85} />
+    </svg>
+  );
+}
+
+export function FountainArt() {
+  return (
+    <svg viewBox="0 0 100 100" style={fill} aria-hidden="true">
+      <ellipse cx={50} cy={78} rx={38} ry={12} fill="#C9BFB0" />
+      <ellipse cx={50} cy={74} rx={32} ry={9} fill="#E4DCCF" />
+      <ellipse cx={50} cy={73} rx={26} ry={6} fill="#8FCBEE" />
+      <rect x={46} y={40} width={8} height={34} rx={4} fill="#C9BFB0" />
+      <path d="M50 10 Q56 30 50 44 Q44 30 50 10 Z" fill="#BEE3FF" opacity={0.9} />
+      <circle cx={38} cy={26} r={4} fill="#BEE3FF" opacity={0.8} />
+      <circle cx={64} cy={30} r={3.5} fill="#BEE3FF" opacity={0.8} />
+    </svg>
+  );
+}
+
 /** Hojita suelta para la animación de "caen hojas" del árbol (InteractiveObject). */
 export function LeafArt({ color = "#4FB89F" }: { color?: string }) {
   return (
@@ -168,4 +224,7 @@ export const EXPLORE_OBJECT_ART: Record<string, () => JSX.Element> = {
   butterfly: ButterflyArt,
   ball: BallArt,
   flower: FlowerArt,
+  kite: KiteArt,
+  puddle: PuddleArt,
+  fountain: FountainArt,
 };

@@ -1,10 +1,12 @@
 import { motion } from "framer-motion";
-import { useCallback, useState } from "react";
+import { useCallback, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { playSound } from "../audio/audioEngine";
 import { GameShell } from "../components/GameShell";
 import { getBuddy } from "../data/buddies";
-import { buddyIdle, buddyIdleTransition } from "../data/buddyMotion";
+import { BUDDY_CHEER_MS, buddyCheer, buddyCheerTransition, buddyIdle, buddyIdleTransition } from "../data/buddyMotion";
 import { useConfetti } from "../effects/useConfetti";
+import { useTimers } from "../games/useTimers";
 import { useProgressStore } from "../store/progressStore";
 import { CloudArt } from "./artwork";
 import { InteractiveObject } from "./InteractiveObject";
@@ -17,6 +19,11 @@ interface ExplorationSceneProps {
 
 /** Chispeo (más discreto que el confeti de logro) para cada toque de causa-efecto. */
 const DISCOVERY_SPARKLE_COUNT = 10;
+/** Anticipación antes de que un objeto en cadena reaccione (Product Vision §35): que se
+ * sienta como una consecuencia, no como un efecto instantáneo y mecánico. */
+const CHAIN_DELAY_MS = 400;
+/** Evita que toques muy seguidos de "pelota" amontonen ladridos del compañero. */
+const BUDDY_NOTICE_COOLDOWN_MS = 1200;
 
 /**
  * Motor reusable de Explorar (Product Vision §5, §18, §20): una escena
@@ -31,15 +38,43 @@ export function ExplorationScene({ scene, onExit }: ExplorationSceneProps) {
   const buddy = getBuddy(selectedBuddy);
   const recordDiscovery = useProgressStore((state) => state.recordDiscovery);
   const [noticeSignal, setNoticeSignal] = useState(0);
+  const [chainSignals, setChainSignals] = useState<Record<string, number>>({});
+  const [buddyNoticing, setBuddyNoticing] = useState(false);
+  const lastBuddyNoticeAt = useRef(0);
   const { burst, confettiField } = useConfetti();
+  const { after } = useTimers();
 
   const handleObjectTap = useCallback(
     (event: { clientX: number; clientY: number }, object: InteractiveObjectConfig) => {
       burst(event.clientX, event.clientY, DISCOVERY_SPARKLE_COUNT);
       recordDiscovery(scene.id, object.id);
       setNoticeSignal((n) => n + 1);
+
+      // Interacciones emergentes (Product Vision §35): este objeto puede
+      // hacer reaccionar a otro, o al compañero, sin que el niño lo haya
+      // tocado directamente — es lo que hace que el parque se sienta un
+      // mundo y no una cuadrícula de botones independientes.
+      if (object.chainTargetId) {
+        const targetId = object.chainTargetId;
+        after(CHAIN_DELAY_MS, () => {
+          recordDiscovery(scene.id, targetId);
+          setChainSignals((prev) => ({ ...prev, [targetId]: (prev[targetId] ?? 0) + 1 }));
+        });
+      }
+
+      if (object.notifiesBuddy) {
+        const now = Date.now();
+        if (now - lastBuddyNoticeAt.current > BUDDY_NOTICE_COOLDOWN_MS) {
+          lastBuddyNoticeAt.current = now;
+          after(CHAIN_DELAY_MS, () => {
+            setBuddyNoticing(true);
+            playSound(buddy.barkSound);
+            after(BUDDY_CHEER_MS[buddy.id], () => setBuddyNoticing(false));
+          });
+        }
+      }
     },
-    [burst, recordDiscovery, scene.id],
+    [burst, recordDiscovery, scene.id, after, buddy],
   );
 
   return (
@@ -53,19 +88,34 @@ export function ExplorationScene({ scene, onExit }: ExplorationSceneProps) {
       <AmbientClouds />
 
       {scene.objects.map((object) => (
-        <InteractiveObject key={object.id} config={object} onTap={handleObjectTap} />
+        <InteractiveObject
+          key={object.id}
+          config={object}
+          onTap={handleObjectTap}
+          externalTrigger={chainSignals[object.id] ?? 0}
+        />
       ))}
 
       {/* El compañero vive DENTRO de la escena, no en la esquina: aquí es un
           personaje que explora junto al niño, no un ícono de marco (docs
-          CURRICULUM.md — el mismo perrito elegido en HomeScreen). */}
+          CURRICULUM.md — el mismo perrito elegido en HomeScreen). Nota lo
+          que pasa en el mundo (p. ej. la pelota) con SU propio festejo,
+          igual que cuando acierta en un nivel (buddyMotion.ts). */}
       <motion.img
         src={buddy.image}
         alt=""
         aria-hidden="true"
         initial={{ opacity: 0, y: 20 }}
-        animate={{ opacity: 1, y: 0, ...buddyIdle(buddy.id) }}
-        transition={{ opacity: { duration: 0.5 }, ...buddyIdleTransition(buddy.id), delay: 0.4 }}
+        animate={{
+          opacity: 1,
+          y: 0,
+          ...(buddyNoticing ? buddyCheer(buddy.id) : buddyIdle(buddy.id)),
+        }}
+        transition={{
+          opacity: { duration: 0.5 },
+          ...(buddyNoticing ? buddyCheerTransition(buddy.id) : buddyIdleTransition(buddy.id)),
+          delay: buddyNoticing ? 0 : 0.4,
+        }}
         style={{
           position: "absolute",
           left: "8%",
