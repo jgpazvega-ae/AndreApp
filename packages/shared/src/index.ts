@@ -29,4 +29,19 @@ export interface LevelProgress {
    * — el niño necesita un final visible en vez de un ejercicio infinito.
    */
   roundsCompleted: number;
+  /**
+   * Dificultad adaptativa (ver useGameSession.recordAttemptOutcome): 1 = el
+   * punto de partida del nivel, 2-3 = un paso o dos más de reto. Nunca se
+   * muestra al niño ni al padre — es una señal interna que un nivel puede
+   * leer para adelantar o atrasar SU propia progresión (p. ej. N6 empieza
+   * el siguiente rompecabezas con una pieza de más o de menos). Sube
+   * despacio (aciertos sostenidos) y baja rápido (varios intentos
+   * seguidos con ayuda) a propósito: nunca se sube el reto solo porque se
+   * completó una pantalla.
+   */
+  difficultyLevel: 1 | 2 | 3;
+  /** Aciertos seguidos sin ayuda desde el último cambio de difficultyLevel. */
+  easyStreak: number;
+  /** Intentos seguidos que necesitaron ayuda desde el último cambio de difficultyLevel. */
+  struggleStreak: number;
 }

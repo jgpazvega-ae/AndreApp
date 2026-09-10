@@ -72,6 +72,8 @@ export function useGameSession(
   const [roundComplete, setRoundComplete] = useState(false);
   const recordPlay = useProgressStore((state) => state.recordPlay);
   const recordRoundComplete = useProgressStore((state) => state.recordRoundComplete);
+  const recordAttemptOutcome = useProgressStore((state) => state.recordAttemptOutcome);
+  const difficultyLevel = useProgressStore((state) => state.levels[levelId]?.difficultyLevel ?? 1);
   const { burst, confettiField } = useConfetti();
   const lastEncourageAt = useRef(0);
   const roundCompleteTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -122,6 +124,7 @@ export function useGameSession(
       playSparkle();
       if (event) burst(event.clientX, event.clientY);
       setCelebrateSignal((n) => n + 1);
+      recordAttemptOutcome(levelId, true);
 
       const next = streakRef.current + 1;
       if (next >= roundSize) {
@@ -137,7 +140,7 @@ export function useGameSession(
       streakRef.current = next;
       return false;
     },
-    [burst, roundSize, levelId, recordRoundComplete],
+    [burst, roundSize, levelId, recordRoundComplete, recordAttemptOutcome],
   );
 
   /** Cierra la pantalla de logro y sigue jugando: el juego de fondo no se
@@ -155,7 +158,27 @@ export function useGameSession(
     if (now - lastEncourageAt.current < ENCOURAGE_COOLDOWN_MS) return;
     lastEncourageAt.current = now;
     playVoiceClip(locale, pickRandom(ENCOURAGE_FILES));
-  }, [locale]);
+    // El mismo cooldown que evita atropellar la voz también evita que un
+    // manoteo de toques equivocados cuente como varios intentos distintos
+    // para la dificultad adaptativa — solo intentos genuinamente separados.
+    recordAttemptOutcome(levelId, false);
+  }, [locale, levelId, recordAttemptOutcome]);
 
-  return { acknowledgeTap, celebrate, encourage, celebrateSignal, confettiField, roundComplete, continueRound };
+  return {
+    acknowledgeTap,
+    celebrate,
+    encourage,
+    celebrateSignal,
+    confettiField,
+    roundComplete,
+    continueRound,
+    /**
+     * Dificultad adaptativa (ver progressStore.recordAttemptOutcome): 1-3,
+     * empieza en 1. Un nivel que tenga su propia noción de "más reto" (más
+     * piezas, más opciones, más velocidad) puede leerlo para adelantar o
+     * atrasar su progresión; la mayoría de los niveles no lo necesitan y
+     * simplemente lo ignoran, igual que el valor de retorno de celebrate().
+     */
+    difficultyLevel,
+  };
 }

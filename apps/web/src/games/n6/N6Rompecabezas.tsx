@@ -27,13 +27,21 @@ const ROUND_COMPLETE_FILES: [string, ...string[]] = [
   "n2-praise-4.mp3",
 ];
 
-/** Empieza en 2 piezas y escala a 4 conforme se completan rompecabezas (docs/CURRICULUM.md ficha N6). */
-function piecesForRound(roundIndex: number): number {
-  return Math.min(2 + roundIndex, ALL_SHAPES.length);
+/**
+ * Empieza en 2 piezas y escala a 4 conforme se completan rompecabezas
+ * (docs/CURRICULUM.md ficha N6) — esa es exactamente la fórmula en
+ * `difficultyLevel` 1 (el punto de partida de todo niño). Un `difficultyLevel`
+ * más alto (aciertos sostenidos sin ayuda, ver useGameSession) adelanta el
+ * inicio una pieza por nivel; uno más bajo (varios intentos seguidos con
+ * ayuda) lo atrasa — nunca fuera del rango 2-4 que el catálogo de formas permite.
+ */
+function piecesForRound(roundIndex: number, difficultyLevel: 1 | 2 | 3): number {
+  const target = 2 + roundIndex + (difficultyLevel - 1);
+  return Math.min(Math.max(target, 2), ALL_SHAPES.length);
 }
 
-function newRound(roundIndex: number): ShapeType[] {
-  return shuffle(ALL_SHAPES).slice(0, piecesForRound(roundIndex));
+function newRound(roundIndex: number, difficultyLevel: 1 | 2 | 3): ShapeType[] {
+  return shuffle(ALL_SHAPES).slice(0, piecesForRound(roundIndex, difficultyLevel));
 }
 
 interface N6RompecabezasProps {
@@ -50,15 +58,23 @@ interface N6RompecabezasProps {
  */
 export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
   const { t } = useTranslation();
+  const {
+    acknowledgeTap,
+    celebrate,
+    encourage,
+    celebrateSignal,
+    confettiField,
+    roundComplete,
+    continueRound,
+    difficultyLevel,
+  } = useGameSession("n6", { locale, welcomeFile: "n6-welcome.mp3" });
   const [roundIndex, setRoundIndex] = useState(0);
-  const [shapes, setShapes] = useState<ShapeType[]>(() => newRound(0));
+  const [shapes, setShapes] = useState<ShapeType[]>(() => newRound(0, difficultyLevel));
   const [slotOrder, setSlotOrder] = useState<ShapeType[]>(() => shuffle(shapes));
   const [pieceOrder, setPieceOrder] = useState<ShapeType[]>(() => shuffle(shapes));
   const [placed, setPlaced] = useState<Set<ShapeType>>(new Set());
   const [selected, setSelected] = useState<ShapeType | null>(null);
   const [shakeSlot, setShakeSlot] = useState<ShapeType | null>(null);
-  const { acknowledgeTap, celebrate, encourage, celebrateSignal, confettiField, roundComplete, continueRound } =
-    useGameSession("n6", { locale, welcomeFile: "n6-welcome.mp3" });
   // Posiciones de los huecos en pantalla, para saber sobre cuál se soltó una
   // pieza arrastrada (no hay layout API en React puro: se leen del DOM).
   const slotRefs = useRef<Map<ShapeType, HTMLButtonElement | null>>(new Map());
@@ -78,7 +94,10 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
       : setTimeout(() => playVoiceClip(locale, pickRandom(ROUND_COMPLETE_FILES)), 200);
     const next = setTimeout(() => {
       const nextRoundIndex = roundIndex + 1;
-      const nextShapes = newRound(nextRoundIndex);
+      // Se lee difficultyLevel al momento de armar la SIGUIENTE ronda, no al
+      // montar: así usa el desempeño más reciente, incluido lo que pasó en
+      // ESTA ronda que se acaba de cerrar.
+      const nextShapes = newRound(nextRoundIndex, difficultyLevel);
       setRoundIndex(nextRoundIndex);
       setShapes(nextShapes);
       setSlotOrder(shuffle(nextShapes));
@@ -90,7 +109,7 @@ export function N6Rompecabezas({ locale, onExit }: N6RompecabezasProps) {
       if (praise) clearTimeout(praise);
       clearTimeout(next);
     };
-  }, [placed, shapes, roundIndex, locale]);
+  }, [placed, shapes, roundIndex, locale, difficultyLevel]);
 
   const handleTapPiece = useCallback(
     (shape: ShapeType) => {

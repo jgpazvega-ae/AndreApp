@@ -57,21 +57,17 @@ rotas ni errores de consola en el recorrido completo (verificado por la propia s
 
 ### P1 — Crítico
 
-1. **`npm run check` no corre `format:check`.** Ya causó una falla de CI real en esta sesión
-   (commit `68c27ab` → CI rojo por Prettier → fix en `a26f327`). Es un hueco del propio
-   proceso de calidad, no del producto — pero viola directamente la regla de este documento
-   de "no declarar una fase lista solo porque compiló".
-2. **No existe dificultad adaptativa en ningún nivel.** N4/N6 tienen progresión fija por
-   rondas (crecen con el tiempo/aciertos de forma mecánica), pero ningún nivel observa tasa
-   de éxito real para ajustar reto. FASE 5/6 de este documento (aprendizaje adaptativo,
-   modelo del alumno) no existen todavía en absoluto.
-3. **Inconsistencia visual de "profundidad" en el arte de Explorar.** `SunArt`, `TreeArt`,
-   `BallArt`, `PuddleArt` usan degradados radiales (dimensionalidad real); `BirdArt`,
-   `ButterflyArt`, `FlowerArt`, `KiteArt`, `FountainArt` usan rellenos planos. Al lado del
-   compañero perruno (estilo pintado, fotográfico) dentro de la misma escena, la mezcla de
-   "plano" vs "degradado" vs "pintado" se nota. Esto es exactamente el tipo de hallazgo que
-   la sección de auto-crítica del documento pide no dejar pasar por "ya funciona". Lo corrijo
-   en este mismo ciclo (ver §8).
+1. ~~`npm run check` no corre `format:check`.~~ **Corregido** (commit `6fe263e`): ahora
+   replica el orden exacto de `.github/workflows/ci.yml`.
+2. ~~No existe dificultad adaptativa en ningún nivel.~~ **Corregido**: `progressStore` trackea
+   `difficultyLevel`/`easyStreak`/`struggleStreak` por nivel (lógica pura y probada en
+   `adaptiveDifficulty.ts`, 8 pruebas), `useGameSession` lo actualiza en cada `celebrate()`/
+   `encourage()` y lo expone; N6 ya lo consume (`piecesForRound(roundIndex, difficultyLevel)`
+   adelanta o atrasa el inicio del siguiente rompecabezas según desempeño real, nunca solo por
+   completar una pantalla — sube despacio, baja rápido). Queda como trabajo futuro conectar el
+   mismo `difficultyLevel` en los demás niveles con progresión fija (N4 y los que se agreguen).
+3. ~~Inconsistencia visual de "profundidad" en el arte de Explorar.~~ **Corregido** (mismo commit
+   `6fe263e`): los 10 objetos del Parque comparten degradados radiales.
 
 ### P2 — Importante
 

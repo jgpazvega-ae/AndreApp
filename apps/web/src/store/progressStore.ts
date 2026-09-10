@@ -3,6 +3,7 @@ import { create } from "zustand";
 import { createJSONStorage, persist, type StateStorage } from "zustand/middleware";
 import type { AppLocale, LevelProgress } from "@andreapp/shared";
 import { DEFAULT_LOCALE } from "@andreapp/shared";
+import { BASE_DIFFICULTY, nextDifficultyState, type DifficultyState } from "./adaptiveDifficulty";
 import type { BuddyId } from "../data/buddies";
 
 localforage.config({ name: "andreapp", storeName: "progress" });
@@ -15,6 +16,17 @@ const indexedDbStorage: StateStorage = {
 };
 
 export type SensoryMode = "normal" | "calm";
+
+/** Copia los campos de dificultad adaptativa de una entrada existente (o su punto de partida). */
+function difficultyDefaults(existing: LevelProgress | undefined): DifficultyState {
+  return existing
+    ? {
+        difficultyLevel: existing.difficultyLevel,
+        easyStreak: existing.easyStreak,
+        struggleStreak: existing.struggleStreak,
+      }
+    : BASE_DIFFICULTY;
+}
 
 interface ProgressState {
   locale: AppLocale;
@@ -32,6 +44,8 @@ interface ProgressState {
   setMastered: (levelId: string, mastered: boolean) => void;
   /** Se llama cuando useGameSession cierra una ronda (ver LevelCompleteOverlay). */
   recordRoundComplete: (levelId: string) => void;
+  /** Dificultad adaptativa: registra un acierto (true) o un intento con ayuda (false). */
+  recordAttemptOutcome: (levelId: string, correct: boolean) => void;
   setSelectedBuddy: (buddy: BuddyId) => void;
   toggleFavorite: (id: string) => void;
   recordDiscovery: (sceneId: string, objectId: string) => void;
@@ -79,6 +93,7 @@ export const useProgressStore = create<ProgressState>()(
             mastered: existing?.mastered ?? false,
             lastPlayedAt: new Date().toISOString(),
             roundsCompleted: existing?.roundsCompleted ?? 0,
+            ...difficultyDefaults(existing),
           };
           return { levels: { ...state.levels, [levelId]: entry } };
         }),
@@ -92,6 +107,7 @@ export const useProgressStore = create<ProgressState>()(
             mastered,
             lastPlayedAt: existing?.lastPlayedAt ?? null,
             roundsCompleted: existing?.roundsCompleted ?? 0,
+            ...difficultyDefaults(existing),
           };
           return { levels: { ...state.levels, [levelId]: entry } };
         }),
@@ -105,6 +121,27 @@ export const useProgressStore = create<ProgressState>()(
             mastered: existing?.mastered ?? false,
             lastPlayedAt: existing?.lastPlayedAt ?? null,
             roundsCompleted: (existing?.roundsCompleted ?? 0) + 1,
+            ...difficultyDefaults(existing),
+          };
+          return { levels: { ...state.levels, [levelId]: entry } };
+        }),
+
+      /**
+       * Dificultad adaptativa (ver adaptiveDifficulty.ts para los umbrales
+       * exactos, probados ahí de forma aislada): solo conecta el `levelId`
+       * con la lógica pura de cuándo subir o bajar un nivel de reto.
+       */
+      recordAttemptOutcome: (levelId, correct) =>
+        set((state) => {
+          const existing = state.levels[levelId];
+          const difficulty = nextDifficultyState(difficultyDefaults(existing), correct);
+          const entry: LevelProgress = {
+            levelId,
+            timesPlayed: existing?.timesPlayed ?? 0,
+            mastered: existing?.mastered ?? false,
+            lastPlayedAt: existing?.lastPlayedAt ?? null,
+            roundsCompleted: existing?.roundsCompleted ?? 0,
+            ...difficulty,
           };
           return { levels: { ...state.levels, [levelId]: entry } };
         }),

@@ -40,12 +40,22 @@ progreso, da la consigna hablada al entrar y expone:
 | ------------------ | -------------------------------------------------------------------------- |
 | `celebrate(event)` | El niño **acertó**: tono + confeti donde tocó + salto del compañero.        |
 | `acknowledgeTap()` | Un toque que **no** es acierto (una selección intermedia, una equivocación). |
+| `encourage()`      | Un **error real** (p. ej. dos cartas que no combinan): voz cálida, nunca un sonido negativo. |
 
 Nunca se reproduce un sonido de error: el "no" se comunica solo en imagen
 (una sacudida), según [CURRICULUM.md §2](CURRICULUM.md).
 
 Para el andamiaje por inactividad hay `useIdleHint()`, que devuelve `idle`
 tras unos segundos sin toques para hacer la consigna más evidente.
+
+`celebrate()`/`encourage()` también alimentan la **dificultad adaptativa**:
+cada llamada actualiza en silencio un `difficultyLevel` (1-3) persistido por
+nivel, que `useGameSession` devuelve. Un nivel con su propia noción de "más
+reto" (más piezas, más opciones) puede leerlo para adelantar o atrasar SU
+progresión — ver `N6Rompecabezas.tsx` (`piecesForRound(roundIndex,
+difficultyLevel)`) como referencia. La mayoría de los niveles no lo
+necesitan y simplemente lo ignoran. La lógica de cuándo sube o baja vive,
+probada de forma aislada, en `apps/web/src/store/adaptiveDifficulty.ts`.
 
 ## 2. Registrar el nivel
 
