@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { getLevelsByWorld, type WorldId } from "@andreapp/curriculum";
 import { playChime } from "../audio/audioEngine";
 import { BigButton } from "../components/BigButton";
+import { FavoriteHeart } from "../components/FavoriteHeart";
 import { getBuddy } from "../data/buddies";
 import { buddyIdle, buddyIdleTransition } from "../data/buddyMotion";
 import { getWorld } from "../data/worlds";
@@ -125,23 +126,25 @@ export function WorldScreen({ worldId, onPlay, onBack }: WorldScreenProps) {
         {levels.map((level, idx) => {
           const isPlayable = level.status === "playable";
           return (
-            <BigButton
-              key={level.id}
-              // ⏳ ("todavía no existe") para TODO lo no construido, sea de
-              // pago o no: el candado 🔒 promete "esto se compra" y hoy no hay
-              // nada que comprar (la licencia es Fase 3, PLAN.md §10). Mostrarlo
-              // ahora le dice al papá que le están escondiendo contenido que ya
-              // existe. El candado vuelve cuando exista el flujo de compra.
-              icon={isPlayable ? level.icon : "⏳"}
-              label={t(level.titleKey)}
-              gradient={world.gradient}
-              locked={!isPlayable}
-              disabled={!isPlayable}
-              delayIndex={idx}
-              roundsCompleted={levelsProgress[level.id]?.roundsCompleted ?? 0}
-              onTap={() => onPlay(level.id)}
-              onLockedTap={handleLockedTap}
-            />
+            <div key={level.id} style={{ position: "relative" }}>
+              {isPlayable && <FavoriteHeart id={level.id} />}
+              <BigButton
+                // ⏳ ("todavía no existe") para TODO lo no construido, sea de
+                // pago o no: el candado 🔒 promete "esto se compra" y hoy no hay
+                // nada que comprar (la licencia es Fase 3, PLAN.md §10). Mostrarlo
+                // ahora le dice al papá que le están escondiendo contenido que ya
+                // existe. El candado vuelve cuando exista el flujo de compra.
+                icon={isPlayable ? level.icon : "⏳"}
+                label={t(level.titleKey)}
+                gradient={world.gradient}
+                locked={!isPlayable}
+                disabled={!isPlayable}
+                delayIndex={idx}
+                roundsCompleted={levelsProgress[level.id]?.roundsCompleted ?? 0}
+                onTap={() => onPlay(level.id)}
+                onLockedTap={handleLockedTap}
+              />
+            </div>
           );
         })}
       </div>

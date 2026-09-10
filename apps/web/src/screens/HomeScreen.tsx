@@ -1,13 +1,11 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { CURRICULUM_LEVELS, type WorldId } from "@andreapp/curriculum";
 import { APP_NAME } from "@andreapp/shared";
 import { playSound } from "../audio/audioEngine";
 import { BigButton } from "../components/BigButton";
 import { BUDDIES, getBuddy } from "../data/buddies";
 import { BUDDY_CHEER_MS, buddyCheer, buddyCheerTransition, buddyIdle, buddyIdleTransition } from "../data/buddyMotion";
-import { WORLDS } from "../data/worlds";
 import { useProgressStore } from "../store/progressStore";
 import { asset } from "../utils/asset";
 
@@ -21,13 +19,30 @@ const HERO_SPARKLES = [
   { left: "88%", top: "52%", size: "1.2rem" },
 ];
 
+/** Los 4 pilares de Product Vision §2, §17 — mismos íconos que sugiere el documento. */
+const PILLARS = [
+  { id: "jugar", icon: "🎮", labelKey: "hub.jugar", gradient: ["#FFB03B", "#E0912A"] as [string, string] },
+  { id: "explorar", icon: "🌈", labelKey: "hub.explorar", gradient: ["#8CE6C6", "#2E9C89"] as [string, string] },
+  { id: "aprender", icon: "🧠", labelKey: "hub.aprender", gradient: ["#8B7FF5", "#4F46E5"] as [string, string] },
+  { id: "favoritos", icon: "❤️", labelKey: "hub.favoritos", gradient: ["#F58BC0", "#E0568F"] as [string, string] },
+] as const;
+
 interface HomeScreenProps {
-  onOpenWorld: (worldId: WorldId) => void;
+  onOpenJugar: () => void;
+  onOpenExplorar: () => void;
+  onOpenAprender: () => void;
+  onOpenFavoritos: () => void;
   onOpenParentZone: () => void;
 }
 
-export function HomeScreen({ onOpenWorld, onOpenParentZone }: HomeScreenProps) {
+export function HomeScreen({ onOpenJugar, onOpenExplorar, onOpenAprender, onOpenFavoritos, onOpenParentZone }: HomeScreenProps) {
   const { t } = useTranslation();
+  const PILLAR_HANDLERS: Record<(typeof PILLARS)[number]["id"], () => void> = {
+    jugar: onOpenJugar,
+    explorar: onOpenExplorar,
+    aprender: onOpenAprender,
+    favoritos: onOpenFavoritos,
+  };
   const selectedBuddy = useProgressStore((state) => state.selectedBuddy);
   const setSelectedBuddy = useProgressStore((state) => state.setSelectedBuddy);
   const heroBuddy = getBuddy(selectedBuddy);
@@ -162,33 +177,17 @@ export function HomeScreen({ onOpenWorld, onOpenParentZone }: HomeScreenProps) {
           padding: "0 var(--space-md)",
         }}
       >
-        {WORLDS.map((world, i) => (
+        {PILLARS.map((pillar, i) => (
           <BigButton
-            key={world.id}
-            icon={world.icon}
-            label={t(world.nameKey)}
-            gradient={world.gradient}
+            key={pillar.id}
+            icon={pillar.icon}
+            label={t(pillar.labelKey)}
+            gradient={pillar.gradient}
             delayIndex={i}
-            onTap={() => onOpenWorld(world.id)}
+            onTap={PILLAR_HANDLERS[pillar.id]}
           />
         ))}
       </div>
-
-      <footer
-        style={{
-          padding: "var(--space-md)",
-          color: "var(--color-text-muted)",
-          fontSize: "0.75rem",
-          textAlign: "center",
-        }}
-      >
-        {/* Era la única cadena escrita a mano en español dentro de la app: en
-            inglés y portugués seguía diciendo "niveles listos". */}
-        {t("home.levelsReady", {
-          done: CURRICULUM_LEVELS.filter((l) => l.status === "playable").length,
-          total: CURRICULUM_LEVELS.length,
-        })}
-      </footer>
     </div>
   );
 }

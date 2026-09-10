@@ -3,14 +3,28 @@ import { useCallback, useEffect, useState } from "react";
 import type { WorldId } from "@andreapp/curriculum";
 import { AudioUnlockGate } from "./components/AudioUnlockGate";
 import { ErrorBoundary } from "./components/ErrorBoundary";
+import { ExplorationScene } from "./explore/ExplorationScene";
+import { getExploreScene } from "./explore/scenes";
 import { GAME_REGISTRY } from "./games/registry";
+import { AprenderScreen } from "./screens/AprenderScreen";
+import { ExploreHubScreen } from "./screens/ExploreHubScreen";
+import { FavoritosScreen } from "./screens/FavoritosScreen";
 import { HomeScreen } from "./screens/HomeScreen";
+import { JugarScreen } from "./screens/JugarScreen";
 import { ParentZoneScreen } from "./screens/ParentZoneScreen";
 import { WorldScreen } from "./screens/WorldScreen";
 import { useProgressStore } from "./store/progressStore";
 
 type Screen =
-  { name: "home" } | { name: "world"; worldId: WorldId } | { name: "game"; levelId: string } | { name: "parentZone" };
+  | { name: "home" }
+  | { name: "jugar" }
+  | { name: "explorar" }
+  | { name: "exploreScene"; sceneId: string; from: Screen }
+  | { name: "aprender" }
+  | { name: "favoritos" }
+  | { name: "world"; worldId: WorldId }
+  | { name: "game"; levelId: string; from: Screen }
+  | { name: "parentZone" };
 
 export function App() {
   const [screen, setScreen] = useState<Screen>({ name: "home" });
@@ -23,9 +37,10 @@ export function App() {
   // en un efecto y no durante el render: cambiar de estado mientras React
   // renderiza es justo lo que provoca bucles de re-render en StrictMode.
   const missingGame = screen.name === "game" && !GAME_REGISTRY[screen.levelId];
+  const missingScene = screen.name === "exploreScene" && !getExploreScene(screen.sceneId);
   useEffect(() => {
-    if (missingGame) goHome();
-  }, [missingGame, goHome]);
+    if (missingGame || missingScene) goHome();
+  }, [missingGame, missingScene, goHome]);
 
   return (
     // "calm" apaga el movimiento para niños que se sobreestimulan; "user"
@@ -43,7 +58,9 @@ export function App() {
                   ? `game-${screen.levelId}`
                   : screen.name === "world"
                     ? `world-${screen.worldId}`
-                    : screen.name
+                    : screen.name === "exploreScene"
+                      ? `exploreScene-${screen.sceneId}`
+                      : screen.name
               }
               initial={{ opacity: 0, scale: 0.94, y: 10 }}
               animate={{ opacity: 1, scale: 1, y: 0 }}
@@ -53,20 +70,52 @@ export function App() {
             >
               {screen.name === "home" && (
                 <HomeScreen
-                  onOpenWorld={(worldId) => setScreen({ name: "world", worldId })}
+                  onOpenJugar={() => setScreen({ name: "jugar" })}
+                  onOpenExplorar={() => setScreen({ name: "explorar" })}
+                  onOpenAprender={() => setScreen({ name: "aprender" })}
+                  onOpenFavoritos={() => setScreen({ name: "favoritos" })}
                   onOpenParentZone={() => setScreen({ name: "parentZone" })}
+                />
+              )}
+
+              {screen.name === "jugar" && (
+                <JugarScreen onPlay={(levelId) => setScreen({ name: "game", levelId, from: screen })} onBack={goHome} />
+              )}
+
+              {screen.name === "explorar" && (
+                <ExploreHubScreen
+                  onOpenScene={(sceneId) => setScreen({ name: "exploreScene", sceneId, from: screen })}
+                  onBack={goHome}
+                />
+              )}
+
+              {screen.name === "exploreScene" && (
+                <ExploreScreen sceneId={screen.sceneId} onExit={() => setScreen(screen.from)} />
+              )}
+
+              {screen.name === "aprender" && (
+                <AprenderScreen onOpenWorld={(worldId) => setScreen({ name: "world", worldId })} onBack={goHome} />
+              )}
+
+              {screen.name === "favoritos" && (
+                <FavoritosScreen
+                  onPlay={(levelId) => setScreen({ name: "game", levelId, from: screen })}
+                  onOpenExploreScene={(sceneId) => setScreen({ name: "exploreScene", sceneId, from: screen })}
+                  onBack={goHome}
                 />
               )}
 
               {screen.name === "world" && (
                 <WorldScreen
                   worldId={screen.worldId}
-                  onPlay={(levelId) => setScreen({ name: "game", levelId })}
-                  onBack={goHome}
+                  onPlay={(levelId) => setScreen({ name: "game", levelId, from: screen })}
+                  onBack={() => setScreen({ name: "aprender" })}
                 />
               )}
 
-              {screen.name === "game" && <GameScreen levelId={screen.levelId} locale={locale} onExit={goHome} />}
+              {screen.name === "game" && (
+                <GameScreen levelId={screen.levelId} locale={locale} onExit={() => setScreen(screen.from)} />
+              )}
 
               {screen.name === "parentZone" && <ParentZoneScreen onClose={goHome} />}
             </motion.div>
@@ -81,4 +130,10 @@ function GameScreen({ levelId, locale, onExit }: { levelId: string; locale: stri
   const Game = GAME_REGISTRY[levelId];
   if (!Game) return null; // El efecto de App ya está regresando al inicio.
   return <Game locale={locale} onExit={onExit} />;
+}
+
+function ExploreScreen({ sceneId, onExit }: { sceneId: string; onExit: () => void }) {
+  const scene = getExploreScene(sceneId);
+  if (!scene) return null; // El efecto de App ya está regresando al inicio.
+  return <ExplorationScene scene={scene} onExit={onExit} />;
 }

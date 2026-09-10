@@ -13,6 +13,10 @@ const LOCALE_LABEL: Record<AppLocale, string> = {
   "pt-BR": "Português 🇧🇷",
 };
 
+/** Puntos de color para el resumen de habilidades (Product Vision §14): solo
+ * distinguen una etiqueta de otra a golpe de vista, no codifican un sistema. */
+const SKILL_DOTS = ["🟢", "🟡", "🔵", "🟣"];
+
 /**
  * Zona de padres mínima de Fase 0: idioma y progreso básico.
  * La compra/licencia (link de PayPal + código) llega en Fase 3 (PLAN.md §10).
@@ -28,6 +32,13 @@ export function ParentZoneScreen({ onClose }: ParentZoneScreenProps) {
 
   const calmMode = sensoryMode === "calm";
   const playedLevels = Object.values(levels);
+
+  // Resumen no evaluativo (Product Vision §14): habilidades que tocó HOY,
+  // no una lista de aciertos/errores. `lastPlayedAt` ya se registra por
+  // sesión (useGameSession); solo hace falta agrupar por skill del día.
+  const todayKey = new Date().toDateString();
+  const playedToday = playedLevels.filter((p) => p.lastPlayedAt && new Date(p.lastPlayedAt).toDateString() === todayKey);
+  const skillsToday = Array.from(new Set(playedToday.flatMap((p) => getLevel(p.levelId)?.skills ?? [])));
 
   return (
     <div style={{ flex: 1, padding: "var(--space-md)", background: "var(--color-bg)" }}>
@@ -94,6 +105,35 @@ export function ParentZoneScreen({ onClose }: ParentZoneScreenProps) {
         >
           {calmMode ? t("parentZone.calmModeOn") : t("parentZone.calmModeOff")}
         </button>
+      </section>
+
+      <section style={{ marginTop: "var(--space-lg)" }}>
+        <h2 style={{ fontSize: "1rem" }}>{t("parentZone.today")}</h2>
+        {skillsToday.length === 0 ? (
+          <p style={{ color: "var(--color-text-muted)", fontSize: "0.9rem" }}>{t("parentZone.todayNone")}</p>
+        ) : (
+          <div style={{ display: "flex", flexWrap: "wrap", gap: "var(--space-sm)", marginTop: "var(--space-sm)" }}>
+            {skillsToday.map((skill, i) => (
+              <span
+                key={skill}
+                style={{
+                  display: "inline-flex",
+                  alignItems: "center",
+                  gap: 6,
+                  padding: "6px 12px",
+                  borderRadius: "var(--radius-pill)",
+                  background: "var(--color-bg-elevated)",
+                  boxShadow: "var(--shadow-soft)",
+                  fontWeight: 700,
+                  fontSize: "0.85rem",
+                }}
+              >
+                <span aria-hidden="true">{SKILL_DOTS[i % SKILL_DOTS.length]}</span>
+                {t(`skill.${skill}`)}
+              </span>
+            ))}
+          </div>
+        )}
       </section>
 
       <section style={{ marginTop: "var(--space-lg)" }}>

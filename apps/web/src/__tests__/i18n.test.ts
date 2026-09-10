@@ -37,4 +37,12 @@ describe("catálogos de traducción", () => {
     const missing = CURRICULUM_LEVELS.filter((level) => !translation[level.titleKey]).map((level) => level.titleKey);
     expect(missing).toEqual([]);
   });
+
+  it.each(SUPPORTED_LOCALES)("%s traduce el objetivo pedagógico de todo nivel que lo declara", (locale) => {
+    const translation = RESOURCES[locale].translation as Record<string, string>;
+    const missing = CURRICULUM_LEVELS.filter(
+      (level) => level.learningObjectiveKey && !translation[level.learningObjectiveKey],
+    ).map((level) => level.learningObjectiveKey);
+    expect(missing).toEqual([]);
+  });
 });

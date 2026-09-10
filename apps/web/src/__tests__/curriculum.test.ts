@@ -51,6 +51,26 @@ describe("catálogo del currículo", () => {
     const byWorld = [...getLevelsByWorld("estacion"), ...getLevelsByWorld("bosque"), ...getLevelsByWorld("oceano")];
     expect(byWorld).toHaveLength(CURRICULUM_LEVELS.length);
   });
+
+  it("todo nivel jugable trae su metadata pedagógica completa (Product Vision §13)", () => {
+    // Sin esto, "habilidades practicadas hoy" (ParentZoneScreen) y Jugar/
+    // Favoritos se quedan callados para cualquier nivel nuevo que se le
+    // olvide poblarla — un olvido silencioso, no un error visible.
+    const playable = CURRICULUM_LEVELS.filter((level) => level.status === "playable");
+    const incomplete = playable
+      .filter(
+        (level) =>
+          !level.ageRange ||
+          !level.skills ||
+          level.skills.length === 0 ||
+          !level.difficulty ||
+          !level.interactionType ||
+          !level.learningObjectiveKey ||
+          !level.category,
+      )
+      .map((level) => level.id);
+    expect(incomplete).toEqual([]);
+  });
 });
 
 describe("registro de juegos", () => {

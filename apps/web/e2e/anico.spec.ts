@@ -21,19 +21,27 @@ function failOnPageProblems(page: Page): string[] {
   return problems;
 }
 
+/** Abre la app y desbloquea el audio: deja al niño en el hub (Jugar/Explorar/Aprender/Favoritos). */
 async function openHome(page: Page) {
   await page.goto("./", { waitUntil: "networkidle" });
   await page.getByRole("button", { name: "Toca para empezar" }).click();
+  await expect(page.getByRole("button", { name: "Aprender" })).toBeVisible();
+}
+
+/** Del hub al mapa de mundos (pilar Aprender). */
+async function openAprender(page: Page) {
+  await page.getByRole("button", { name: "Aprender" }).click();
   await expect(page.getByText("Elige un mundo")).toBeVisible();
 }
 
-/** Abre un mundo desde el mapa de inicio (requiere estar ya en HomeScreen). */
+/** Abre un mundo (requiere estar ya en "Elige un mundo", ver openAprender). */
 async function openWorld(page: Page, worldName: string) {
   await page.getByRole("button", { name: worldName }).click();
 }
 
-/** Va de HomeScreen a un nivel concreto, pasando por su mundo. */
+/** Del hub a un nivel concreto, pasando por Aprender y su mundo. */
 async function openLevel(page: Page, worldName: string, levelName: string) {
+  await openAprender(page);
   await openWorld(page, worldName);
   await page.getByRole("button", { name: levelName }).click();
 }
@@ -141,9 +149,12 @@ const PLAYABLE_LEVELS = [
 ];
 
 test.describe("pantalla de inicio", () => {
-  test("desbloquea el audio con un gesto y muestra los mundos", async ({ page }) => {
+  test("desbloquea el audio con un gesto y muestra el hub (Jugar/Explorar/Aprender/Favoritos)", async ({ page }) => {
     const problems = failOnPageProblems(page);
     await openHome(page);
+    await expect(page.getByRole("button", { name: "Jugar" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Explorar" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Favoritos" })).toBeVisible();
     expect(problems).toEqual([]);
   });
 
@@ -172,6 +183,7 @@ test.describe("pantalla de inicio", () => {
 
   test("abre un mundo y el botón regresar vuelve al mapa de mundos", async ({ page }) => {
     await openHome(page);
+    await openAprender(page);
     await openWorld(page, "El Bosque");
     await expect(page.getByText("El Bosque")).toBeVisible();
     await page.getByRole("button", { name: "Regresar" }).click();
@@ -180,6 +192,7 @@ test.describe("pantalla de inicio", () => {
 
   test("solo los niveles jugables se pueden abrir", async ({ page }) => {
     await openHome(page);
+    await openAprender(page);
     const worlds = [...new Set(PLAYABLE_LEVELS.map((level) => level.world))];
     for (const world of worlds) {
       await openWorld(page, world);
@@ -193,6 +206,7 @@ test.describe("pantalla de inicio", () => {
 
   test("un nivel aún no construido no abre una pantalla vacía, pero sí responde al toque", async ({ page }) => {
     await openHome(page);
+    await openAprender(page);
     await openWorld(page, "La Estación");
     const comingSoon = page.getByRole("button", { name: "Números 11-20" });
     // aria-disabled (no el atributo nativo "disabled"): a propósito, para que
@@ -225,8 +239,10 @@ test.describe("niveles", () => {
       await level.interact(page);
       await page.waitForTimeout(300);
 
+      // Al salir de un nivel se vuelve exactamente a su mundo (no al hub ni al
+      // mapa de mundos completo): App.tsx recuerda desde dónde se abrió.
       await page.getByRole("button", { name: "Regresar" }).click();
-      await expect(page.getByText("Elige un mundo")).toBeVisible();
+      await expect(page.getByText(level.world)).toBeVisible();
 
       expect(problems).toEqual([]);
     });
@@ -490,6 +506,7 @@ test.describe("niveles", () => {
   test("N9: tocar el grupo con la cantidad pedida acierta (y el equivocado no castiga)", async ({ page }) => {
     const problems = failOnPageProblems(page);
     await openHome(page);
+    await openAprender(page);
     await openWorld(page, "La Estación");
 
     // La consigna se da SOLO por voz (el niño no lee), así que la prueba se
@@ -665,11 +682,12 @@ test.describe("niveles", () => {
       await page.waitForTimeout(200);
     }
     await expect(page.getByText("¡Lo lograste!")).toBeVisible({ timeout: 3000 });
+    // "Mapa" regresa exactamente al mundo desde el que se abrió el nivel
+    // (App.tsx recuerda el origen), no a un mapa general.
     await page.getByRole("button", { name: "Mapa" }).click();
-    await expect(page.getByText("Elige un mundo")).toBeVisible();
+    await expect(page.getByText("La Estación")).toBeVisible();
 
     // La insignia de rondas completadas vive en el tile del nivel, dentro de su mundo.
-    await openWorld(page, "La Estación");
     await expect(page.getByRole("button", { name: "Toca al objetivo" }).getByText("⭐2")).toBeVisible();
 
     expect(problems).toEqual([]);
@@ -725,11 +743,85 @@ test.describe("zona de padres", () => {
     await openHome(page);
     await openLevel(page, "La Estación", "Causa y efecto");
     await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    // Salir del nivel deja en su mundo; el engranaje de la zona de padres
+    // solo vive en el hub, así que hay que volver hasta ahí (tres "Regresar":
+    // nivel → mundo, mundo → Aprender, Aprender → hub).
+    await page.getByRole("button", { name: "Regresar" }).click();
+    await expect(page.getByText("La Estación")).toBeVisible();
     await page.getByRole("button", { name: "Regresar" }).click();
     await expect(page.getByText("Elige un mundo")).toBeVisible();
+    await page.getByRole("button", { name: "Regresar" }).click();
+    await expect(page.getByRole("button", { name: "Aprender" })).toBeVisible();
 
     await openParentZone(page);
     // Se muestra el nombre del nivel, no su id interno.
     await expect(page.getByText(/Causa y efecto — 1 vez/)).toBeVisible();
+  });
+});
+
+test.describe("pilares Jugar/Explorar/Favoritos", () => {
+  test("Jugar muestra todo lo jugable en una sola cuadrícula, sin pasar por un mundo", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await page.getByRole("button", { name: "Jugar" }).click();
+    // Un nivel de cada mundo, visible sin elegir mundo primero (Product Vision §2).
+    await expect(page.getByRole("button", { name: "Causa y efecto" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Emparejar idénticos" })).toBeVisible();
+    await expect(page.getByRole("button", { name: "Para y sigue" })).toBeVisible();
+
+    await page.getByRole("button", { name: "Causa y efecto" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    // Al salir se vuelve a Jugar (de donde se abrió), no a Aprender.
+    await page.getByRole("button", { name: "Regresar" }).click();
+    await expect(page.getByRole("button", { name: "Para y sigue" })).toBeVisible();
+
+    expect(problems).toEqual([]);
+  });
+
+  test("Favoritos empieza vacío y muestra lo que se marca con el corazón desde Jugar", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+
+    await page.getByRole("button", { name: "Favoritos", exact: true }).click();
+    await expect(page.getByText(/Aún no tienes favoritos/)).toBeVisible();
+    await page.getByRole("button", { name: "Regresar" }).click();
+
+    await page.getByRole("button", { name: "Jugar", exact: true }).click();
+    await page
+      .locator('button[aria-label="Agregar a favoritos"]')
+      .first()
+      .click();
+
+    await page.getByRole("button", { name: "Regresar" }).click();
+    await page.getByRole("button", { name: "Favoritos", exact: true }).click();
+    await expect(page.getByText(/Aún no tienes favoritos/)).toBeHidden();
+    await expect(page.locator('button[aria-label="Quitar de favoritos"]')).toHaveCount(1);
+
+    expect(problems).toEqual([]);
+  });
+});
+
+test.describe("Explorar", () => {
+  test("el Parque abre, un objeto reacciona al tocarlo y solo esa escena está construida", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await page.getByRole("button", { name: "Explorar" }).click();
+
+    // Solo Parque está construido; el resto avisa "muy pronto" como en Aprender.
+    const futureScene = page.getByRole("button", { name: "Estación" });
+    await expect(futureScene).toHaveAttribute("aria-disabled", "true");
+
+    await page.getByRole("button", { name: "Parque" }).click();
+    await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+    await page.waitForTimeout(400);
+
+    // Tocar el sol no exige ningún acierto: cualquier toque reacciona (causa-efecto).
+    await page.getByRole("button", { name: "Sol" }).click();
+    await page.waitForTimeout(300);
+
+    await page.getByRole("button", { name: "Regresar" }).click();
+    await expect(page.getByRole("button", { name: "Parque" })).toBeVisible();
+
+    expect(problems).toEqual([]);
   });
 });

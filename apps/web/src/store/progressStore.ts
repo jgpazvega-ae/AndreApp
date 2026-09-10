@@ -22,6 +22,10 @@ interface ProgressState {
   levels: Record<string, LevelProgress>;
   /** El compañero perruno que el niño eligió en la pantalla de inicio (null = aún no elige). */
   selectedBuddy: BuddyId | null;
+  /** Niveles/escenas marcados con el corazón en Favoritos (id de nivel o "explore:<sceneId>"). */
+  favoriteIds: string[];
+  /** Objetos ya descubiertos por escena Explorar (docs/CURRICULUM.md — nunca es una mecánica de recompensa forzada). */
+  discoveries: Record<string, string[]>;
   setLocale: (locale: AppLocale) => void;
   setSensoryMode: (mode: SensoryMode) => void;
   recordPlay: (levelId: string) => void;
@@ -29,6 +33,8 @@ interface ProgressState {
   /** Se llama cuando useGameSession cierra una ronda (ver LevelCompleteOverlay). */
   recordRoundComplete: (levelId: string) => void;
   setSelectedBuddy: (buddy: BuddyId) => void;
+  toggleFavorite: (id: string) => void;
+  recordDiscovery: (sceneId: string, objectId: string) => void;
 }
 
 /**
@@ -43,10 +49,26 @@ export const useProgressStore = create<ProgressState>()(
       sensoryMode: "normal",
       levels: {},
       selectedBuddy: null,
+      favoriteIds: [],
+      discoveries: {},
 
       setLocale: (locale) => set({ locale }),
       setSensoryMode: (sensoryMode) => set({ sensoryMode }),
       setSelectedBuddy: (selectedBuddy) => set({ selectedBuddy }),
+
+      toggleFavorite: (id) =>
+        set((state) => ({
+          favoriteIds: state.favoriteIds.includes(id)
+            ? state.favoriteIds.filter((existing) => existing !== id)
+            : [...state.favoriteIds, id],
+        })),
+
+      recordDiscovery: (sceneId, objectId) =>
+        set((state) => {
+          const existing = state.discoveries[sceneId] ?? [];
+          if (existing.includes(objectId)) return state;
+          return { discoveries: { ...state.discoveries, [sceneId]: [...existing, objectId] } };
+        }),
 
       recordPlay: (levelId) =>
         set((state) => {
