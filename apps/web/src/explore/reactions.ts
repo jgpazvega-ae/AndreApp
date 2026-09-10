@@ -110,10 +110,15 @@ export function objectTap(reaction: ExploreReaction): TargetAndTransition {
     // La mariposa revolotea más rápido y da una vuelta corta, como si siguiera el dedo.
     case "flutter":
       return { scaleX: [1, 0.6, 1, 0.7, 1], x: [0, 14, -10, 6, 0], y: [0, -18, -6, -12, 0] };
-    // La pelota rebota con squash & stretch decreciente, como un rebote real que se apaga.
+    // La pelota rebota con squash & stretch decreciente, como un rebote real
+    // que se apaga, y rueda un poco al aterrizar antes de quedarse quieta
+    // (Product Vision §15: squash → bounce → roll). Su sombra de contacto
+    // vive aparte (ballShadowTap) para que NO suba con ella — se queda en
+    // el suelo, como una sombra real.
     case "bounce":
       return {
         y: [0, -8, -70, -8, -34, -6, -10, 0],
+        x: [0, 0, 0, 3, -4, 6, -2, 0],
         scaleY: [1, 0.8, 1.1, 0.85, 1.05, 0.92, 1.02, 1],
         scaleX: [1, 1.15, 0.92, 1.1, 0.95, 1.05, 0.98, 1],
       };
@@ -180,4 +185,23 @@ export function objectTapTransition(reaction: ExploreReaction): Transition {
     case "creak":
       return { duration, times: [0, 0.4, 1], ease: "easeOut" };
   }
+}
+
+/**
+ * Sombra de contacto de la pelota (Product Vision §15: "shadow movement"),
+ * animada aparte del objeto — usa los MISMOS `times`/duración que
+ * objectIdleTransition("bounce")/objectTapTransition("bounce") para quedar
+ * sincronizada, pero en sentido inverso: grande y opaca cuando la pelota
+ * toca el suelo, pequeña y tenue cuando sube. Si subiera pegada a la
+ * pelota (como el resto del arte) dejaría de leerse como una sombra real.
+ */
+export function ballShadowIdle(): TargetAndTransition {
+  return { scale: [1, 0.96, 1], opacity: [0.55, 0.48, 0.55] };
+}
+
+export function ballShadowTap(): TargetAndTransition {
+  return {
+    scale: [1, 0.9, 0.35, 0.9, 0.6, 0.94, 0.85, 1],
+    opacity: [0.58, 0.5, 0.16, 0.5, 0.3, 0.54, 0.46, 0.58],
+  };
 }

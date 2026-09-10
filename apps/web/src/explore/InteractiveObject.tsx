@@ -4,7 +4,15 @@ import { useTranslation } from "react-i18next";
 import { playExploreSound } from "../audio/audioEngine";
 import { useTimers } from "../games/useTimers";
 import { EXPLORE_OBJECT_ART, LeafArt, RippleArt, SparkleArt } from "./artwork";
-import { objectIdle, objectIdleTransition, objectTap, objectTapTransition, REACTION_TAP_MS } from "./reactions";
+import {
+  ballShadowIdle,
+  ballShadowTap,
+  objectIdle,
+  objectIdleTransition,
+  objectTap,
+  objectTapTransition,
+  REACTION_TAP_MS,
+} from "./reactions";
 import type { InteractiveObjectConfig } from "./types";
 
 interface InteractiveObjectProps {
@@ -155,6 +163,24 @@ export function InteractiveObject({
         touchAction: "manipulation",
       }}
     >
+      {config.reaction === "bounce" && (
+        <motion.div
+          aria-hidden="true"
+          animate={reacting ? ballShadowTap() : ballShadowIdle()}
+          transition={reacting ? objectTapTransition(config.reaction) : objectIdleTransition(config.reaction)}
+          style={{
+            position: "absolute",
+            left: "50%",
+            bottom: "2%",
+            width: "82%",
+            height: "24%",
+            marginLeft: "-41%",
+            borderRadius: "50%",
+            background: "radial-gradient(ellipse, rgba(58,46,34,0.85) 0%, rgba(58,46,34,0) 68%)",
+            pointerEvents: "none",
+          }}
+        />
+      )}
       <motion.div
         animate={reacting ? objectTap(config.reaction) : objectIdle(config.reaction)}
         transition={reacting ? objectTapTransition(config.reaction) : objectIdleTransition(config.reaction)}

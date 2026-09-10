@@ -7,8 +7,7 @@ describe("BUDDIES", () => {
     expect(ids.size).toBe(3);
   });
 
-  it("cada uno tiene su propia ilustración y su propio ladrido (sin reutilizar el de otro)", () => {
-    expect(new Set(BUDDIES.map((b) => b.image)).size).toBe(3);
+  it("cada uno tiene su propio ladrido (sin reutilizar el de otro)", () => {
     expect(new Set(BUDDIES.map((b) => b.barkSound)).size).toBe(3);
   });
 });

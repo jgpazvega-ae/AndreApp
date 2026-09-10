@@ -1,12 +1,9 @@
-import { asset } from "../utils/asset";
-
 export type BuddyId = "odie" | "dante" | "kira";
 
 export interface Buddy {
   id: BuddyId;
   /** Clave i18n del nombre (para el aria-label; el niño nunca lee texto en pantalla). */
   nameKey: string;
-  image: string;
   /** Ladrido propio, independiente del idioma (vive en audio/shared/, como los sonidos de animales de N5). */
   barkSound: string;
 }
@@ -24,19 +21,16 @@ export const BUDDIES: [Buddy, Buddy, Buddy] = [
   {
     id: "odie",
     nameKey: "buddy.odie.name",
-    image: asset("illustrations/buddy-odie.webp"),
     barkSound: "buddy-odie-bark.mp3",
   },
   {
     id: "dante",
     nameKey: "buddy.dante.name",
-    image: asset("illustrations/buddy-dante.webp"),
     barkSound: "buddy-dante-bark.mp3",
   },
   {
     id: "kira",
     nameKey: "buddy.kira.name",
-    image: asset("illustrations/buddy-kira.webp"),
     barkSound: "buddy-kira-bark.mp3",
   },
 ];

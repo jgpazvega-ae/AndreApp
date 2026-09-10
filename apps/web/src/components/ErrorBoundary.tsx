@@ -1,5 +1,6 @@
 import { Component, type ErrorInfo, type ReactNode } from "react";
 import { useTranslation } from "react-i18next";
+import { BuddyArt } from "./buddyArt";
 import { getBuddy } from "../data/buddies";
 import { useProgressStore } from "../store/progressStore";
 
@@ -64,7 +65,9 @@ function ErrorScreen({ onReset }: { onReset: () => void }) {
         background: "var(--color-bg)",
       }}
     >
-      <img src={buddy.image} alt="" aria-hidden="true" style={{ width: "min(45vw, 180px)" }} />
+      <div aria-hidden="true" style={{ width: "min(45vw, 180px)", aspectRatio: "1 / 1" }}>
+        <BuddyArt id={buddy.id} />
+      </div>
       <h1 style={{ fontSize: "1.3rem", margin: 0 }}>{t("error.title")}</h1>
       <p style={{ color: "var(--color-text-muted)", margin: 0 }}>{t("error.body")}</p>
       <button

@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { getLevelsByWorld, type WorldId } from "@andreapp/curriculum";
 import { playChime } from "../audio/audioEngine";
 import { BigButton } from "../components/BigButton";
+import { BuddyArt } from "../components/buddyArt";
 import { FavoriteHeart } from "../components/FavoriteHeart";
 import { getBuddy } from "../data/buddies";
 import { buddyIdle, buddyIdleTransition } from "../data/buddyMotion";
@@ -99,9 +100,7 @@ export function WorldScreen({ worldId, onPlay, onBack }: WorldScreenProps) {
             inmóvil en La Estación, Odie inquieto en El Bosque, Kira brincando
             en El Océano. Antes los tres flotaban idénticos, así que el mundo
             no se distinguía por quién lo recibe sino solo por su color. */}
-        <motion.img
-          src={host.image}
-          alt=""
+        <motion.div
           aria-hidden="true"
           initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, ...buddyIdle(host.id) }}
@@ -110,9 +109,12 @@ export function WorldScreen({ worldId, onPlay, onBack }: WorldScreenProps) {
             display: "block",
             margin: "var(--space-sm) auto 0",
             width: "min(30vw, 120px)",
+            aspectRatio: "1 / 1",
             filter: "drop-shadow(0 10px 14px rgba(0,0,0,0.22))",
           }}
-        />
+        >
+          <BuddyArt id={host.id} />
+        </motion.div>
       </div>
 
       <div

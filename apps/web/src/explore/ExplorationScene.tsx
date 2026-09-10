@@ -5,6 +5,7 @@ import { playSound } from "../audio/audioEngine";
 import { GameShell } from "../components/GameShell";
 import { getBuddy } from "../data/buddies";
 import { BUDDY_CHEER_MS, buddyCheer, buddyCheerTransition, buddyIdle, buddyIdleTransition } from "../data/buddyMotion";
+import { BuddyArt } from "../components/buddyArt";
 import { useConfetti } from "../effects/useConfetti";
 import { useTimers } from "../games/useTimers";
 import { useProgressStore } from "../store/progressStore";
@@ -106,9 +107,7 @@ export function ExplorationScene({ scene, onExit }: ExplorationSceneProps) {
           CURRICULUM.md — el mismo perrito elegido en HomeScreen). Nota lo
           que pasa en el mundo (p. ej. la pelota) con SU propio festejo,
           igual que cuando acierta en un nivel (buddyMotion.ts). */}
-      <motion.img
-        src={buddy.image}
-        alt=""
+      <motion.div
         aria-hidden="true"
         initial={{ opacity: 0, y: 20 }}
         animate={{
@@ -126,10 +125,13 @@ export function ExplorationScene({ scene, onExit }: ExplorationSceneProps) {
           left: "8%",
           bottom: "6%",
           width: "min(26vw, 110px)",
+          aspectRatio: "1 / 1",
           pointerEvents: "none",
           filter: "drop-shadow(0 10px 14px rgba(58,46,34,0.22))",
         }}
-      />
+      >
+        <BuddyArt id={buddy.id} />
+      </motion.div>
 
       <div
         aria-hidden="true"

@@ -265,7 +265,7 @@ test.describe("niveles", () => {
     await openHome(page);
     await page.getByRole("button", { name: "Elegir a Kira como amigo" }).click();
     await openLevel(page, "La Estación", "Causa y efecto");
-    await expect(page.locator('img[src*="buddy-kira"]')).toHaveCount(1);
+    await expect(page.locator('[data-buddy-id="kira"]')).toHaveCount(1);
   });
 
   /**

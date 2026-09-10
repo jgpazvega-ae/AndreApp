@@ -1,6 +1,7 @@
 import { motion } from "framer-motion";
 import { useEffect, useRef, useState } from "react";
 import { playSound } from "../audio/audioEngine";
+import { BuddyArt } from "./buddyArt";
 import { getBuddy } from "../data/buddies";
 import { BUDDY_CHEER_MS, buddyCheer, buddyCheerTransition, buddyIdle, buddyIdleTransition } from "../data/buddyMotion";
 import { useProgressStore } from "../store/progressStore";
@@ -45,10 +46,8 @@ export function GameBuddy({ celebrateSignal }: GameBuddyProps) {
   }, [celebrateSignal]);
 
   return (
-    <motion.img
+    <motion.div
       key={buddy.id}
-      src={buddy.image}
-      alt=""
       aria-hidden="true"
       animate={cheering ? buddyCheer(buddy.id) : buddyIdle(buddy.id)}
       transition={cheering ? buddyCheerTransition(buddy.id) : buddyIdleTransition(buddy.id)}
@@ -58,10 +57,12 @@ export function GameBuddy({ celebrateSignal }: GameBuddyProps) {
         right: 16,
         zIndex: 10,
         width: 56,
-        height: "auto",
+        aspectRatio: "1 / 1",
         pointerEvents: "none",
         filter: "drop-shadow(0 6px 10px rgba(0,0,0,0.2))",
       }}
-    />
+    >
+      <BuddyArt id={buddy.id} />
+    </motion.div>
   );
 }
