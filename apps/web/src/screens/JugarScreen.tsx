@@ -12,10 +12,25 @@ interface JugarScreenProps {
   onBack: () => void;
 }
 
+/** Íconos del cielo del encabezado: ninguno pertenece a un juego en particular,
+ * solo comunican "aquí vive la diversión" antes de que la mirada baje a la
+ * cuadrícula. Mismo lenguaje que HERO_SPARKLES de HomeScreen, adaptado al
+ * tema de Jugar en vez de genérico. */
+const HERO_ICONS = [
+  { icon: "🎈", left: "42%", top: "62%", size: "1.5rem", duration: 3.2 },
+  { icon: "⭐", left: "76%", top: "16%", size: "1.2rem", duration: 2.6 },
+  { icon: "🧸", left: "90%", top: "55%", size: "1.4rem", duration: 3.6 },
+];
+
 /**
  * Pilar Jugar (Product Vision §2, §17): todo lo jugable en una sola
  * cuadrícula, sin agrupar por mundo — para el niño que ya sabe qué quiere
  * jugar y no necesita pasar por el mapa curricular de Aprender.
+ *
+ * El encabezado con degradado (antes un simple header blanco) usa el mismo
+ * lenguaje visual que WorldScreen: sin él, Jugar era la única sección
+ * "plana" de la app — todas las demás (Home, un Mundo, un nivel) se sienten
+ * como un lugar con color propio y esta se sentía como una lista de ajustes.
  */
 export function JugarScreen({ onPlay, onBack }: JugarScreenProps) {
   const { t } = useTranslation();
@@ -34,32 +49,55 @@ export function JugarScreen({ onPlay, onBack }: JugarScreenProps) {
     >
       <header
         style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-sm)",
-          padding: "max(env(safe-area-inset-top), var(--space-md)) var(--space-md) 0",
+          position: "relative",
+          overflow: "hidden",
+          padding: "max(env(safe-area-inset-top), var(--space-md)) var(--space-md) var(--space-lg)",
+          background: "linear-gradient(160deg, #FFB03B 0%, #E0912A 100%)",
+          borderRadius: "0 0 var(--radius-lg) var(--radius-lg)",
         }}
       >
-        <motion.button
-          type="button"
-          aria-label={t("common.back")}
-          onClick={onBack}
-          whileTap={{ scale: 0.9 }}
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: "var(--radius-pill)",
-            background: "var(--color-bg-elevated)",
-            boxShadow: "var(--shadow-soft)",
-            fontSize: "1.4rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          ⬅️
-        </motion.button>
-        <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--color-text)" }}>{t("hub.jugar")}</div>
+        {HERO_ICONS.map((item, i) => (
+          <motion.span
+            key={i}
+            aria-hidden="true"
+            style={{
+              position: "absolute",
+              left: item.left,
+              top: item.top,
+              fontSize: item.size,
+              pointerEvents: "none",
+            }}
+            animate={{ y: [0, -10, 0], rotate: [0, i % 2 === 0 ? 8 : -8, 0] }}
+            transition={{ duration: item.duration, repeat: Infinity, ease: "easeInOut", delay: i * 0.35 }}
+          >
+            {item.icon}
+          </motion.span>
+        ))}
+
+        <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "var(--space-sm)" }}>
+          <motion.button
+            type="button"
+            aria-label={t("common.back")}
+            onClick={onBack}
+            whileTap={{ scale: 0.9 }}
+            style={{
+              width: 48,
+              height: 48,
+              borderRadius: "var(--radius-pill)",
+              background: "rgba(255,255,255,0.85)",
+              boxShadow: "var(--shadow-soft)",
+              fontSize: "1.4rem",
+              display: "flex",
+              alignItems: "center",
+              justifyContent: "center",
+            }}
+          >
+            ⬅️
+          </motion.button>
+          <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>
+            {t("hub.jugar")}
+          </div>
+        </div>
       </header>
 
       {/* Biblioteca de Jugar: juegos autoexplicativos, sin orden ni "siguiente" — se
