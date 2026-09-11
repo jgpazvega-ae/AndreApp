@@ -4,6 +4,7 @@ import { CURRICULUM_LEVELS } from "@andreapp/curriculum";
 import { BigButton } from "../components/BigButton";
 import { FavoriteHeart } from "../components/FavoriteHeart";
 import { EXPLORE_CATALOG } from "../data/exploreCatalog";
+import { JUGAR_GAMES } from "../data/jugarGames";
 import { getWorld } from "../data/worlds";
 import { useProgressStore } from "../store/progressStore";
 
@@ -27,10 +28,11 @@ export function FavoritosScreen({ onPlay, onOpenExploreScene, onBack }: Favorito
   const levelsProgress = useProgressStore((state) => state.levels);
 
   const favoriteLevels = CURRICULUM_LEVELS.filter((level) => favoriteIds.includes(level.id));
+  const favoriteGames = JUGAR_GAMES.filter((game) => favoriteIds.includes(game.id));
   const favoriteScenes = EXPLORE_CATALOG.filter(
     (scene) => scene.built && favoriteIds.includes(`${EXPLORE_PREFIX}${scene.id}`),
   );
-  const isEmpty = favoriteLevels.length === 0 && favoriteScenes.length === 0;
+  const isEmpty = favoriteLevels.length === 0 && favoriteGames.length === 0 && favoriteScenes.length === 0;
 
   return (
     <div
@@ -103,6 +105,19 @@ export function FavoritosScreen({ onPlay, onOpenExploreScene, onBack }: Favorito
               />
             </div>
           ))}
+          {favoriteGames.map((game, idx) => (
+            <div key={game.id} style={{ position: "relative" }}>
+              <FavoriteHeart id={game.id} />
+              <BigButton
+                icon={game.icon}
+                label={t(game.titleKey)}
+                gradient={game.gradient}
+                delayIndex={favoriteScenes.length + idx}
+                roundsCompleted={levelsProgress[game.id]?.roundsCompleted ?? 0}
+                onTap={() => onPlay(game.id)}
+              />
+            </div>
+          ))}
           {favoriteLevels.map((level, idx) => (
             <div key={level.id} style={{ position: "relative" }}>
               <FavoriteHeart id={level.id} />
@@ -110,7 +125,7 @@ export function FavoritosScreen({ onPlay, onOpenExploreScene, onBack }: Favorito
                 icon={level.icon}
                 label={t(level.titleKey)}
                 gradient={getWorld(level.world ?? "estacion").gradient}
-                delayIndex={favoriteScenes.length + idx}
+                delayIndex={favoriteScenes.length + favoriteGames.length + idx}
                 roundsCompleted={levelsProgress[level.id]?.roundsCompleted ?? 0}
                 onTap={() => onPlay(level.id)}
               />

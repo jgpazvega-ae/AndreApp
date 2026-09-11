@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { CURRICULUM_LEVELS } from "@andreapp/curriculum";
 import { BigButton } from "../components/BigButton";
 import { FavoriteHeart } from "../components/FavoriteHeart";
+import { JUGAR_GAMES } from "../data/jugarGames";
 import { getWorld } from "../data/worlds";
 import { useProgressStore } from "../store/progressStore";
 
@@ -61,12 +62,58 @@ export function JugarScreen({ onPlay, onBack }: JugarScreenProps) {
         <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--color-text)" }}>{t("hub.jugar")}</div>
       </header>
 
+      {/* Biblioteca de Jugar: juegos autoexplicativos, sin orden ni "siguiente" — se
+          abren, se juegan, se repiten. Van primero porque son el contenido que
+          crece más rápido y el que el niño reconoce sin pasar por el currículo. */}
+      <div
+        style={{
+          fontSize: "0.95rem",
+          fontWeight: 800,
+          color: "var(--color-text-muted)",
+          padding: "var(--space-lg) var(--space-md) 0",
+        }}
+      >
+        {t("jugar.library.heading")}
+      </div>
       <div
         style={{
           display: "grid",
           gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
           gap: "var(--space-sm)",
-          padding: "var(--space-lg) var(--space-md) 0",
+          padding: "var(--space-sm) var(--space-md) 0",
+        }}
+      >
+        {JUGAR_GAMES.map((game, idx) => (
+          <div key={game.id} style={{ position: "relative" }}>
+            <FavoriteHeart id={game.id} />
+            <BigButton
+              icon={game.icon}
+              label={t(game.titleKey)}
+              gradient={game.gradient}
+              delayIndex={idx}
+              roundsCompleted={levelsProgress[game.id]?.roundsCompleted ?? 0}
+              onTap={() => onPlay(game.id)}
+            />
+          </div>
+        ))}
+      </div>
+
+      <div
+        style={{
+          fontSize: "0.95rem",
+          fontWeight: 800,
+          color: "var(--color-text-muted)",
+          padding: "var(--space-xl) var(--space-md) 0",
+        }}
+      >
+        {t("jugar.curriculum.heading")}
+      </div>
+      <div
+        style={{
+          display: "grid",
+          gridTemplateColumns: "repeat(auto-fill, minmax(120px, 1fr))",
+          gap: "var(--space-sm)",
+          padding: "var(--space-sm) var(--space-md) 0",
         }}
       >
         {playable.map((level, idx) => (
@@ -76,7 +123,7 @@ export function JugarScreen({ onPlay, onBack }: JugarScreenProps) {
               icon={level.icon}
               label={t(level.titleKey)}
               gradient={getWorld(level.world ?? "estacion").gradient}
-              delayIndex={idx}
+              delayIndex={idx + JUGAR_GAMES.length}
               roundsCompleted={levelsProgress[level.id]?.roundsCompleted ?? 0}
               onTap={() => onPlay(level.id)}
             />

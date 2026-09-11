@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { CURRICULUM_LEVELS, getLevel, getLevelsByStage, getLevelsByWorld } from "@andreapp/curriculum";
+import { JUGAR_GAMES } from "../data/jugarGames";
 import { GAME_REGISTRY } from "../games/registry";
 
 describe("catálogo del currículo", () => {
@@ -80,10 +81,33 @@ describe("registro de juegos", () => {
     expect(missing).toEqual([]);
   });
 
-  it("todo juego implementado corresponde a un nivel marcado como jugable", () => {
-    // Evita el caso contrario: un juego terminado que nadie puede abrir
-    // porque el catálogo aún lo marca como "coming-soon".
-    const notPlayable = Object.keys(GAME_REGISTRY).filter((id) => getLevel(id)?.status !== "playable");
-    expect(notPlayable).toEqual([]);
+  it("todo juego implementado corresponde a un nivel marcado como jugable o a un juego de la biblioteca de Jugar", () => {
+    // Evita el caso contrario: un juego terminado que nadie puede abrir —
+    // porque el currículo aún lo marca como "coming-soon", o porque no
+    // está en el catálogo de Jugar (data/jugarGames.ts, los juegos que NO
+    // son parte de la secuencia pedagógica de 22 niveles).
+    const jugarIds = new Set(JUGAR_GAMES.map((game) => game.id));
+    const orphaned = Object.keys(GAME_REGISTRY).filter(
+      (id) => getLevel(id)?.status !== "playable" && !jugarIds.has(id),
+    );
+    expect(orphaned).toEqual([]);
+  });
+});
+
+describe("biblioteca de Jugar", () => {
+  it("no repite ids", () => {
+    const ids = JUGAR_GAMES.map((game) => game.id);
+    expect(new Set(ids).size).toBe(ids.length);
+  });
+
+  it("no repite ids con el currículo (misma clave de progreso/favoritos)", () => {
+    const curriculumIds = new Set(CURRICULUM_LEVELS.map((level) => level.id));
+    const overlap = JUGAR_GAMES.filter((game) => curriculumIds.has(game.id));
+    expect(overlap).toEqual([]);
+  });
+
+  it("todo juego de la biblioteca tiene su componente implementado", () => {
+    const missing = JUGAR_GAMES.filter((game) => !GAME_REGISTRY[game.id]).map((game) => game.id);
+    expect(missing).toEqual([]);
   });
 });

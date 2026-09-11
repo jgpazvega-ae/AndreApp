@@ -43,8 +43,12 @@ const ENCOURAGE_COOLDOWN_MS = 1200;
 
 interface GameSessionOptions {
   locale: string;
-  /** Clip de voz que da la consigna al entrar, p. ej. "n3-welcome.mp3". */
-  welcomeFile: string;
+  /**
+   * Clip de voz que da la consigna al entrar, p. ej. "n3-welcome.mp3".
+   * Opcional: un juego autoexplicativo por diseño (la biblioteca de Jugar,
+   * Product Vision §11 — "no depender de instrucciones") puede omitirlo.
+   */
+  welcomeFile?: string;
   /** Ver DEFAULT_ROUND_SIZE. Ajustable por si un nivel necesita otro ritmo. */
   roundSize?: number;
 }
@@ -80,6 +84,7 @@ export function useGameSession(
 
   useEffect(() => {
     recordPlay(levelId);
+    if (!welcomeFile) return;
     const timer = setTimeout(() => playVoiceClip(locale, welcomeFile), WELCOME_DELAY_MS);
     return () => clearTimeout(timer);
     // Solo al montar: la consigna de bienvenida no debe repetirse si cambia el idioma a media partida.

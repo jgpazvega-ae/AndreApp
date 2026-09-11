@@ -1,4 +1,9 @@
 import type { ComponentType } from "react";
+import { AlimentaAlAnimal } from "./jugar/alimenta/AlimentaAlAnimal";
+import { EncuentraElAnimal } from "./jugar/animales/EncuentraElAnimal";
+import { Burbujas } from "./jugar/burbujas/Burbujas";
+import { ColoresMagicos } from "./jugar/colores/ColoresMagicos";
+import { AtrapaLaEstrella } from "./jugar/estrellas/AtrapaLaEstrella";
 import { N1CausaEfecto } from "./n1/N1CausaEfecto";
 import { N2TocaAlObjetivo } from "./n2/N2TocaAlObjetivo";
 import { N3EmparejarIdenticos } from "./n3/N3EmparejarIdenticos";
@@ -33,4 +38,12 @@ export const GAME_REGISTRY: Record<string, ComponentType<GameProps>> = {
   n11: N11Contar6a10,
   n12: N12FormasYPatrones,
   n13: N13Memoria,
+  // Biblioteca de Jugar (ver data/jugarGames.ts): no forman parte de los
+  // 22 niveles del currículo, pero comparten el mismo registro porque
+  // GameScreen enruta por id sin distinguir de dónde viene.
+  burbujas: Burbujas,
+  estrellas: AtrapaLaEstrella,
+  colores: ColoresMagicos,
+  animales: EncuentraElAnimal,
+  alimenta: AlimentaAlAnimal,
 };

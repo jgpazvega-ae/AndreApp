@@ -261,3 +261,45 @@ export function playExploreSound(kind: ExploreSoundKind): void {
       break;
   }
 }
+
+/**
+ * Identidad sonora de la biblioteca de Jugar (Product Vision §15):
+ * sintetizados igual que playExploreSound, un timbre por gesto en vez de
+ * un archivo por juego. "gentle" es el ÚNICO sonido para una respuesta que
+ * no acertó — nunca un tono negativo, solo neutral (CURRICULUM.md §2: el
+ * "no" se comunica con imagen, no con audio de castigo).
+ */
+export type JugarSoundKind = "pop" | "whoosh" | "chomp" | "gentle" | "snap";
+
+export function playJugarSound(kind: JugarSoundKind): void {
+  if (!unlocked) return;
+  const ctx = Howler.ctx as AudioContext | undefined;
+  if (!ctx) return;
+  const now = ctx.currentTime;
+
+  switch (kind) {
+    // Burbuja: un pop brillante y muy corto.
+    case "pop":
+      tone(ctx, now, 1300, 1900, 0.07, 0.22, "sine");
+      tone(ctx, now + 0.03, 700, 400, 0.05, 0.08, "sine");
+      break;
+    // Arrastre: un soplido rápido que sube, para cuando algo se levanta con el dedo.
+    case "whoosh":
+      tone(ctx, now, 220, 950, 0.14, 0.1, "sine");
+      break;
+    // Animal comiendo: un mordisco grave y corto.
+    case "chomp":
+      tone(ctx, now, 240, 90, 0.11, 0.2, "square");
+      tone(ctx, now + 0.1, 200, 80, 0.08, 0.12, "square");
+      break;
+    // Pieza que encaja / objeto que cae en su lugar.
+    case "snap":
+      tone(ctx, now, 500, 900, 0.09, 0.18, "triangle");
+      break;
+    // Intento que no acertó: neutral, dos notas suaves que bajan un poco —
+    // nunca un sonido de error, solo "todavía no".
+    case "gentle":
+      tone(ctx, now, 480, 420, 0.16, 0.1, "sine");
+      break;
+  }
+}

@@ -1,7 +1,13 @@
 import { useTranslation } from "react-i18next";
 import { getLevel } from "@andreapp/curriculum";
 import { SUPPORTED_LOCALES, type AppLocale } from "@andreapp/shared";
+import { JUGAR_GAMES } from "../data/jugarGames";
 import { useProgressStore } from "../store/progressStore";
+
+/** Título de cualquier id jugado: nivel del currículo o juego de la biblioteca de Jugar. */
+function titleKeyFor(levelId: string): string | undefined {
+  return getLevel(levelId)?.titleKey ?? JUGAR_GAMES.find((game) => game.id === levelId)?.titleKey;
+}
 
 interface ParentZoneScreenProps {
   onClose: () => void;
@@ -147,7 +153,7 @@ export function ParentZoneScreen({ onClose }: ParentZoneScreenProps) {
             {playedLevels.map((p) => {
               // Nombre del nivel, no su id: "Causa y efecto — 3 veces" le dice
               // algo a un papá; "n1 — 3 veces" no.
-              const titleKey = getLevel(p.levelId)?.titleKey;
+              const titleKey = titleKeyFor(p.levelId);
               return (
                 <li key={p.levelId}>
                   {titleKey ? t(titleKey) : p.levelId} — {t("parentZone.timesPlayed", { count: p.timesPlayed })}

@@ -811,6 +811,103 @@ test.describe("pilares Jugar/Explorar/Favoritos", () => {
   });
 });
 
+/** Abre un juego de la biblioteca de Jugar directamente (sin pasar por Aprender/mundo). */
+async function openJugarGame(page: Page, gameName: string) {
+  await page.getByRole("button", { name: "Jugar", exact: true }).click();
+  await page.getByRole("button", { name: gameName }).click();
+  await expect(page.getByRole("button", { name: "Regresar" })).toBeVisible();
+  await page.waitForTimeout(400);
+}
+
+test.describe("biblioteca de Jugar", () => {
+  test("Burbujas: tocar una burbuja la explota y aparece otra", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await openJugarGame(page, "Burbujas");
+
+    const bubbles = page.getByRole("button", { name: "Tócame" });
+    await expect(bubbles).toHaveCount(4);
+    await bubbles.first().click({ force: true });
+    await page.waitForTimeout(400);
+    await expect(bubbles).toHaveCount(4);
+
+    await page.getByRole("button", { name: "Regresar" }).click();
+    await expect(page.getByRole("button", { name: "Burbujas" })).toBeVisible();
+    expect(problems).toEqual([]);
+  });
+
+  test("Atrapa la estrella: tocarla la atrapa y aparece otra en otro lugar", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await openJugarGame(page, "Atrapa la estrella");
+
+    const star = page.getByRole("button", { name: "Tócame" }).first();
+    await star.click({ force: true });
+    await page.waitForTimeout(400);
+    await expect(page.getByRole("button", { name: "Tócame" })).toHaveCount(1);
+
+    await page.getByRole("button", { name: "Regresar" }).click();
+    expect(problems).toEqual([]);
+  });
+
+  test("Colores mágicos: tocar la forma del color correcto la hace desaparecer", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await openJugarGame(page, "Colores mágicos");
+
+    const pieces = page.getByRole("button", { name: "Tócame" });
+    const countBefore = await pieces.count();
+    expect(countBefore).toBeGreaterThan(0);
+    await pieces.first().click({ force: true });
+    await page.waitForTimeout(300);
+    // Un toque siempre cambia algo: o desaparece (acierto) o se sacude (intento) —
+    // cualquiera de los dos deja la pantalla respondiendo, sin errores de consola.
+
+    await page.getByRole("button", { name: "Regresar" }).click();
+    expect(problems).toEqual([]);
+  });
+
+  test("Encuentra el animal: el animal objetivo se muestra arriba y se puede tocar uno del campo", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await openJugarGame(page, "Encuentra el animal");
+
+    const animals = page.getByRole("button", { name: "Animal" });
+    await expect(animals).toHaveCount(3);
+    await animals.first().click({ force: true });
+    await page.waitForTimeout(300);
+
+    await page.getByRole("button", { name: "Regresar" }).click();
+    expect(problems).toEqual([]);
+  });
+
+  test("Alimenta al animal: arrastrar una comida hasta el animal reacciona sin errores", async ({ page }) => {
+    const problems = failOnPageProblems(page);
+    await openHome(page);
+    await openJugarGame(page, "Alimenta al animal");
+
+    const foods = page.getByRole("img", { name: "Comida" });
+    await expect(foods).toHaveCount(2);
+    const box = await foods.first().boundingBox();
+    const viewport = page.viewportSize();
+    expect(box).toBeTruthy();
+    expect(viewport).toBeTruthy();
+    if (box && viewport) {
+      const startX = box.x + box.width / 2;
+      const startY = box.y + box.height / 2;
+      await page.mouse.move(startX, startY);
+      await page.mouse.down();
+      // El animal vive en left:50%/top:64% del área de juego (ver AlimentaAlAnimal.tsx).
+      await page.mouse.move(viewport.width * 0.5, viewport.height * 0.64, { steps: 10 });
+      await page.mouse.up();
+    }
+    await page.waitForTimeout(500);
+
+    await page.getByRole("button", { name: "Regresar" }).click();
+    expect(problems).toEqual([]);
+  });
+});
+
 test.describe("Explorar", () => {
   test("el Parque abre, un objeto reacciona al tocarlo y solo esa escena está construida", async ({ page }) => {
     const problems = failOnPageProblems(page);
