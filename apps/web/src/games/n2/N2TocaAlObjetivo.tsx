@@ -2,7 +2,6 @@ import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { playVoiceClip } from "../../audio/audioEngine";
-import { BuddyArt } from "../../components/buddyArt";
 import { GameShell } from "../../components/GameShell";
 import { getBuddy } from "../../data/buddies";
 import { useProgressStore } from "../../store/progressStore";
@@ -147,16 +146,17 @@ export function N2TocaAlObjetivo({ locale, onExit }: N2TocaAlObjetivoProps) {
             padding: 0,
           }}
         >
-          <div
+          <img
+            src={buddy.image}
+            alt=""
             aria-hidden="true"
             style={{
               width: "100%",
               height: "100%",
+              objectFit: "contain",
               filter: "drop-shadow(0 12px 16px rgba(120,60,10,0.3))",
             }}
-          >
-            <BuddyArt id={buddy.id} />
-          </div>
+          />
         </motion.button>
       </motion.div>
     </GameShell>

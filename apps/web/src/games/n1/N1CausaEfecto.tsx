@@ -1,7 +1,6 @@
 import { AnimatePresence, motion } from "framer-motion";
 import { useCallback, useRef, useState } from "react";
 import { playVoiceClip } from "../../audio/audioEngine";
-import { BuddyArt } from "../../components/buddyArt";
 import { GameShell } from "../../components/GameShell";
 import { getBuddy } from "../../data/buddies";
 import { useProgressStore } from "../../store/progressStore";
@@ -94,8 +93,10 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
     >
       <AnimatePresence>
         {idle && pops.length === 0 && (
-          <motion.div
+          <motion.img
             key="idle-hint"
+            src={buddy.image}
+            alt=""
             aria-hidden="true"
             initial={{ opacity: 0, y: 80 }}
             animate={{ opacity: 1, y: [80, 40, 80] }}
@@ -107,13 +108,10 @@ export function N1CausaEfecto({ locale, onExit }: N1CausaEfectoProps) {
               left: "50%",
               marginLeft: "-90px",
               width: 180,
-              aspectRatio: "1 / 1",
               pointerEvents: "none",
               filter: "drop-shadow(0 12px 16px rgba(120,60,10,0.25))",
             }}
-          >
-            <BuddyArt id={buddy.id} />
-          </motion.div>
+          />
         )}
       </AnimatePresence>
 

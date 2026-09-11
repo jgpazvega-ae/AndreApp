@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { APP_NAME } from "@andreapp/shared";
 import { unlockAudio } from "../audio/audioEngine";
 import { useAudioUnlock } from "../audio/useAudioUnlock";
-import { BuddyArt } from "./buddyArt";
 import { getBuddy } from "../data/buddies";
 import { useProgressStore } from "../store/progressStore";
 import { asset } from "../utils/asset";
@@ -87,20 +86,19 @@ export function AudioUnlockGate({ children }: AudioUnlockGateProps) {
         </motion.span>
       ))}
 
-      <motion.div
+      <motion.img
+        src={buddy.image}
+        alt=""
         aria-hidden="true"
         style={{
           position: "relative",
           zIndex: 2,
           width: "min(58vw, 280px)",
-          aspectRatio: "1 / 1",
           filter: "drop-shadow(0 18px 24px rgba(120,60,10,0.28))",
         }}
         animate={{ y: [0, -10, 0], rotate: [-2, 2, -2] }}
         transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
-      >
-        <BuddyArt id={buddy.id} />
-      </motion.div>
+      />
 
       <motion.div
         style={{

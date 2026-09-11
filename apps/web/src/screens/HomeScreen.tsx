@@ -4,7 +4,6 @@ import { useTranslation } from "react-i18next";
 import { APP_NAME } from "@andreapp/shared";
 import { playSound } from "../audio/audioEngine";
 import { BigButton } from "../components/BigButton";
-import { BuddyArt } from "../components/buddyArt";
 import { BUDDIES, getBuddy } from "../data/buddies";
 import { BUDDY_CHEER_MS, buddyCheer, buddyCheerTransition, buddyIdle, buddyIdleTransition } from "../data/buddyMotion";
 import { useProgressStore } from "../store/progressStore";
@@ -139,7 +138,9 @@ export function HomeScreen({
           transition={{ duration: 0.5, ease: "easeOut" }}
           style={{ position: "relative", zIndex: 1 }}
         >
-          <motion.div
+          <motion.img
+            src={heroBuddy.image}
+            alt=""
             aria-hidden="true"
             animate={{ y: [0, -8, 0] }}
             transition={{ duration: 2.8, repeat: Infinity, ease: "easeInOut", delay: 0.5 }}
@@ -147,12 +148,9 @@ export function HomeScreen({
               display: "block",
               margin: "0 auto",
               width: "min(38vw, 168px)",
-              aspectRatio: "1 / 1",
               filter: "drop-shadow(0 12px 16px rgba(120,60,10,0.22))",
             }}
-          >
-            <BuddyArt id={heroBuddy.id} />
-          </motion.div>
+          />
         </motion.div>
 
         <div
@@ -262,14 +260,14 @@ function BuddyAvatar({
         boxShadow: selected ? "0 0 0 3px var(--color-accent)" : "none",
       }}
     >
-      <motion.div
+      <motion.img
+        src={buddy.image}
+        alt=""
         aria-hidden="true"
         animate={cheering && selected ? buddyCheer(buddy.id) : buddyIdle(buddy.id)}
         transition={cheering && selected ? buddyCheerTransition(buddy.id) : buddyIdleTransition(buddy.id)}
-        style={{ width: "100%", aspectRatio: "1 / 1", filter: "drop-shadow(0 6px 8px rgba(0,0,0,0.18))" }}
-      >
-        <BuddyArt id={buddy.id} />
-      </motion.div>
+        style={{ width: "100%", height: "auto", filter: "drop-shadow(0 6px 8px rgba(0,0,0,0.18))" }}
+      />
     </motion.button>
   );
 }
