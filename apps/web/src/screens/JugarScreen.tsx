@@ -1,8 +1,8 @@
-import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { CURRICULUM_LEVELS } from "@andreapp/curriculum";
 import { BigButton } from "../components/BigButton";
 import { FavoriteHeart } from "../components/FavoriteHeart";
+import { HubHeader, type HubHeaderIcon } from "../components/HubHeader";
 import { JUGAR_GAMES } from "../data/jugarGames";
 import { getWorld } from "../data/worlds";
 import { useProgressStore } from "../store/progressStore";
@@ -16,7 +16,7 @@ interface JugarScreenProps {
  * solo comunican "aquí vive la diversión" antes de que la mirada baje a la
  * cuadrícula. Mismo lenguaje que HERO_SPARKLES de HomeScreen, adaptado al
  * tema de Jugar en vez de genérico. */
-const HERO_ICONS = [
+const HERO_ICONS: HubHeaderIcon[] = [
   { icon: "🎈", left: "42%", top: "62%", size: "1.5rem", duration: 3.2 },
   { icon: "⭐", left: "76%", top: "16%", size: "1.2rem", duration: 2.6 },
   { icon: "🧸", left: "90%", top: "55%", size: "1.4rem", duration: 3.6 },
@@ -47,58 +47,7 @@ export function JugarScreen({ onPlay, onBack }: JugarScreenProps) {
         paddingBottom: "var(--space-xl)",
       }}
     >
-      <header
-        style={{
-          position: "relative",
-          overflow: "hidden",
-          padding: "max(env(safe-area-inset-top), var(--space-md)) var(--space-md) var(--space-lg)",
-          background: "linear-gradient(160deg, #FFB03B 0%, #E0912A 100%)",
-          borderRadius: "0 0 var(--radius-lg) var(--radius-lg)",
-        }}
-      >
-        {HERO_ICONS.map((item, i) => (
-          <motion.span
-            key={i}
-            aria-hidden="true"
-            style={{
-              position: "absolute",
-              left: item.left,
-              top: item.top,
-              fontSize: item.size,
-              pointerEvents: "none",
-            }}
-            animate={{ y: [0, -10, 0], rotate: [0, i % 2 === 0 ? 8 : -8, 0] }}
-            transition={{ duration: item.duration, repeat: Infinity, ease: "easeInOut", delay: i * 0.35 }}
-          >
-            {item.icon}
-          </motion.span>
-        ))}
-
-        <div style={{ position: "relative", display: "flex", alignItems: "center", gap: "var(--space-sm)" }}>
-          <motion.button
-            type="button"
-            aria-label={t("common.back")}
-            onClick={onBack}
-            whileTap={{ scale: 0.9 }}
-            style={{
-              width: 48,
-              height: 48,
-              borderRadius: "var(--radius-pill)",
-              background: "rgba(255,255,255,0.85)",
-              boxShadow: "var(--shadow-soft)",
-              fontSize: "1.4rem",
-              display: "flex",
-              alignItems: "center",
-              justifyContent: "center",
-            }}
-          >
-            ⬅️
-          </motion.button>
-          <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "#fff", textShadow: "0 1px 4px rgba(0,0,0,0.25)" }}>
-            {t("hub.jugar")}
-          </div>
-        </div>
-      </header>
+      <HubHeader title={t("hub.jugar")} onBack={onBack} gradient={["#FFB03B", "#E0912A"]} icons={HERO_ICONS} />
 
       {/* Biblioteca de Jugar: juegos autoexplicativos, sin orden ni "siguiente" — se
           abren, se juegan, se repiten. Van primero porque son el contenido que

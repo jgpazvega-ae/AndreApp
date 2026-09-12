@@ -1,13 +1,22 @@
-import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { CURRICULUM_LEVELS, type WorldId } from "@andreapp/curriculum";
 import { BigButton } from "../components/BigButton";
+import { HubHeader, type HubHeaderIcon } from "../components/HubHeader";
 import { WORLDS } from "../data/worlds";
 
 interface AprenderScreenProps {
   onOpenWorld: (worldId: WorldId) => void;
   onBack: () => void;
 }
+
+/** Mismo gradiente que el tile "Aprender" de Home (§PILLARS): índigo, para
+ * distinguirlo de un mundo específico (naranja/verde/azul). */
+const APRENDER_GRADIENT: [string, string] = ["#8B7FF5", "#4F46E5"];
+const HERO_ICONS: HubHeaderIcon[] = [
+  { icon: "🧩", left: "42%", top: "60%", size: "1.4rem", duration: 3.4 },
+  { icon: "✏️", left: "78%", top: "18%", size: "1.2rem", duration: 2.8 },
+  { icon: "🔤", left: "90%", top: "55%", size: "1.3rem", duration: 3.6 },
+];
 
 /**
  * Pilar Aprender (Product Vision §2): el mapa de mundos que antes vivía
@@ -28,35 +37,7 @@ export function AprenderScreen({ onOpenWorld, onBack }: AprenderScreenProps) {
         paddingBottom: "var(--space-xl)",
       }}
     >
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-sm)",
-          padding: "max(env(safe-area-inset-top), var(--space-md)) var(--space-md) 0",
-        }}
-      >
-        <motion.button
-          type="button"
-          aria-label={t("common.back")}
-          onClick={onBack}
-          whileTap={{ scale: 0.9 }}
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: "var(--radius-pill)",
-            background: "var(--color-bg-elevated)",
-            boxShadow: "var(--shadow-soft)",
-            fontSize: "1.4rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          ⬅️
-        </motion.button>
-        <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--color-text)" }}>{t("aprender.title")}</div>
-      </header>
+      <HubHeader title={t("aprender.title")} onBack={onBack} gradient={APRENDER_GRADIENT} icons={HERO_ICONS} />
 
       <div
         style={{

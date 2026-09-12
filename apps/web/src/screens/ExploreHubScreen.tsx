@@ -4,6 +4,7 @@ import { useTranslation } from "react-i18next";
 import { playChime } from "../audio/audioEngine";
 import { BigButton } from "../components/BigButton";
 import { FavoriteHeart } from "../components/FavoriteHeart";
+import { HubHeader, type HubHeaderIcon } from "../components/HubHeader";
 import { EXPLORE_CATALOG } from "../data/exploreCatalog";
 
 interface ExploreHubScreenProps {
@@ -13,6 +14,14 @@ interface ExploreHubScreenProps {
 
 const COMING_SOON_TOAST_MS = 1800;
 const EXPLORE_GRADIENT: [string, string] = ["#8CE6C6", "#2E9C89"];
+
+/** Naturaleza, no juguetes: distingue este encabezado del de Jugar aunque
+ * ambos usen el mismo componente. */
+const HERO_ICONS: HubHeaderIcon[] = [
+  { icon: "🦋", left: "44%", top: "18%", size: "1.4rem", duration: 3.4 },
+  { icon: "🌸", left: "78%", top: "58%", size: "1.3rem", duration: 3 },
+  { icon: "🍃", left: "90%", top: "20%", size: "1.5rem", duration: 3.8 },
+];
 
 /**
  * Pilar Explorar (Product Vision §2, §18): selector de escenas de mundo
@@ -48,35 +57,7 @@ export function ExploreHubScreen({ onOpenScene, onBack }: ExploreHubScreenProps)
         paddingBottom: "var(--space-xl)",
       }}
     >
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-sm)",
-          padding: "max(env(safe-area-inset-top), var(--space-md)) var(--space-md) 0",
-        }}
-      >
-        <motion.button
-          type="button"
-          aria-label={t("common.back")}
-          onClick={onBack}
-          whileTap={{ scale: 0.9 }}
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: "var(--radius-pill)",
-            background: "var(--color-bg-elevated)",
-            boxShadow: "var(--shadow-soft)",
-            fontSize: "1.4rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          ⬅️
-        </motion.button>
-        <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--color-text)" }}>{t("hub.explorar")}</div>
-      </header>
+      <HubHeader title={t("hub.explorar")} onBack={onBack} gradient={EXPLORE_GRADIENT} icons={HERO_ICONS} />
 
       <div
         style={{

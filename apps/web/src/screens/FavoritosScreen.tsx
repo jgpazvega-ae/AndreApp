@@ -1,8 +1,8 @@
-import { motion } from "framer-motion";
 import { useTranslation } from "react-i18next";
 import { CURRICULUM_LEVELS } from "@andreapp/curriculum";
 import { BigButton } from "../components/BigButton";
 import { FavoriteHeart } from "../components/FavoriteHeart";
+import { HubHeader, type HubHeaderIcon } from "../components/HubHeader";
 import { EXPLORE_CATALOG } from "../data/exploreCatalog";
 import { JUGAR_GAMES } from "../data/jugarGames";
 import { getWorld } from "../data/worlds";
@@ -15,6 +15,13 @@ interface FavoritosScreenProps {
 }
 
 const EXPLORE_PREFIX = "explore:";
+/** Mismo gradiente que el tile "Favoritos" de Home (§PILLARS). */
+const FAVORITOS_GRADIENT: [string, string] = ["#F58BC0", "#E0568F"];
+const HERO_ICONS: HubHeaderIcon[] = [
+  { icon: "💕", left: "42%", top: "60%", size: "1.4rem", duration: 3.2 },
+  { icon: "✨", left: "78%", top: "18%", size: "1.2rem", duration: 2.6 },
+  { icon: "🎀", left: "90%", top: "55%", size: "1.3rem", duration: 3.6 },
+];
 
 /**
  * Pilar Favoritos (Product Vision §17): lo que el niño (o el padre, en su
@@ -44,35 +51,7 @@ export function FavoritosScreen({ onPlay, onOpenExploreScene, onBack }: Favorito
         paddingBottom: "var(--space-xl)",
       }}
     >
-      <header
-        style={{
-          display: "flex",
-          alignItems: "center",
-          gap: "var(--space-sm)",
-          padding: "max(env(safe-area-inset-top), var(--space-md)) var(--space-md) 0",
-        }}
-      >
-        <motion.button
-          type="button"
-          aria-label={t("common.back")}
-          onClick={onBack}
-          whileTap={{ scale: 0.9 }}
-          style={{
-            width: 48,
-            height: 48,
-            borderRadius: "var(--radius-pill)",
-            background: "var(--color-bg-elevated)",
-            boxShadow: "var(--shadow-soft)",
-            fontSize: "1.4rem",
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "center",
-          }}
-        >
-          ⬅️
-        </motion.button>
-        <div style={{ fontSize: "1.3rem", fontWeight: 800, color: "var(--color-text)" }}>{t("hub.favoritos")}</div>
-      </header>
+      <HubHeader title={t("hub.favoritos")} onBack={onBack} gradient={FAVORITOS_GRADIENT} icons={HERO_ICONS} />
 
       {isEmpty ? (
         <p
