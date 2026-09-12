@@ -125,6 +125,21 @@ export const N13_VOICE_MANIFEST: VoiceManifestEntry[] = [
 ];
 
 /**
+ * Bienvenida de los 5 juegos de la biblioteca de Jugar (Batch 1): se
+ * omitieron a propósito al construirlos (autoexplicativos, sin consigna por
+ * ronda) pero una bienvenida corta al ENTRAR sí encaja con ese diseño — es
+ * la misma "n#.welcome" que cada nivel de Aprender ya tiene, no una consigna
+ * por turno. Generados con la misma voz "Camila" del resto de la app.
+ */
+export const JUGAR_VOICE_MANIFEST: VoiceManifestEntry[] = [
+  { key: "jugar.burbujas.welcome", file: "jugar-burbujas-welcome.mp3", reviewed: false },
+  { key: "jugar.estrellas.welcome", file: "jugar-estrellas-welcome.mp3", reviewed: false },
+  { key: "jugar.colores.welcome", file: "jugar-colores-welcome.mp3", reviewed: false },
+  { key: "jugar.animales.welcome", file: "jugar-animales-welcome.mp3", reviewed: false },
+  { key: "jugar.alimenta.welcome", file: "jugar-alimenta-welcome.mp3", reviewed: false },
+];
+
+/**
  * Índice completo del paquete de voz es-MX. Es lo que permite comprobar
  * automáticamente (ver apps/web/src/__tests__/voiceAssets.test.ts) que lo
  * declarado, lo que hay en disco y lo que el código pide son la misma lista:
@@ -145,4 +160,5 @@ export const ES_MX_VOICE_MANIFEST: VoiceManifestEntry[] = [
   ...N11_VOICE_MANIFEST,
   ...N12_VOICE_MANIFEST,
   ...N13_VOICE_MANIFEST,
+  ...JUGAR_VOICE_MANIFEST,
 ];

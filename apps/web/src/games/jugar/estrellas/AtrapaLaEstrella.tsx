@@ -48,7 +48,7 @@ export function AtrapaLaEstrella({ locale, onExit }: AtrapaLaEstrellaProps) {
   const { t } = useTranslation();
   const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound, difficultyLevel } = useGameSession(
     "estrellas",
-    { locale },
+    { locale, welcomeFile: "jugar-estrellas-welcome.mp3" },
   );
   const nextId = useRef(0);
   const level = (difficultyLevel as 1 | 2 | 3) ?? 1;

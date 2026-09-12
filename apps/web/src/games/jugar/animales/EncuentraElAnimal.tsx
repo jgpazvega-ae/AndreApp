@@ -69,7 +69,7 @@ export function EncuentraElAnimal({ locale, onExit }: EncuentraElAnimalProps) {
   const { t } = useTranslation();
   const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound, difficultyLevel } = useGameSession(
     "animales",
-    { locale },
+    { locale, welcomeFile: "jugar-animales-welcome.mp3" },
   );
   const level = (difficultyLevel as 1 | 2 | 3) ?? 1;
   const nextId = useRef(0);

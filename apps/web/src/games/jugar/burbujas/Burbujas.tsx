@@ -48,7 +48,7 @@ export function Burbujas({ locale, onExit }: BurbujasProps) {
   const { t } = useTranslation();
   const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound, difficultyLevel } = useGameSession(
     "burbujas",
-    { locale },
+    { locale, welcomeFile: "jugar-burbujas-welcome.mp3" },
   );
   const nextId = useRef(0);
   const targetCount = BUBBLE_COUNT_BY_LEVEL[difficultyLevel as 1 | 2 | 3] ?? 4;

@@ -75,7 +75,7 @@ export function ColoresMagicos({ locale, onExit }: ColoresMagicosProps) {
   const { t } = useTranslation();
   const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound, difficultyLevel } = useGameSession(
     "colores",
-    { locale },
+    { locale, welcomeFile: "jugar-colores-welcome.mp3" },
   );
   const level = (difficultyLevel as 1 | 2 | 3) ?? 1;
   const nextId = useRef(0);

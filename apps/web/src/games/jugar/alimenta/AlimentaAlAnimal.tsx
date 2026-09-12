@@ -44,6 +44,7 @@ export function AlimentaAlAnimal({ locale, onExit }: AlimentaAlAnimalProps) {
   const { t } = useTranslation();
   const { celebrate, celebrateSignal, confettiField, roundComplete, continueRound } = useGameSession("alimenta", {
     locale,
+    welcomeFile: "jugar-alimenta-welcome.mp3",
   });
   const [round, setRound] = useState(() => buildRound());
   const [chomping, setChomping] = useState(false);

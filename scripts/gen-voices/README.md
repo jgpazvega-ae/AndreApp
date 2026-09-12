@@ -26,6 +26,18 @@ Pasos seguidos para N1:
    fonemas aislados — PLAN.md §7; recomendado también para palabras
    completas antes de publicar).
 
+## Bienvenidas de la biblioteca de Jugar (Batch 1)
+
+Mismo proceso, mismo voice_id (`spPXlKT5a4JMfbhPRAzA`, confirmado vigente
+con `creative_list_voices` antes de generar en vez de reutilizar el id de
+memoria). Los 5 juegos de Jugar Batch 1 (Burbujas, Atrapa la estrella,
+Colores mágicos, Encuentra el animal, Alimenta al animal) se construyeron
+deliberadamente sin voz (autoexplicativos, sin consigna por ronda), pero
+una bienvenida corta al ENTRAR — igual que el `n#.welcome` de cada nivel de
+Aprender — no contradice ese diseño: es una sola vez, no por turno.
+Archivos: `jugar-<id>-welcome.mp3`, manifiesto en `JUGAR_VOICE_MANIFEST`
+(`packages/i18n/src/voiceManifests/es-MX.ts`).
+
 ## Para el siguiente nivel (N2-N5, y luego en/pt-BR)
 
 Repetir el mismo proceso: elegir voz apropiada al idioma/tono, generar los
