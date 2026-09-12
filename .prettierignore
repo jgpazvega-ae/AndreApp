@@ -1,0 +1,13 @@
+# Documentos de prosa: se mantienen a mano (tablas alineadas a criterio del
+# autor); reformatearlos automáticamente solo genera ruido en los diffs.
+*.md
+
+dist
+dev-dist
+node_modules
+package-lock.json
+playwright-report
+test-results
+*.png
+*.webp
+*.mp3

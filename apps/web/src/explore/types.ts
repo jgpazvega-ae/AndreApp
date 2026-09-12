@@ -1,0 +1,70 @@
+/**
+ * Motor de escenas "Explorar" (Product Vision §5-8, §20-21): un sistema
+ * data-driven — la mecánica de causa-efecto vive UNA vez en
+ * InteractiveObject/ExplorationScene; cada escena nueva (Parque, Estación,
+ * Océano…) es solo esta config, sin escribir componentes nuevos.
+ */
+
+/** Vocabulario cerrado de reacciones: cada una trae su propia animación,
+ * sonido sintetizado y ambientación en reactions.ts/sounds. Un objeto nuevo
+ * reutiliza una de estas en vez de inventar coreografía propia. */
+export type ExploreReaction =
+  | "shine"
+  | "drift"
+  | "fly"
+  | "shed-leaves"
+  | "flutter"
+  | "bounce"
+  | "sway"
+  | "soar"
+  | "splash"
+  | "spray"
+  | "hop"
+  | "sparkle"
+  | "wobble"
+  | "creak";
+
+export interface InteractiveObjectConfig {
+  /** Estable dentro de la escena; se usa para registrar descubrimientos. */
+  id: string;
+  /** Clave i18n del nombre (aria-label — el niño no lee, pero un lector de pantalla sí). */
+  nameKey: string;
+  /** Posición en % del lienzo de la escena (0-100). */
+  x: number;
+  y: number;
+  /** Tamaño del objeto, en rem. */
+  size: number;
+  reaction: ExploreReaction;
+  /**
+   * Interacciones emergentes (Product Vision §35): tocar ESTE objeto hace
+   * reaccionar también a otro, sin que el niño lo haya tocado. Ej.: la nube
+   * (chainTargetId: "puddle") agita el charco. El objetivo, no el origen,
+   * dispara su propia reacción — mismo vocabulario, sin coreografía nueva.
+   */
+  chainTargetId?: string;
+  /** Tocar este objeto hace que el compañero elegido lo note y reaccione (ver ExplorationScene). */
+  notifiesBuddy?: boolean;
+  /**
+   * Empieza invisible: solo se revela la primera vez que otro objeto lo
+   * dispara vía `chainTargetId` (p. ej. el charco revela a la rana). Una vez
+   * descubierto queda visible para siempre (se recuerda en progressStore.discoveries),
+   * y a partir de ahí es un objeto tocable normal.
+   */
+  startsHidden?: boolean;
+  /**
+   * Objeto que se controla arrastrando en vez de tocando (Product Vision
+   * §"Interacciones", cometa/columpio). "kite" sigue el dedo y regresa solo
+   * (como un hilo); "swing" se balancea horizontalmente y se asienta con
+   * rebote. Cuando está definido, el objeto ignora `reaction` para el toque
+   * y usa su propio gesto.
+   */
+  drag?: "kite" | "swing";
+}
+
+export interface ExplorationSceneConfig {
+  id: string;
+  nameKey: string;
+  /** Fondo CSS (degradado), mismo lenguaje visual que GameShell. */
+  background: string;
+  objects: InteractiveObjectConfig[];
+}
